@@ -52,10 +52,13 @@ Route::middleware('auth')->prefix('dashboard')->group(function () {
         Route::get('/register-vehicle', [VehicleController::class, 'showRegisterVehicle'])->name('register.vehicle');
         Route::post('/register-owner', [OwnerController::class, 'registerOwner'])->name('register.owner.submit');
         Route::post('/register-vehicle', [VehicleController::class, 'registerVehicle'])->name('register.vehicle.submit');
+        Route::put('/vehicles/edit', [VehicleController::class, 'update'])->name('edit.vehicle.submit');
+        Route::delete('/vehicles/delete', [VehicleController::class, 'destroy'])->name('delete.vehicle.submit');    
 
         // Violation Records
         Route::get('/violation-record', [ViolationRecordController::class, 'index'])->name('violation.record');
         Route::get('/admin/violation-records', [ViolationRecordController::class, 'index'])->name('violation.records');
+
 
         // License Suspension
         Route::get('/license-suspension', [LicenseSuspensionController::class, 'index'])->name('license.suspension');

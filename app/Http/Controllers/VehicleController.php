@@ -25,12 +25,12 @@ class VehicleController extends Controller
     {
         // Validate the incoming request data
         $validatedData = $request->validate([
-            'own_id' => 'required|string',
-            'plate_number' => 'required|string',
-            'vehicle_type' => 'required|string',
-            'brand' => 'required|string',
-            'model' => 'required|string',
-            'color' => 'required|string',
+            'own_id' => 'required|exists:owners,own_id',
+            'plate_number' => 'required|string|max:255',
+            'vehicle_type' => 'required|string|max:255',
+            'brand' => 'required|string|max:255',
+            'model' => 'required|string|max:255',
+            'color' => 'required|string|max:255',
             'registration_date' => 'required|date',
         ]);
 
@@ -39,5 +39,48 @@ class VehicleController extends Controller
 
         // Redirect back to the register vehicle page with a success message
         return redirect()->route('register.vehicle')->with('success', 'Vehicle registered successfully!');
+    }
+
+    // Method to handle vehicle updates
+    public function update(Request $request)
+    {
+        // Validate the incoming request data
+        $validatedData = $request->validate([
+            'reg_vehicle_id' => 'required|exists:registered_vehicles,reg_vehicle_id',
+            'own_id' => 'required|exists:owners,own_id',
+            'plate_number' => 'required|string|max:255',
+            'vehicle_type' => 'required|string|max:255',
+            'brand' => 'required|string|max:255',
+            'model' => 'required|string|max:255',
+            'color' => 'required|string|max:255',
+            'registration_date' => 'required|date',
+        ]);
+
+        // Find the vehicle by ID
+        $vehicle = RegisteredVehicle::findOrFail($request->reg_vehicle_id);
+
+        // Update the vehicle with validated data
+        $vehicle->update($validatedData);
+
+        // Redirect back to the register vehicle page with a success message
+        return redirect()->route('register.vehicle')->with('success', 'Vehicle updated successfully!');
+    }
+
+    // Method to handle vehicle deletion
+    public function destroy(Request $request)
+    {
+        // Validate the incoming request data
+        $validatedData = $request->validate([
+            'reg_vehicle_id' => 'required|exists:registered_vehicles,reg_vehicle_id',
+        ]);
+
+        // Find the vehicle by ID
+        $vehicle = RegisteredVehicle::findOrFail($request->reg_vehicle_id);
+
+        // Delete the vehicle
+        $vehicle->delete();
+
+        // Redirect back to the register vehicle page with a success message
+        return redirect()->route('register.vehicle')->with('success', 'Vehicle deleted successfully!');
     }
 }
