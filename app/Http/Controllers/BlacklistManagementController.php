@@ -6,6 +6,7 @@ use App\Models\Blacklist;
 use App\Models\RegisteredVehicle; 
 use App\Models\Owner;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class BlacklistManagementController extends Controller
 {
@@ -89,19 +90,22 @@ class BlacklistManagementController extends Controller
     }
     public function checkStatus(Request $request)
     {
-        if ($request->has('plate_number')) {
-            $request->validate([
-                'plate_number' => 'required|string',
-            ]);
+        $userId = Auth::id(); // Get the ID of the authenticated user
     
-            $blacklistStatus = Blacklist::with('registeredVehicle')
-                ->whereHas('registeredVehicle', function ($query) use ($request) {
-                    $query->where('plate_number', $request->plate_number);
-                })
-                ->first();
-        } else {
-            $blacklistStatus = null; 
+        // Start the query to fetch blacklist records
+        $query = Blacklist::with(['registeredVehicle', 'owner'])
+            ->join('registered_vehicles', 'blacklists.reg_vehicle_id', '=', 'registered_vehicles.reg_vehicle_id')
+            ->join('owners', 'blacklists.own_id', '=', 'owners.own_id')
+            ->where('owners.own_id', $userId) // Filter by own_id matching the authenticated user's ID
+            ->select('blacklists.*');
+    
+        // If a plate number is provided, add it to the query
+        if ($request->has('plate_number') && !empty($request->plate_number)) {
+            $query->where('registered_vehicles.plate_number', $request->plate_number);
         }
+    
+        // Fetch the results
+        $blacklistStatus = $query->get();
     
         return view('guest.blackliststatus', compact('blacklistStatus'));
     }

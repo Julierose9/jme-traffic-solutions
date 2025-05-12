@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
@@ -98,11 +97,11 @@
         <div class="sidebar">
             <img src="{{ asset('images/image3.png') }}" alt="JME Logo" class="logo">
             <nav>
-                <a href="{{ route('dashboard.guest') }}" ><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a href="{{ route('dashboard.guest') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
                 <a href="{{ route('violation.history') }}"><i class="fas fa-exclamation-triangle"></i> Violation History</a>
                 <a href="{{ route('blacklist.status') }}"><i class="fas fa-user-slash"></i> Blacklist Status</a>
-                <a href="{{ route('pay.fines') }}" class="hover:bg-blue-800"><i class="fas fa-money-bill-wave"></i> Pay Fines</a>
-                <a href="#" class="active"><i class="fas fa-headset"></i> Support</a>
+                <a href="{{ route('pay.fines') }}"><i class="fas fa-money-bill-wave"></i> Pay Fines</a>
+                <a href="{{ route('support') }}" class="active"><i class="fas fa-headset"></i> Support</a>
             </nav>
             <div class="logout-btn">
                 <form method="POST" action="{{ route('logout') }}">
@@ -115,7 +114,18 @@
         <div class="main-content">
             <h1 class="text-2xl font-bold">Support</h1>
 
-            <form action="{{ route('support.submit') }}" method="POST" class=" mt-4">
+            @if(session('success'))
+                <div class="alert alert-success mt-4">
+                    {{ session('success') }}
+                </div>
+            @endif
+            @if(session('error'))
+                <div class="alert alert-danger mt-4">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            <form action="{{ route('support.submit') }}" method="POST" class="mt-4">
                 @csrf
                 <div class="form-group">
                     <label for="name">Name</label>

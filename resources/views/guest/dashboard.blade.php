@@ -127,7 +127,7 @@
             <img src="{{ asset('images/image3.png') }}" alt="JME Logo" class="logo">
             <nav>
             <a href="{{ route('dashboard.guest') }}" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-                <a href="{{ route('violation.history') }}"><i class="fas fa-exclamation-triangle"></i> Violation History</a>
+            <a href="{{ route('violation.history') }}"><i class="fas fa-exclamation-triangle"></i>Violation History</a>
                 <a href="{{ route('blacklist.status') }}"><i class="fas fa-user-slash"></i> Blacklist Status</a>
                 <a href="{{ route('pay.fines') }}" class="hover:bg-blue-800"><i class="fas fa-money-bill-wave"></i> Pay Fines</a>
                 <a href="{{ route('support') }}" class="hover:bg-blue-800"><i class="fas fa-headset"></i> Support</a> 
