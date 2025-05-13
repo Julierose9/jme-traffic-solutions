@@ -47,7 +47,6 @@ Route::middleware('auth')->prefix('dashboard')->group(function () {
         Route::post('/blacklist', [BlacklistManagementController::class, 'store'])->name('blacklist.store');
         Route::get('/blacklist/{blacklist}/edit', [BlacklistManagementController::class, 'edit'])->name('blacklist.edit');
         Route::put('/blacklist/{blacklist}', [BlacklistManagementController::class, 'update'])->name('blacklist.update');
-        Route::delete('/blacklist/{blacklist}', [BlacklistManagementController::class, 'destroy'])->name('blacklist.destroy');
 
         // Vehicle Registration
         Route::get('/register-vehicle', [VehicleController::class, 'showRegisterVehicle'])->name('register.vehicle');
@@ -69,6 +68,15 @@ Route::middleware('auth')->prefix('dashboard')->group(function () {
 
         // Store Violation
         Route::post('/violation/store', [ViolationController::class, 'store'])->name('violation.store');
+
+            // Pay Fines (Guest)
+    Route::get('/pay-fines', [PayFinesController::class, 'index'])->name('pay.fines');
+    Route::post('/pay-fines/{id}', [PayFinesController::class, 'payFine'])->name('pay.fines.pay');
+
+    // Pay Fines (Admin)
+    Route::get('/pay-fines', [PayFinesController::class, 'index'])->name('admin.pay.fines');
+    Route::post('/pay-fines/{id}', [PayFinesController::class, 'payFine'])->name('admin.pay.fines.pay');
+        
     });
 
     // Officer Routes
@@ -89,6 +97,7 @@ Route::middleware('auth')->prefix('dashboard')->group(function () {
 
     // Blacklist Status - Modified to support GET request
     Route::get('/blacklist/status', [BlacklistManagementController::class, 'checkStatus'])->name('blacklist.status');
+
 
     // Pay Fines
     Route::get('/pay-fines', [PayFinesController::class, 'index'])->name('pay.fines');

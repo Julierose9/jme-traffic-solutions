@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\RegisteredVehicle; // Import the RegisteredVehicle model
 use App\Models\Owner; // Import the Owner model
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class VehicleController extends Controller
 {
@@ -18,6 +19,20 @@ class VehicleController extends Controller
 
         // Pass the registered vehicles and owners to the view
         return view('admin.registerVehicle', compact('registeredVehicles', 'owners'));
+    }
+
+    // Method to show guest dashboard with registered vehicles
+    public function showGuestDashboard()
+    {
+        // Get the authenticated user's ID
+        $userId = Auth::id();
+        
+        // Fetch registered vehicles for the authenticated user
+        $registeredVehicles = RegisteredVehicle::whereHas('owner', function($query) use ($userId) {
+            $query->where('own_id', $userId);
+        })->get();
+
+        return view('guest.dashboard', compact('registeredVehicles'));
     }
 
     // Method to handle the vehicle registration form submission

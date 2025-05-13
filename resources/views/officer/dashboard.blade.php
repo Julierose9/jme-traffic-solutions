@@ -144,7 +144,7 @@
             <nav>
                 <a href="{{ url('/dashboard/officer') }}" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
                 <a href="{{ route('officer.violation.issue') }}"><i class="fas fa-exclamation-triangle"></i> Issue Violation</a>
-                <a href="#"><i class="fas fa-folder-open"></i> Reports</a>
+                <a href="{{ route('reports.index') }}"><i class="fas fa-folder-open"></i> Reports</a>
             </nav>
             <div class="logout-btn mt-auto px-4">
                 <form method="POST" action="{{ route('logout') }}">
