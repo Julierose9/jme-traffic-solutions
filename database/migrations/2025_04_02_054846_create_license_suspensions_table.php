@@ -11,12 +11,12 @@ class CreateLicenseSuspensionsTable extends Migration
         Schema::create('license_suspensions', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->id('suspension_id');
-            $table->foreignId('user_id')->constrained('users', 'id')->onDelete('cascade');
-            $table->timestamp('suspension_start_date')->default(DB::raw('CURRENT_TIMESTAMP'));
-            $table->date('suspension_end_date');
+            $table->foreignId('own_id')->constrained('owners', 'own_id')->onDelete('cascade');
+            $table->date('suspension_start_date');
+            $table->date('suspension_end_date')->nullable();
             $table->text('suspension_reason');
-            $table->enum('appeal_status', ['Pending', 'Approved', 'Rejected'])->default('Pending');
-            $table->enum('suspension_status', ['Active', 'Completed'])->default('Active');
+            $table->enum('suspension_status', ['Active', 'Lifted'])->default('Active');
+            $table->enum('appeal_status', ['Pending', 'Approved', 'Rejected'])->nullable();
             $table->timestamps();
         });
     }

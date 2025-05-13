@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\Owner;
 use Illuminate\Http\Request;
 
 class OwnerController extends Controller
@@ -17,11 +18,11 @@ class OwnerController extends Controller
                 'license_number' => 'required|string|max:50|unique:owners,license_number',
             ]);
 
-            $owner = \App\Models\Owner::create($validated);
+            $owner = Owner::create($validated);
 
             return response()->json([
                 'success' => true,
-                'owner_id' => $owner->id,
+                'owner_id' => $owner->own_id,
                 'message' => 'Owner registered successfully',
             ], 200);
         } catch (\Exception $e) {

@@ -52,10 +52,13 @@ Route::middleware('auth')->prefix('dashboard')->group(function () {
         Route::get('/register-vehicle', [VehicleController::class, 'showRegisterVehicle'])->name('register.vehicle');
         Route::post('/register-owner', [OwnerController::class, 'registerOwner'])->name('register.owner.submit');
         Route::post('/register-vehicle', [VehicleController::class, 'registerVehicle'])->name('register.vehicle.submit');
+        Route::put('/vehicles/edit', [VehicleController::class, 'update'])->name('edit.vehicle.submit');
+        Route::delete('/vehicles/delete', [VehicleController::class, 'destroy'])->name('delete.vehicle.submit');    
 
         // Violation Records
         Route::get('/violation-record', [ViolationRecordController::class, 'index'])->name('violation.record');
         Route::get('/admin/violation-records', [ViolationRecordController::class, 'index'])->name('violation.records');
+
 
         // License Suspension
         Route::get('/license-suspension', [LicenseSuspensionController::class, 'index'])->name('license.suspension');
@@ -66,6 +69,7 @@ Route::middleware('auth')->prefix('dashboard')->group(function () {
         // Store Violation
         Route::post('/violation/store', [ViolationController::class, 'store'])->name('violation.store');
 
+<<<<<<< HEAD
         // Pay Fines (Guest)
 Route::get('/pay-fines', [PayFinesController::class, 'index'])->name('pay.fines');
 Route::post('/pay-fines/{id}', [PayFinesController::class, 'payFine'])->name('pay.fines.pay');
@@ -73,6 +77,16 @@ Route::post('/pay-fines/{id}', [PayFinesController::class, 'payFine'])->name('pa
 // Pay Fines (Admin)
 Route::get('/pay-fines', [PayFinesController::class, 'index'])->name('admin.pay.fines');
 Route::post('/pay-fines/{id}', [PayFinesController::class, 'payFine'])->name('admin.pay.fines.pay');
+=======
+            // Pay Fines (Guest)
+    Route::get('/pay-fines', [PayFinesController::class, 'index'])->name('pay.fines');
+    Route::post('/pay-fines/{id}', [PayFinesController::class, 'payFine'])->name('pay.fines.pay');
+
+    // Pay Fines (Admin)
+    Route::get('/pay-fines', [PayFinesController::class, 'index'])->name('admin.pay.fines');
+    Route::post('/pay-fines/{id}', [PayFinesController::class, 'payFine'])->name('admin.pay.fines.pay');
+        
+>>>>>>> master-copyOne
     });
 
     // Officer Routes
@@ -93,6 +107,7 @@ Route::post('/pay-fines/{id}', [PayFinesController::class, 'payFine'])->name('ad
 
     // Blacklist Status
     Route::get('/blacklist/status', [BlacklistManagementController::class, 'checkStatus'])->name('blacklist.status');
+
 
     // Pay Fines
     Route::get('/pay-fines', [PayFinesController::class, 'index'])->name('pay.fines');

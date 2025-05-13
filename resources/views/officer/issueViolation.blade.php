@@ -153,6 +153,13 @@
         <div class="main-content">
             <h1>Issue Violation</h1>
             <button class="btn" data-toggle="modal" data-target="#generateViolationModal">Generate Violation</button>
+            <script>
+                document.querySelector('[data-target="#generateViolationModal"]').addEventListener('click', () => {
+                    console.log('Generate Violation button clicked');
+                });
+            </script>
+
+
             <div class="search-container">
                 <input type="text" id="searchInput" placeholder="Search by Officer Name" onkeyup="filterRecords()">
                 <button class="search-button" onclick="filterRecords()">
@@ -330,8 +337,9 @@
         }
     </script>
 
-    <script src="{{ asset('js/jquery.min.js') }}"></script>
-    <script src="{{ asset('js/popper.min.js') }}"></script>
-    <script src="{{ asset('js/bootstrap.min.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="..." crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="..." crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="..." crossorigin="anonymous"></script>
+
 </body>
 </html>
