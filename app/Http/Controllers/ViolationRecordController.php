@@ -6,7 +6,9 @@ use App\Models\ViolationRecord;
 use App\Models\Officer;
 use App\Models\Violation;
 use App\Models\RegisteredVehicle;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ViolationRecordController extends Controller
 {
@@ -14,6 +16,22 @@ class ViolationRecordController extends Controller
     {
         $violationRecords = ViolationRecord::with(['violation', 'registeredVehicle', 'officer'])->get();
         return view('admin.violationRecords', compact('violationRecords'));
+    }
+
+    public function showViolationHistory()
+    {
+        // Get the authenticated user's ID
+        $userId = Auth::id();
+
+        // Get violation records for vehicles owned by the user
+        $violationRecords = ViolationRecord::whereHas('registeredVehicle', function($query) use ($userId) {
+            $query->where('own_id', $userId);
+        })
+        ->with(['violation', 'registeredVehicle', 'officer'])
+        ->orderBy('violation_date', 'desc')
+        ->get();
+
+        return view('guest.violationHistory', compact('violationRecords'));
     }
 
     public function store(Request $request)

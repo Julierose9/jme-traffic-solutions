@@ -29,13 +29,30 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Guest Dashboard
-Route::get('/guest', function () {
-    return view('guest.dashboard');
-})->name('dashboard.guest');
+// Guest Routes
+Route::middleware(['auth'])->group(function () {
+    // Guest Dashboard
+    Route::get('/guest', function () {
+        return view('guest.dashboard');
+    })->name('dashboard.guest');
 
-// Authenticated Routes
-Route::middleware('auth')->prefix('dashboard')->group(function () {
+    // Guest Violation History
+    Route::get('/violation-history', [ViolationRecordController::class, 'showViolationHistory'])->name('violation.history');
+
+    // Guest Pay Fines
+    Route::get('/pay-fines', [PayFinesController::class, 'index'])->name('pay.fines');
+    Route::post('/pay-fines/{id}', [PayFinesController::class, 'payFine'])->name('pay.fines.pay');
+
+    // Guest Blacklist Status
+    Route::get('/blacklist/status', [BlacklistManagementController::class, 'checkStatus'])->name('blacklist.status');
+
+    // Guest Support
+    Route::get('/support', [SupportController::class, 'index'])->name('support');
+    Route::post('/support', [SupportController::class, 'submit'])->name('support.submit');
+});
+
+// Admin Routes
+Route::middleware(['auth'])->prefix('dashboard')->group(function () {
     Route::prefix('admin')->group(function () {
         Route::get('/', function () {
             return view('admin.dashboard');
@@ -59,7 +76,6 @@ Route::middleware('auth')->prefix('dashboard')->group(function () {
         Route::get('/violation-record', [ViolationRecordController::class, 'index'])->name('violation.record');
         Route::get('/admin/violation-records', [ViolationRecordController::class, 'index'])->name('violation.records');
 
-
         // License Suspension
         Route::get('/license-suspension', [LicenseSuspensionController::class, 'index'])->name('license.suspension');
         Route::post('/license-suspension', [LicenseSuspensionController::class, 'store'])->name('license.suspension.store');
@@ -69,14 +85,9 @@ Route::middleware('auth')->prefix('dashboard')->group(function () {
         // Store Violation
         Route::post('/violation/store', [ViolationController::class, 'store'])->name('violation.store');
 
-// Pay Fines (Guest)
-    Route::get('/pay-fines', [PayFinesController::class, 'index'])->name('pay.fines');
-    Route::post('/pay-fines/{id}', [PayFinesController::class, 'payFine'])->name('pay.fines.pay');
-
-    // Pay Fines (Admin)
-    Route::get('/pay-fines', [PayFinesController::class, 'index'])->name('admin.pay.fines');
-    Route::post('/pay-fines/{id}', [PayFinesController::class, 'payFine'])->name('admin.pay.fines.pay');
-        
+        // Admin Pay Fines
+        Route::get('/admin-pay-fines', [PayFinesController::class, 'index'])->name('admin.pay.fines');
+        Route::post('/admin-pay-fines/{id}', [PayFinesController::class, 'payFine'])->name('admin.pay.fines.pay');
     });
 
     // Officer Routes
@@ -88,22 +99,4 @@ Route::middleware('auth')->prefix('dashboard')->group(function () {
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/create', [ReportController::class, 'create'])->name('reports.create');
     Route::post('/reports', [ReportController::class, 'store'])-> name('reports.store');
-
-    // Violation History
-    Route::get('/violation-history', [ViolationRecordController::class, 'showViolationHistory'])->name('violation.history');
-
-    // Check Violations
-    Route::get('/check-violations', [ViolationController::class, 'check'])->name('violations.check');
-
-    // Blacklist Status
-    Route::get('/blacklist/status', [BlacklistManagementController::class, 'checkStatus'])->name('blacklist.status');
-
-
-    // Pay Fines
-    Route::get('/pay-fines', [PayFinesController::class, 'index'])->name('pay.fines');
-    Route::post('/pay-fines/{id}', [PayFinesController::class, 'payFine'])->name('pay.fines.pay');
-
-    // Support
-    Route::get('/support', [SupportController::class, 'index'])->name('support');
-    Route::post('/support', [SupportController::class, 'submit'])->name('support.submit');
 });

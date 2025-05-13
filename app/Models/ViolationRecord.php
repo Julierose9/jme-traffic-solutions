@@ -19,6 +19,10 @@ class ViolationRecord extends Model
         'status',
     ];
 
+    protected $casts = [
+        'violation_date' => 'date',
+    ];
+
     public function violation()
     {
         return $this->belongsTo(Violation::class, 'violation_id', 'violation_id');
