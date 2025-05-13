@@ -107,8 +107,8 @@
         <img src="{{ asset('images/image3.png') }}" alt="JME Logo" class="logo">
         <nav>
             <a href="{{ url('/dashboard/officer') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-            <a href="{{ url('/issue-violation') }}" class="active" id="sidebarOpenModalBtn" data-toggle="modal" data-target="#generateViolationModal"><i class="fas fa-exclamation-triangle"></i> Issue Violation</a>
-            <a href="{{ route('reports.index') }}"><i class="fas fa-folder-open"></i> Reports</a>
+            <a href="{{ route('officer.violation.issue') }}"id="sidebarOpenModalBtn" data-toggle="modal" data-target="#generateViolationModal"><i class="fas fa-exclamation-triangle"></i> Issue Violation</a>
+            <a href="{{ route('reports.index') }} "class="active"><i class="fas fa-folder-open"></i> Reports</a>
         </nav>
         <div class="logout-btn">
             <form method="POST" action="{{ route('logout') }}">

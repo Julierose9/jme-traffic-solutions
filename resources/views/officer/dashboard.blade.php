@@ -16,7 +16,7 @@
         }
 
         .sidebar {
-            width: 18rem; 
+            width: 18rem;
             background-color: #0a1f44;
             color: #ffffff;
             height: 100vh;
@@ -37,7 +37,7 @@
         .sidebar nav a {
             display: flex;
             align-items: center;
-            padding: 0.75rem 1.5rem; 
+            padding: 0.75rem 1.5rem;
             color: #ffffff;
             text-decoration: none;
             font-weight: 500;
@@ -45,12 +45,12 @@
         }
 
         .sidebar nav a i {
-            margin-right: 0.75rem; 
+            margin-right: 0.75rem;
         }
 
         .sidebar nav a:hover,
         .sidebar nav a.active {
-            background-color: #102a5a; 
+            background-color: #102a5a;
         }
 
         .logout-btn {
@@ -70,7 +70,7 @@
         }
 
         .main-content {
-            margin-left: 18rem; 
+            margin-left: 18rem;
             padding: 2rem;
         }
 
@@ -121,7 +121,7 @@
         .dropdown-btn {
             display: flex;
             align-items: center;
-            padding: 0.75rem 1.5rem; 
+            padding: 0.75rem 1.5rem;
             color: #ffffff;
             text-decoration: none;
             font-weight: 500;
@@ -144,7 +144,7 @@
             <nav>
                 <a href="{{ url('/dashboard/officer') }}" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
                 <a href="{{ route('officer.violation.issue') }}"><i class="fas fa-exclamation-triangle"></i> Issue Violation</a>
-                <a href="#"><i class="fas fa-folder-open"></i> Reports</a>
+                <a href="{{ route('reports.index') }}"><i class="fas fa-folder-open"></i> Reports</a>
             </nav>
             <div class="logout-btn mt-auto px-4">
                 <form method="POST" action="{{ route('logout') }}">
@@ -173,7 +173,7 @@
                     <p>0</p>
                 </div>
             </div>
-        
+
         </div>
     </div>
     <script>

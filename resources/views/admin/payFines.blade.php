@@ -10,7 +10,7 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
-        
+
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #edf2f7;
@@ -158,24 +158,26 @@
                 <thead>
                     <tr>
                         <th>Payment ID</th>
-                        <th>Violation</th>
-                        <th>Amount</th>
-                        <th>Status</th>
+                        <th>Record ID</th>
+                        <th>Payment Date</th>
+                        <th>Payment Method</th>
+                        <th>Transaction Reference</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @if($fines->isEmpty())
                         <tr>
-                            <td colspan="5" class="no-records">No fines to pay.</td>
+                            <td colspan="6" class="no-records">No fines to pay.</td>
                         </tr>
                     @else
                         @foreach($fines as $fine)
                             <tr>
+                                <td>{{ $fine->payment_id ?? 'N/A' }}</td>
                                 <td>{{ $fine->record_id }}</td>
-                                <td>{{ $fine->violation->description }}</td>
-                                <td>${{ number_format($fine->violation->penalty_amount, 2) }}</td>
-                                <td>{{ $fine->status }}</td>
+                                <td>{{ $fine->payment_date ?? 'N/A' }}</td>
+                                <td>{{ $fine->payment_method ?? 'N/A' }}</td>
+                                <td>{{ $fine->transaction_reference ?? 'N/A' }}</td>
                                 <td>
                                     @if($fine->status === 'unpaid')
                                         <form action="{{ route('admin.pay.fines.pay', $fine->record_id) }}" method="POST">

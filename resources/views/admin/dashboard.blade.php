@@ -10,13 +10,13 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
-        
+
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #edf2f7;
         }
         .sidebar {
-            width: 18rem; 
+            width: 18rem;
             background-color: #0a1f44;
             color: #ffffff;
             height: 100vh;
@@ -38,7 +38,7 @@
         .dropdown-btn {
             display: flex;
             align-items: center;
-            padding: 0.75rem 1.5rem; 
+            padding: 0.75rem 1.5rem;
             color: #ffffff;
             text-decoration: none;
             font-weight: 500;
@@ -54,13 +54,13 @@
         }
 
         .sidebar nav a i {
-            margin-right: 0.75rem; 
+            margin-right: 0.75rem;
         }
 
         .sidebar nav a:hover,
         .sidebar nav a.active,
         .dropdown-btn:hover {
-            background-color: #102a5a; 
+            background-color: #102a5a;
         }
 
         .dropdown {
@@ -68,16 +68,16 @@
             flex-direction: column;
             padding-left: 1.5rem;
         }
-        
+
         .dropdown a {
-            padding: 0.5rem 1.5rem; 
+            padding: 0.5rem 1.5rem;
             font-size: 0.9rem;
-            color: #ffffff; 
+            color: #ffffff;
             text-decoration: none;
         }
 
         .main-content {
-            margin-left: 18rem; 
+            margin-left: 18rem;
             padding: 2rem;
         }
 
@@ -128,7 +128,7 @@
         <div class="sidebar">
             <img src="{{ asset('images/image3.png') }}" alt="JME Logo" class="logo">
             <nav>
-                <a href="{{ route('dashboard.admin') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a href="{{ route('dashboard.admin') }}" ><i class="fas fa-tachometer-alt"></i> Dashboard</a>
                 <a href="{{ route('register.vehicle') }}"><i class="fas fa-car"></i> Register a Vehicle</a>
                 <a href="{{ route('violation.record') }}"><i class="fas fa-exclamation-triangle"></i> Violation Records</a>
                 <a href="{{route('blacklist.management')}}"><i class="fas fa-ban"></i> Blacklist Management</a>

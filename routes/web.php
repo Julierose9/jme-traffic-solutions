@@ -9,7 +9,7 @@ use App\Http\Controllers\ViolationRecordController;
 use App\Http\Controllers\BlacklistManagementController;
 use App\Http\Controllers\LicenseSuspensionController;
 use App\Http\Controllers\ReportController;
-use App\Http\Controllers\PayFinesController; 
+use App\Http\Controllers\PayFinesController;
 use App\Http\Controllers\SupportController;
 
 // Public Routes
