@@ -2,9 +2,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Blacklist extends Model
 {
+    protected $primaryKey = 'blacklist_id';
+
     protected $fillable = [
         'reg_vehicle_id',
         'own_id',
@@ -14,6 +17,11 @@ class Blacklist extends Model
         'lifted_date',
         'status',
         'appeal_status',
+    ];
+
+    protected $casts = [
+        'date_added' => 'date',
+        'lifted_date' => 'datetime',
     ];
 
     public function registeredVehicle()

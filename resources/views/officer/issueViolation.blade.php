@@ -105,33 +105,65 @@
             width: 45%;
             padding: 10px;
             border: 1px solid #ccc;
-            border-radius: 25px; 
-            outline: none; 
+            border-radius: 25px;
+            outline: none;
             transition: border-color 0.3s;
         }
         .search-container input:focus {
-            border-color: #4CAF50; 
+            border-color: #4CAF50;
         }
         .search-button {
             background-color: #4CAF50;
             color: white;
             border: none;
-            border-radius: 25px; 
+            border-radius: 25px;
             padding: 10px 15px;
-            margin-left: 10px; 
+            margin-left: 10px;
             cursor: pointer;
             display: flex;
             align-items: center;
         }
         .search-button i {
-            margin-right: 5px; 
+            margin-right: 5px;
         }
         .search-button:hover {
-            background-color: #45a049; 
+            background-color: #45a049;
         }
         .modal-header {
             background-color: #0a1f44;
             color: white;
+        }
+        #generateViolationModal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 30%;
+            border-radius: 5px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -141,8 +173,9 @@
             <img src="{{ asset('images/image3.png') }}" alt="JME Logo" class="logo">
             <nav>
                 <a href="{{ url('/dashboard/officer') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-                <a href="{{ url('/issue-violation') }}" class="active" id="sidebarOpenModalBtn" data-toggle="modal" data-target="#generateViolationModal"><i class="fas fa-exclamation-triangle"></i> Issue Violation</a>
-                <a href="{{ route('reports.index') }}"><i class="fas fa-folder-open"></i> Reports</a>            </nav>
+                <a href="{{ url('/issue-violation') }}" class="active" id="sidebarOpenModalBtn"><i class="fas fa-exclamation-triangle"></i> Issue Violation</a>
+                <a href="{{ route('reports.index') }}"><i class="fas fa-folder-open"></i> Reports</a>
+            </nav>
             <div class="logout-btn">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
@@ -152,21 +185,8 @@
         </div>
         <div class="main-content">
             <h1>Issue Violation</h1>
-            <button class="btn" data-toggle="modal" data-target="#generateViolationModal">Generate Violation</button>
-            <script>
-                document.querySelector('[data-target="#generateViolationModal"]').addEventListener('click', () => {
-                    console.log('Generate Violation button clicked');
-                });
-            </script>
-
-
-            <div class="search-container">
-                <input type="text" id="searchInput" placeholder="Search by Officer Name" onkeyup="filterRecords()">
-                <button class="search-button" onclick="filterRecords()">
-                    <i class="fas fa-search"></i> Search
-                </button>
-            </div>
-            <table class="table" id="recordsTable">
+            <button class="btn" onclick="openGenerateViolationModal()">Generate Violation</button>
+            <table class="table" id="violationTable">
                 <thead>
                     <tr>
                         <th>Record ID</th>
@@ -177,124 +197,99 @@
                         <th>Officer First Name</th>
                         <th>Violation Date</th>
                         <th>Status</th>
-                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @if($violationRecords->isEmpty())
+                    @foreach($violationRecords as $record)
                         <tr>
-                            <td colspan="9" class="no-records">No violation records found.</td>
+                            <td>{{ $record->record_id }}</td>
+                            <td>{{ $record->violation_code }}</td>
+                            <td>{{ $record->description }}</td>
+                            <td>{{ $record->penalty_amount }}</td>
+                            <td>{{ $record->officer_last_name }}</td>
+                            <td>{{ $record->officer_first_name }}</td>
+                            <td>{{ $record->violation_date }}</td>
+                            <td>{{ $record->status }}</td>
                         </tr>
-                    @else
-                        @foreach($violationRecords as $record)
-                        <tr>
-                            <td>{{ $record->RecordID }}</td>
-                            <td>{{ $record->violationCode }}</td>
-                            <td>{{ $record->Description }}</td>
-                            <td>{{ $record->PenaltyAmount }}</td>
-                            <td>{{ $record->OfficerLastName }}</td>
-                            <td>{{ $record->OfficerFirstName }}</td>
-                            <td>{{ $record->ViolationDate }}</td>
-                            <td>{{ $record->Status }}</td>
-                            <td>
-                                <button class="btn" onclick="updateStatus({{ $record->RecordID                                }})">Update Status</button>
-                                <button class="btn" onclick="attachDocument({{ $record->RecordID }})">Attach Document</button>
-                            </td>
-                        </tr>
-                        @endforeach
-                    @endif
+                    @endforeach
                 </tbody>
             </table>
         </div>
     </div>
 
-    <div class="modal fade" id="generateViolationModal" tabindex="-1" role="dialog" aria-labelledby="generateViolationModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="generateViolationModalLabel">Generate Violation</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+    <div id="generateViolationModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeGenerateViolationModal()">×</span>
+            <h2>Generate Violation</h2>
+            <form id="violationForm" action="/dashboard/officer/violation" method="POST">
+                @csrf
+                <input type="hidden" id="record_id" name="record_id">
+                <div class="form-group">
+                    <label for="violation_code">Violation Code:</label>
+                    <input type="text" class="form-control" id="violation_code" name="violation_code" required>
                 </div>
-                <form method="POST" action="{{ route('violation.store') }}">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label for="violation_code">Violation Code</label>
-                            <input type="text" class="form-control" id="violation_code" name="violation_code" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="description">Description</label>
-                            <input type="text" class="form-control" id="description" name="description" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="penalty_amount">Penalty Amount</label>
-                            <input type="number" class="form-control" id="penalty_amount" name="penalty_amount" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="plate_number">Plate Number</label>
-                            <input type="text" class="form-control" id="plate_number" name="plate_number" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Submit Violation</button>
-                    </div>
-                </form>
-            </div>
+                <div class="form-group">
+                    <label for="description">Description:</label>
+                    <input type="text" class="form-control" id="description" name="description" required>
+                </div>
+                <div class="form-group">
+                    <label for="penalty_amount">Penalty Amount:</label>
+                    <input type="number" class="form-control" id="penalty_amount" name="penalty_amount" required>
+                </div>
+                <div class="form-group">
+                    <label for="officer_last_name">Officer Last Name:</label>
+                    <input type="text" class="form-control" id="officer_last_name" name="officer_last_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="officer_first_name">Officer First Name:</label>
+                    <input type="text" class="form-control" id="officer_first_name" name="officer_first_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="violation_date">Violation Date:</label>
+                    <input type="date" class="form-control" id="violation_date" name="violation_date" required>
+                </div>
+                <div class="form-group">
+                    <label for="status">Status:</label>
+                    <select class="form-control" id="status" name="status" required>
+                        <option value="" disabled selected>Select Status</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Resolved">Resolved</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">Generate Violation</button>
+            </form>
         </div>
     </div>
 
     <script>
-        function filterRecords() {
-            const input = document.getElementById('searchInput');
-            const filter = input.value.toLowerCase();
-            const table = document.getElementById('recordsTable');
-            const tr = table.getElementsByTagName('tr');
+        let recordIdCounter = 0;
 
-            for (let i = 1; i < tr.length; i++) {
-                const tdOfficerLastName = tr[i].getElementsByTagName('td')[5];
-                const tdPlateNumber = tr[i].getElementsByTagName('td')[4];
-                if (tdOfficerLastName || tdPlateNumber) {
-                    const txtOfficerLastName = tdOfficerLastName.textContent || tdOfficerLastName.innerText;
-                    const txtPlateNumber = tdPlateNumber.textContent || tdPlateNumber.innerText;
-                    if (txtOfficerLastName.toLowerCase().indexOf(filter) > -1 || txtPlateNumber.toLowerCase().indexOf(filter) > -1) {
-                        tr[i].style.display = '';
-                    } else {
-                        tr[i].style.display = 'none';
-                    }
-                }
+        function openGenerateViolationModal() {
+            document.getElementById('generateViolationModal').style.display = 'block';
+            recordIdCounter++;
+            const recordId = 'REC' + recordIdCounter.toString().padStart(4, '0');
+            document.getElementById('record_id').value = recordId;
+        }
+
+        function closeGenerateViolationModal() {
+            document.getElementById('generateViolationModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const violationModal = document.getElementById('generateViolationModal');
+            if (event.target === violationModal) {
+                closeGenerateViolationModal();
             }
         }
 
-        function openOwnerModal() {
-            document.getElementById('registerOwnerModal').style.display = 'block';
-        }
-
-        function closeRegisterOwnerModal() {
-            document.getElementById('registerOwnerModal').style.display = 'none';
-        }
-
-        function openVehicleModal() {
-            document.getElementById('registerVehicleModal').style.display = 'block';
-        }
-
-        function closeVehicleModal() {
-            document.getElementById('registerVehicleModal').style.display = 'none';
-        }
-
-        function toggleDropdown(dropdownId) {
-            const dropdown = document.getElementById(dropdownId);
-            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function handleOwnerSubmit(event) {
-            event.preventDefault();
-            console.log('Form submission triggered');
-            const form = event.target;
+        function handleViolationSubmit(event) {
+            event.preventDefault(); // Prevent form submission from reloading the page
+            const form = document.getElementById('violationForm');
             const formData = new FormData(form);
-            console.log('Form data:', Object.fromEntries(formData));
+            const table = document.getElementById('violationTable').getElementsByTagName('tbody')[0];
+
             fetch(form.action, {
                 method: 'POST',
                 body: formData,
@@ -303,43 +298,43 @@
                     'Accept': 'application/json'
                 }
             })
-            .then(response => {
-                console.log('Response received:', response);
-                if (!response.ok) {
-                    throw new Error('Network response was not ok: ' + response.statusText);
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
-                console.log('Data received:', data);
                 if (data.success) {
-                    document.getElementById('selected_owner_id').value = data.owner_id;
-                    closeRegisterOwnerModal();
-                    openVehicleModal();
+                    // Use the data returned from the server to populate the table
+                    const violation = data.violation;
+                    const newRow = table.insertRow();
+                    newRow.innerHTML = `
+                        <td>${violation.record_id}</td>
+                        <td>${violation.violation_code}</td>
+                        <td>${violation.description}</td>
+                        <td>${violation.penalty_amount}</td>
+                        <td>${violation.officer_last_name}</td>
+                        <td>${violation.officer_first_name}</td>
+                        <td>${violation.violation_date}</td>
+                        <td>${violation.status}</td>
+                    `;
+
+                    // Reset form and close modal
+                    form.reset();
+                    closeGenerateViolationModal();
                 } else {
-                    alert(data.message || 'Failed to register owner');
+                    alert(data.message || 'Failed to generate violation');
                 }
             })
             .catch(error => {
-                console.error('Error during fetch:', error);
-                alert('An error occurred while registering the owner. Check the console for details.');
+                console.error('Error:', error);
+                alert('An error occurred while generating the violation.');
             });
         }
 
-        window.onclick = function(event) {
-            const registerOwnerModal = document.getElementById('registerOwnerModal');
-            const vehicleModal = document.getElementById('registerVehicleModal');
-            if (event.target === registerOwnerModal) {
-                closeRegisterOwnerModal();
-            } else if (event.target === vehicleModal) {
-                closeVehicleModal();
-            }
-        }
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('violationForm').addEventListener('submit', handleViolationSubmit);
+        });
     </script>
 
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="..." crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="..." crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="..." crossorigin="anonymous"></script>
-
+    <script src="{{ asset('js/jquery.min.js') }}"></script>
+    <script src="{{ asset('js/popper.min.js') }}"></script>
+    <script src="{{ asset('js/bootstrap.min.js') }}"></script>
 </body>
 </html>

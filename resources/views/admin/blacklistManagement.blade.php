@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Blacklist Management - Admin Dashboard</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -208,6 +209,81 @@
             color: #000;
             text-decoration: none;
         }
+
+        .btn-primary {
+            background-color: #007bff !important;
+            border-color: #007bff !important;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3 !important;
+            border-color: #0056b3 !important;
+        }
+        .btn-danger {
+            background-color: #dc3545 !important;
+            border-color: #dc3545 !important;
+        }
+        .btn-danger:hover {
+            background-color: #c82333 !important;
+            border-color: #bd2130 !important;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%;
+            border-radius: 5px;
+        }
+        .modal-content form > div {
+            margin-bottom: 15px;
+        }
+        .modal-content label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .modal-content select,
+        .modal-content input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-group {
+            display: flex;
+            gap: 5px;
+        }
+        .btn-group form {
+            margin: 0;
+        }
+        .btn-group .btn {
+            padding: 0.25rem 0.75rem;
+            line-height: 1.5;
+            white-space: nowrap;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .edit-btn { background-color: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; margin-right: 5px; }
+        .edit-btn:hover { background-color: #0056b3; }
+        .delete-btn { background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; }
+        .delete-btn:hover { background-color: #c82333; }
     </style>
 </head>
 <body>
@@ -255,20 +331,19 @@
                         @foreach($blacklistedVehicles as $vehicle)
                             <tr>
                                 <td>{{ $vehicle->blacklist_id }}</td>
-                                <td>{{ $vehicle->vehicle->plate_number }}</td>
+                                <td>{{ $vehicle->registeredVehicle->plate_number }}</td>
                                 <td>{{ $vehicle->owner->lname }}</td>
                                 <td>{{ $vehicle->owner->fname }}</td>
                                 <td>{{ $vehicle->reason }}</td>
                                 <td>{{ $vehicle->blacklist_type }}</td>
-                                <td>{{ $vehicle->date_added->format('Y-m-d') }}</td>
-                                <td>{{ $vehicle->status }}</td>
+                                <td>{{ $vehicle->date_added }}</td>
                                 <td>
-                                    <a href="{{ route('blacklist.edit', $vehicle->blacklist_id) }}" class="btn">Edit</a>
-                                    <form action="{{ route('blacklist.destroy', $vehicle->blacklist_id) }}" method="POST" style="display:inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn" onclick="return confirm('Are you sure?')">Delete</button>
-                                    </form>
+                                    <span class="badge {{ $vehicle->status === 'Active' ? 'badge-danger' : 'badge-success' }}">
+                                        {{ $vehicle->status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="edit-btn" onclick="openEditModal('{{ $vehicle->blacklist_id }}', '{{ $vehicle->reg_vehicle_id }}', '{{ $vehicle->own_id }}', '{{ $vehicle->reason }}', '{{ $vehicle->blacklist_type }}', '{{ $vehicle->status }}', '{{ $vehicle->appeal_status }}')"><i class="fas fa-edit"></i> Edit</button> <button class="delete-btn" onclick="openDeleteModal('{{ $vehicle->blacklist_id }}')"><i class="fas fa-trash"></i> Delete</button>
                                 </td>
                             </tr>
                         @endforeach
@@ -278,74 +353,180 @@
         </div>
     </div>
 
-    <div id="myModal" class="modal">
+    <!-- Add New Blacklist Modal -->
+    <div id="addModal" class="modal">
         <div class="modal-content">
-            <span class="close" id="closeModalBtn">&times;</span>
+            <span class="close" onclick="closeAddModal()">&times;</span>
             <h2>Add New Blacklist Entry</h2>
             <form action="{{ route('blacklist.store') }}" method="POST">
                 @csrf
                 <div>
                     <label for="reg_vehicle_id">Vehicle:</label>
                     <select name="reg_vehicle_id" id="reg_vehicle_id" required>
+                        <option value="">Select a vehicle</option>
                         @foreach($vehicles as $vehicle)
-                            <option value="{{ $vehicle->id }}">{{ $vehicle->plate_number }}</option>
+                            <option value="{{ $vehicle->reg_vehicle_id }}">
+                                {{ $vehicle->plate_number }} - {{ $vehicle->brand }} {{ $vehicle->model }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
                 <div>
                     <label for="own_id">Owner:</label>
                     <select name="own_id" id="own_id" required>
+                        <option value="">Select an owner</option>
                         @foreach($owners as $owner)
-                            <option value="{{ $owner->id }}">{{ $owner->lname }} {{ $owner->fname }}</option>
+                            <option value="{{ $owner->own_id }}">
+                                {{ $owner->lname }}, {{ $owner->fname }} {{ $owner->mname }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
                 <div>
                     <label for="reason">Reason:</label>
-                    <input type="text" name="reason" id="reason" required>
+                    <input type="text" name="reason" id="reason" required maxlength="255">
                 </div>
                 <div>
                     <label for="blacklist_type">Blacklist Type:</label>
-                    <input type="text" name="blacklist_type" id="blacklist_type" required>
-                </div>
-                <div>
-                    <label for="date_added">Date Added:</label>
-                    <input type="date" name="date_added" id="date_added" required>
-                </div>
-                <div>
-                    <label for="status">Status:</label>
-                    <select name="status" id="status" required>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
+                    <select name="blacklist_type" id="blacklist_type" required>
+                        <option value="">Select type</option>
+                        <option value="Violation-Based">Violation Based</option>
+                        <option value="License Suspension">License Suspension</option>
                     </select>
                 </div>
-                <button type="submit">Add Blacklist Entry</button>
+                <button type="submit" class="btn btn-primary">Add Blacklist Entry</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Blacklist Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditModal()">&times;</span>
+            <h2>Edit Blacklist Entry</h2>
+            <form id="editForm" method="POST">
+                @csrf
+                @method('PUT')
+                <div>
+                    <label for="edit_reg_vehicle_id">Vehicle:</label>
+                    <select name="reg_vehicle_id" id="edit_reg_vehicle_id" required>
+                        @foreach($vehicles as $vehicle)
+                            <option value="{{ $vehicle->reg_vehicle_id }}">
+                                {{ $vehicle->plate_number }} - {{ $vehicle->brand }} {{ $vehicle->model }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label for="edit_own_id">Owner:</label>
+                    <select name="own_id" id="edit_own_id" required>
+                        @foreach($owners as $owner)
+                            <option value="{{ $owner->own_id }}">
+                                {{ $owner->lname }}, {{ $owner->fname }} {{ $owner->mname }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label for="edit_reason">Reason:</label>
+                    <input type="text" name="reason" id="edit_reason" required maxlength="255">
+                </div>
+                <div>
+                    <label for="edit_blacklist_type">Blacklist Type:</label>
+                    <select name="blacklist_type" id="edit_blacklist_type" required>
+                        <option value="Violation-Based">Violation Based</option>
+                        <option value="License Suspension">License Suspension</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="edit_status">Status:</label>
+                    <select name="status" id="edit_status" required>
+                        <option value="Active">Active</option>
+                        <option value="Lifted">Lifted</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="edit_appeal_status">Appeal Status:</label>
+                    <select name="appeal_status" id="edit_appeal_status" required>
+                        <option value="Pending">Pending</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Blacklist Entry</button>
             </form>
         </div>
     </div>
 
     <script>
-        var modal = document.getElementById("myModal");
-        var btn = document.getElementById("openModalBtn");
-        var span = document.getElementById("closeModalBtn");
-
-        btn.onclick = function() {
-            modal.style.display = "block";
+        function openAddModal() {
+            document.getElementById('addModal').style.display = 'block';
         }
 
-        span.onclick = function() {
-            modal.style.display = "none";
+        function closeAddModal() {
+            document.getElementById('addModal').style.display = 'none';
         }
 
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
+        function openEditModal(id, regVehicleId, ownId, reason, blacklistType, status, appealStatus) {
+            const modal = document.getElementById('editModal');
+            const form = document.getElementById('editForm');
+
+            // Set form action
+            form.action = `/blacklist/${id}`;
+
+            // Set form values
+            document.getElementById('edit_reg_vehicle_id').value = regVehicleId;
+            document.getElementById('edit_own_id').value = ownId;
+            document.getElementById('edit_reason').value = reason;
+            document.getElementById('edit_blacklist_type').value = blacklistType;
+            document.getElementById('edit_status').value = status;
+            document.getElementById('edit_appeal_status').value = appealStatus;
+
+            modal.style.display = 'block';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        function openDeleteModal(id) {
+            if (confirm('Are you sure you want to remove this blacklist entry?')) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/blacklist/${id}`;
+                
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = document.querySelector('meta[name="csrf-token"]').content;
+                
+                const methodField = document.createElement('input');
+                methodField.type = 'hidden';
+                methodField.name = '_method';
+                methodField.value = 'DELETE';
+                
+                form.appendChild(csrfToken);
+                form.appendChild(methodField);
+                document.body.appendChild(form);
+                form.submit();
             }
         }
 
-        function toggleDropdown(id) {
-            const dropdown = document.getElementById(id);
-            dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const addModal = document.getElementById('addModal');
+            const editModal = document.getElementById('editModal');
+            if (event.target == addModal) {
+                addModal.style.display = 'none';
+            }
+            if (event.target == editModal) {
+                editModal.style.display = 'none';
+            }
+        }
+
+        // Update button name
+        document.getElementById('openModalBtn').onclick = function() {
+            openAddModal();
         }
     </script>
 </body>

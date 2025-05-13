@@ -100,15 +100,47 @@
             background-color: #0a1f44;
             color: white;
         }
+        #createReportModal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 30%;
+            border-radius: 5px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <div class="sidebar">
         <img src="{{ asset('images/image3.png') }}" alt="JME Logo" class="logo">
         <nav>
-        <a href="{{ url('/dashboard/officer') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-            <a href="{{ route('officer.violation.issue') }}"id="sidebarOpenModalBtn" data-toggle="modal" data-target="#generateViolationModal"><i class="fas fa-exclamation-triangle"></i> Issue Violation</a>
-            <a href="{{ route('reports.index') }} "class="active"><i class="fas fa-folder-open"></i> Reports</a>
+            <a href="{{ url('/dashboard/officer') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="{{ route('officer.violation.issue') }}"><i class="fas fa-exclamation-triangle"></i> Issue Violation</a>
+            <a href="{{ route('reports.index') }}" class="active"><i class="fas fa-folder-open"></i> Reports</a>
         </nav>
         <div class="logout-btn">
             <form method="POST" action="{{ route('logout') }}">
@@ -126,111 +158,194 @@
                     {{ session('success') }}
                 </div>
             @endif
-            <button class="btn" data-toggle="modal" data-target="#createReportModal">Create Report</button>
+            <button class="btn" onclick="openCreateReportModal()">Create Report</button>
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Report ID</th>
-            <th>Violation ID</th>
-            <th>Officer ID</th>
-            <th>Vehicle ID</th>
-            <th>Owner ID</th>
-            <th>Report Details</th>
-            <th>Location</th>
-            <th>Report Date</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach($reports as $report)
-            <tr>
-                <td>{{ $report->report_id }}</td>
-                <td>{{ $report->violation_id }}</td>
-                <td>{{ $report->officer_id }}</td>
-                <td>{{ $report->reg_vehicle_id }}</td>
-                <td>{{ $report->own_id }}</td>
-                <td>{{ $report->report_details }}</td>
-                <td>{{ $report->location }}</td>
-                <td>{{ $report->report_date }}</td>
-                <td>{{ $report->status }}</td>
-                <td>
-                    <a href="{{ route('reports.edit', $report->report_id) }}" class="btn btn-warning btn-sm">Edit</a>
-                    <form action="{{ route('reports.destroy', $report->report_id) }}" method="POST" style="display:inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                    </form>
-                </td>
-            </tr>
-        @endforeach
-    </tbody>
-</table>
-</div>
-</div>
-
-
-<div class="modal fade" id="createReportModal" tabindex="-1" role="dialog" aria-labelledby="createReportModalLabel" aria-hidden="true">
-<div class="modal-dialog" role="document">
-<div class="modal-content">
-    <div class="modal-header">
-        <h5 class="modal-title" id="createReportModalLabel">Create Report</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
+            <table class="table table-bordered" id="reportTable">
+                <thead>
+                    <tr>
+                        <th>Report ID</th>
+                        <th>Violation ID</th>
+                        <th>Officer ID</th>
+                        <th>Vehicle ID</th>
+                        <th>Owner ID</th>
+                        <th>Report Details</th>
+                        <th>Location</th>
+                        <th>Report Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($reports as $report)
+                        <tr>
+                            <td>{{ $report->report_id }}</td>
+                            <td>{{ $report->violation_id }}</td>
+                            <td>{{ $report->officer_id }}</td>
+                            <td>{{ $report->reg_vehicle_id }}</td>
+                            <td>{{ $report->own_id }}</td>
+                            <td>{{ $report->report_details }}</td>
+                            <td>{{ $report->location }}</td>
+                            <td>{{ $report->report_date }}</td>
+                            <td>{{ $report->status }}</td>
+                            <td>
+                                <a href="{{ route('reports.edit', $report->report_id) }}" class="btn btn-warning btn-sm">Edit</a>
+                                <form action="{{ route('reports.destroy', $report->report_id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
-    <form action="{{ route('reports.store') }}" method="POST">
-        @csrf
-        <div class="modal-body">
-            <div class="form-group">
-                <label for="violation_id">Violation ID</label>
-                <input type="text" class="form-control" id="violation_id" name="violation_id" required>
-            </div>
-            <div class="form-group">
-                <label for="officer_id">Officer ID</label>
-                <input type="text" class="form-control" id="officer_id" name="officer_id" required>
-            </div>
-            <div class="form-group">
-                <label for="reg_vehicle_id">Vehicle ID</label>
-                <input type="text" class="form-control" id="reg_vehicle_id" name="reg_vehicle_id" required>
-            </div>
-            <div class="form-group">
-                <label for="own_id">Owner ID</label>
-                <input type="text" class="form-control" id="own_id" name="own_id" required>
-            </div>
-            <div class="form-group">
-                <label for="report_details">Report Details</label>
-                <textarea class="form-control" id="report_details" name="report_details" rows="3" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="location">Location</label>
-                <input type="text" class="form-control" id="location" name="location" required>
-            </div>
-            <div class="form-group">
-                <label for="report_date">Report Date</label>
-                <input type="date" class="form-control" id="report_date" name="report_date" required>
-            </div>
-            <div class="form-group">
-                <label for="status">Status</label>
-                <select class="form-control" id="status" name="status" required>
-                    <option value="Pending">Pending</option>
-                    <option value="Resolved">Resolved</option>
-                    <option value="Closed">Closed</option>
-                </select>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary">Create Report</button>
-        </div>
-    </form>
-</div>
-</div>
-</div>
 
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT+z0j3+0I4z5+5z5+5z5+5z5+5z5+5z5+5z5+5z5+5z5+5z5" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-JZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZyZ
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"></script>
+    <div id="createReportModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCreateReportModal()">×</span>
+            <h2>Create Report</h2>
+            <form id="reportForm" action="{{ route('reports.store') }}" method="POST">
+                @csrf
+                <div class="form-group">
+                    <label for="violation_id">Violation ID:</label>
+                    <select class="form-control" id="violation_id" name="violation_id" required>
+                        <option value="" disabled selected>Select Violation</option>
+                        @foreach(\App\Models\Violation::all() as $violation)
+                            <option value="{{ $violation->violation_id }}">{{ $violation->violation_code }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="officer_id">Officer ID:</label>
+                    <select class="form-control" id="officer_id" name="officer_id" required>
+                        <option value="" disabled selected>Select Officer</option>
+                        @foreach(\App\Models\Officer::all() as $officer)
+                            <option value="{{ $officer->id }}">{{ $officer->first_name }} {{ $officer->last_name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="reg_vehicle_id">Vehicle ID:</label>
+                    <select class="form-control" id="reg_vehicle_id" name="reg_vehicle_id" required>
+                        <option value="" disabled selected>Select Vehicle</option>
+                        @foreach(\App\Models\RegisteredVehicle::all() as $vehicle)
+                            <option value="{{ $vehicle->id }}">{{ $vehicle->id }}</option> <!-- Adjust display field as needed -->
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="own_id">Owner ID:</label>
+                    <select class="form-control" id="own_id" name="own_id" required>
+                        <option value="" disabled selected>Select Owner</option>
+                        @foreach(\App\Models\Owner::all() as $owner)
+                            <option value="{{ $owner->id }}">{{ $owner->id }}</option> <!-- Adjust display field as needed -->
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="report_details">Report Details:</label>
+                    <textarea class="form-control" id="report_details" name="report_details" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="location">Location:</label>
+                    <input type="text" class="form-control" id="location" name="location" required>
+                </div>
+                <div class="form-group">
+                    <label for="report_date">Report Date:</label>
+                    <input type="date" class="form-control" id="report_date" name="report_date" required>
+                </div>
+                <div class="form-group">
+                    <label for="status">Status:</label>
+                    <select class="form-control" id="status" name="status" required>
+                        <option value="" disabled selected>Select Status</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Resolved">Resolved</option>
+                        <option value="Closed">Closed</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">Create Report</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openCreateReportModal() {
+            document.getElementById('createReportModal').style.display = 'block';
+        }
+
+        function closeCreateReportModal() {
+            document.getElementById('createReportModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const reportModal = document.getElementById('createReportModal');
+            if (event.target === reportModal) {
+                closeCreateReportModal();
+            }
+        }
+
+        function handleReportSubmit(event) {
+            event.preventDefault(); // Prevent form submission from reloading the page
+            const form = document.getElementById('reportForm');
+            const formData = new FormData(form);
+            const table = document.getElementById('reportTable').getElementsByTagName('tbody')[0];
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Use the data returned from the server to populate the table
+                    const report = data.report;
+                    const newRow = table.insertRow();
+                    newRow.innerHTML = `
+                        <td>${report.report_id}</td>
+                        <td>${report.violation_id}</td>
+                        <td>${report.officer_id}</td>
+                        <td>${report.reg_vehicle_id}</td>
+                        <td>${report.own_id}</td>
+                        <td>${report.report_details}</td>
+                        <td>${report.location}</td>
+                        <td>${report.report_date}</td>
+                        <td>${report.status}</td>
+                        <td>
+                            <a href="/reports/${report.report_id}/edit" class="btn btn-warning btn-sm">Edit</a>
+                            <form action="/reports/${report.report_id}" method="POST" style="display:inline;">
+                                <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').content}">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                    `;
+
+                    // Reset form and close modal
+                    form.reset();
+                    closeCreateReportModal();
+                } else {
+                    alert(data.message || 'Failed to create report');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while creating the report.');
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('reportForm').addEventListener('submit', handleReportSubmit);
+        });
+    </script>
+
+    <script src="{{ asset('js/jquery.min.js') }}"></script>
+    <script src="{{ asset('js/popper.min.js') }}"></script>
+    <script src="{{ asset('js/bootstrap.min.js') }}"></script>
 </body>
 </html>
