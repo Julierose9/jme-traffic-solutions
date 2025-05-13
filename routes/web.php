@@ -69,16 +69,7 @@ Route::middleware('auth')->prefix('dashboard')->group(function () {
         // Store Violation
         Route::post('/violation/store', [ViolationController::class, 'store'])->name('violation.store');
 
-<<<<<<< HEAD
-        // Pay Fines (Guest)
-Route::get('/pay-fines', [PayFinesController::class, 'index'])->name('pay.fines');
-Route::post('/pay-fines/{id}', [PayFinesController::class, 'payFine'])->name('pay.fines.pay');
-
-// Pay Fines (Admin)
-Route::get('/pay-fines', [PayFinesController::class, 'index'])->name('admin.pay.fines');
-Route::post('/pay-fines/{id}', [PayFinesController::class, 'payFine'])->name('admin.pay.fines.pay');
-=======
-            // Pay Fines (Guest)
+// Pay Fines (Guest)
     Route::get('/pay-fines', [PayFinesController::class, 'index'])->name('pay.fines');
     Route::post('/pay-fines/{id}', [PayFinesController::class, 'payFine'])->name('pay.fines.pay');
 
@@ -86,7 +77,6 @@ Route::post('/pay-fines/{id}', [PayFinesController::class, 'payFine'])->name('ad
     Route::get('/pay-fines', [PayFinesController::class, 'index'])->name('admin.pay.fines');
     Route::post('/pay-fines/{id}', [PayFinesController::class, 'payFine'])->name('admin.pay.fines.pay');
         
->>>>>>> master-copyOne
     });
 
     // Officer Routes
