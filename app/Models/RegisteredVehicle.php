@@ -5,6 +5,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class RegisteredVehicle extends Model
 {
+    protected $primaryKey = 'reg_vehicle_id';
+
     protected $fillable = [
         'own_id', 'plate_number', 'vehicle_type', 'brand', 'model', 'color', 'registration_date'
     ];

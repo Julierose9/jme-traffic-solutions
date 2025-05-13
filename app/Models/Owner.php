@@ -5,6 +5,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Owner extends Model
 {
+    protected $primaryKey = 'own_id';
+
     protected $fillable = [
         'lname', 'fname', 'mname', 'address', 'contact_num', 'license_number'
     ];

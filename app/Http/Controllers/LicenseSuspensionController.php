@@ -22,29 +22,98 @@ class LicenseSuspensionController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'owner_id' => 'required|exists:owners,own_id', // Validate against the owners table
-            'suspension_start_date' => 'required|date',
-            'suspension_end_date' => 'nullable|date|after_or_equal:suspension_start_date',
-            'suspension_reason' => 'required|string|max:255',
-            'suspension_status' => 'required|in:active,lifted',
-            'appeal_status' => 'nullable|in:pending,approved,rejected',
-        ]);
+        try {
+            $validatedData = $request->validate([
+                'own_id' => 'required|exists:owners,own_id',
+                'suspension_start_date' => 'required|date',
+                'suspension_end_date' => 'nullable|date|after_or_equal:suspension_start_date',
+                'suspension_reason' => 'required|string|max:255',
+                'suspension_status' => 'required|in:Active,Lifted',
+                'appeal_status' => 'nullable|in:Pending,Approved,Rejected'
+            ]);
 
-        LicenseSuspension::create($request->all());
+            $suspension = LicenseSuspension::create($validatedData);
 
-        return redirect()->route('suspension.index')->with('success', 'License suspension added successfully.');
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'License suspension added successfully',
+                    'suspension' => $suspension
+                ]);
+            }
+
+            return redirect()->route('license.suspension')->with('success', 'License suspension added successfully.');
+        } catch (\Exception $e) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to add license suspension: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Failed to add license suspension: ' . $e->getMessage())->withInput();
+        }
     }
 
-    public function edit(LicenseSuspension $suspension)
+    public function update(Request $request, $id)
     {
-        $owners = Owner::all(); // Retrieve all owners for the dropdown in the edit view
-        return view('admin.licenseSuspensionEdit', compact('suspension', 'owners'));
+        try {
+            $validatedData = $request->validate([
+                'own_id' => 'required|exists:owners,own_id',
+                'suspension_start_date' => 'required|date',
+                'suspension_end_date' => 'nullable|date|after_or_equal:suspension_start_date',
+                'suspension_reason' => 'required|string|max:255',
+                'suspension_status' => 'required|in:Active,Lifted',
+                'appeal_status' => 'nullable|in:Pending,Approved,Rejected'
+            ]);
+
+            $suspension = LicenseSuspension::findOrFail($id);
+            $suspension->update($validatedData);
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'License suspension updated successfully',
+                    'suspension' => $suspension
+                ]);
+            }
+
+            return redirect()->route('license.suspension')->with('success', 'License suspension updated successfully.');
+        } catch (\Exception $e) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to update license suspension: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Failed to update license suspension: ' . $e->getMessage())->withInput();
+        }
     }
 
-    public function destroy(LicenseSuspension $suspension)
+    public function destroy($id)
     {
-        $suspension->delete();
-        return redirect()->route('suspension.index')->with('success', 'Suspension deleted successfully.');
+        try {
+            $suspension = LicenseSuspension::findOrFail($id);
+            $suspension->delete();
+
+            if (request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'License suspension deleted successfully'
+                ]);
+            }
+
+            return redirect()->route('license.suspension')->with('success', 'License suspension deleted successfully.');
+        } catch (\Exception $e) {
+            if (request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to delete license suspension: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Failed to delete license suspension: ' . $e->getMessage());
+        }
     }
 }

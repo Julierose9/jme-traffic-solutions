@@ -47,6 +47,7 @@ Route::middleware('auth')->prefix('dashboard')->group(function () {
         Route::post('/blacklist', [BlacklistManagementController::class, 'store'])->name('blacklist.store');
         Route::get('/blacklist/{blacklist}/edit', [BlacklistManagementController::class, 'edit'])->name('blacklist.edit');
         Route::put('/blacklist/{blacklist}', [BlacklistManagementController::class, 'update'])->name('blacklist.update');
+        Route::delete('/blacklist/{blacklist}', [BlacklistManagementController::class, 'destroy'])->name('blacklist.destroy');
 
         // Vehicle Registration
         Route::get('/register-vehicle', [VehicleController::class, 'showRegisterVehicle'])->name('register.vehicle');

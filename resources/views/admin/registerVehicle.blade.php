@@ -507,6 +507,7 @@
         }
 
         function openEditVehicleModal(vehicleId, ownerId, plateNumber, vehicleType, brand, model, color, registrationDate) {
+            // Set values for all fields
             document.getElementById('edit_vehicle_id').value = vehicleId;
             document.getElementById('edit_owner_id').value = ownerId;
             document.getElementById('edit_plate_number').value = plateNumber;
@@ -535,7 +536,9 @@
                     const option = document.createElement('option');
                     option.value = m;
                     option.textContent = m;
-                    if (m === model) option.selected = true;
+                    if (m === model) {
+                        option.selected = true;
+                    }
                     modelSelect.appendChild(option);
                 });
             }
@@ -563,27 +566,20 @@
 
         function handleOwnerSubmit(event) {
             event.preventDefault();
-            console.log('Form submission triggered');
-            const form = event.target;
+            const form = document.getElementById('registerOwnerForm');
             const formData = new FormData(form);
-            console.log('Form data:', Object.fromEntries(formData));
+
             fetch(form.action, {
                 method: 'POST',
                 body: formData,
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
             })
-            .then(response => {
-                console.log('Response received:', response);
-                if (!response.ok) {
-                    throw new Error('Network response was not ok: ' + response.statusText);
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
-                console.log('Data received:', data);
                 if (data.success) {
                     document.getElementById('selected_owner_id').value = data.owner_id;
                     closeRegisterOwnerModal();
@@ -593,10 +589,114 @@
                 }
             })
             .catch(error => {
-                console.error('Error during fetch:', error);
-                alert('An error occurred while registering the owner. Check the console for details.');
+                console.error('Error:', error);
+                alert('An error occurred while registering the owner. Please try again.');
             });
         }
+
+        // Add event listener for owner registration form
+        document.getElementById('registerOwnerForm').addEventListener('submit', handleOwnerSubmit);
+
+        // Add event listener for vehicle registration form
+        document.getElementById('registerVehicleForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Failed to register vehicle');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while registering the vehicle. Please try again.');
+            });
+        });
+
+        // Add event listeners for form submissions
+        document.getElementById('editVehicleForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Received non-JSON response from server');
+                }
+                if (!response.ok) {
+                    return response.json().then(err => Promise.reject(err));
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Failed to update vehicle');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(error.message || 'An error occurred while updating the vehicle');
+            });
+        });
+
+        document.getElementById('deleteVehicleForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Received non-JSON response from server');
+                }
+                if (!response.ok) {
+                    return response.json().then(err => Promise.reject(err));
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Failed to delete vehicle');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(error.message || 'An error occurred while deleting the vehicle');
+            });
+        });
 
         // Dynamic model population for register vehicle modal
         document.getElementById('brand').addEventListener('change', function() {
