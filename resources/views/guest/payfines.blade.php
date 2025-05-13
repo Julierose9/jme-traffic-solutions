@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Violation History - JME Traffic Violation System</title>
+    <title>Pay Fines - JME Traffic Violation System</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -120,74 +120,81 @@
 </head>
 <body>
 <div class="flex">
-        <div class="sidebar">
-            <img src="{{ asset('images/image3.png') }}" alt="JME Logo" class="logo">
-            <nav>
-                <a href="{{ route('dashboard.guest') }}" ><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-                <a href="{{ route('violation.history') }}"><i class="fas fa-exclamation-triangle"></i> Violation History</a>
-                <a href="{{ route('blacklist.status') }}"><i class="fas fa-user-slash"></i> Blacklist Status</a>
-                <a href="#" class="active"><i class="fas fa-money-bill-wave"></i> Pay Fines</a>
-                <a href="{{ route('support') }}" class="hover:bg-blue-800"><i class="fas fa-headset"></i> Support</a>            </nav>
-            <div class="logout-btn">
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit"><i class="fas fa-sign-out-alt"></i> Logout</button>
-                </form>
-            </div>
+    <div class="sidebar">
+        <img src="{{ asset('images/image3.png') }}" alt="JME Logo" class="logo">
+        <nav>
+            <a href="{{ route('dashboard.guest') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="{{ route('violation.history') }}"><i class="fas fa-exclamation-triangle"></i> Violation History</a>
+            <a href="{{ route('blacklist.status') }}"><i class="fas fa-user-slash"></i> Blacklist Status</a>
+            <a href="{{ route('pay.fines') }}" class="active"><i class="fas fa-money-bill-wave"></i> Pay Fines</a>
+            <a href="{{ route('support') }}"><i class="fas fa-headset"></i> Support</a>
+        </nav>
+        <div class="logout-btn">
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </form>
         </div>
+    </div>
 
-        <div class="main-content">
-            <h1 class="text-2xl font-bold">Pay Fines</h1>
+    <div class="main-content">
+        <h1 class="text-2xl font-bold">Pay Fines</h1>
 
-            @if(session('success'))
-                <div class="alert alert-success">
-                    {{ session('success') }}
-                </div>
-            @endif
+        @if(session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
+        @if(session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
 
-            @if($fines->isEmpty())
-                <div class="no-records">
-                    <h2>No Unpaid Violations Found</h2>
-                    <p>There are currently no unpaid violations.</p>
-                </div>
-            @else
-                <table class="table table-striped">
-                    <thead>
+        @if($fines->isEmpty())
+            <div class="no-records">
+                <h2>No Unpaid Fines Found</h2>
+                <p>You currently have no unpaid fines.</p>
+            </div>
+        @else
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Record ID</th>
+                        <th>Violation Code</th>
+                        <th>Penalty Amount</th>
+                        <th>Amount Paid</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($fines as $fine)
                         <tr>
-                            <th>Record ID</th>
-                            <th>Violation Code</th>
-                            <th>Penalty Amount</th>
-                            <th>Amount Paid</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($fines as $fine)
-                        <tr>
-                            <td>{{ $fine->RecordID }}</td>
-                            <td>{{ $fine->violation->violationCode }}</td>
-                            <td>{{ $fine->violation->PenaltyAmount }}</td>
-                            <td>{{ $fine->payments->sum('AmountPaid') ?? 0 }}</td>
+                            <td>{{ $fine->record_id ?? 'N/A' }}</td>
+                            <td>{{ $fine->violation ? $fine->violation->violation_code : 'N/A' }}</td>
+                            <td>{{ $fine->violation ? $fine->violation->penalty_amount : 'N/A' }}</td>
+                            <td>{{ $fine->status === 'paid' ? ($fine->violation ? $fine->violation->penalty_amount : 0) : 0 }}</td>
                             <td>{{ $fine->status }}</td>
                             <td>
-                                <form action="{{ route('pay.fines.pay', $fine->RecordID) }}" method="POST">
+                                <form action="{{ route('pay.fines.pay', $fine->record_id) }}" method="POST">
                                     @csrf
                                     <button type="submit" class="btn btn-success">Pay Fine</button>
                                 </form>
                             </td>
                         </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            @endif
-        </div>
+                    @endforeach
+                </tbody>
+            </table>
+        @endif
     </div>
+</div>
 
-    <script>
-        function toggleDropdown(id) {
-            const dropdown = document.getElementById(id);
-            dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
-        }
-    </script></body>
+<script>
+    function toggleDropdown(id) {
+        const dropdown = document.getElementById(id);
+        dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+    }
+</script>
+</body>
 </html>

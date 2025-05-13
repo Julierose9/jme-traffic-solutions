@@ -1,40 +1,38 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Models;
 
-use App\Models\ViolationRecord;
-use App\Models\RegisteredVehicle; 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Model;
 
-class ViolationRecordController extends Controller
+class ViolationRecord extends Model
 {
-    public function index()
+    protected $table = 'violation_records';
+    protected $primaryKey = 'record_id';
+
+    protected $fillable = [
+        'vehicle_id',
+        'violation_id',
+        'officer_id',
+        'status',
+    ];
+
+    public function violation()
     {
-        $violationRecords = DB::table('violation_records as vr')
-            ->join('violations as v', 'vr.violation_id', '=', 'v.violation_id')
-            ->join('officers as o', 'vr.officer_id', '=', 'o.officer_id')
-            ->select('vr.record_id', 'v.violation_code', 'v.description', 'v.penalty_amount', 
-                     'o.lname as officer_last_name', 'o.fname as officer_first_name', 
-                     'vr.violation_date', 'vr.status')
-            ->get();
-    
-        return view('admin.violationRecords', compact('violationRecords'));
+        return $this->belongsTo(Violation::class, 'violation_id', 'violation_id');
     }
 
-    public function showViolationHistory()
-{
-    $ownerId = Auth::id();
+    public function registeredVehicle()
+    {
+        return $this->belongsTo(RegisteredVehicle::class, 'vehicle_id', 'reg_vehicle_id');
+    }
 
-    $violationRecords = DB::table('violation_records as vr')
-        ->join('violations as v', 'vr.violation_id', '=', 'v.violation_id')
-        ->join('reports as r', 'vr.record_id', '=', 'r.violation_id')
-        ->join('registered_vehicles as rv', 'r.reg_vehicle_id', '=', 'rv.reg_vehicle_id') 
-        ->where('rv.own_id', $ownerId) 
-        ->select('vr.record_id', 'v.violation_code', 'rv.plate_number', 'vr.violation_date', 'vr.status')
-        ->get();
+    public function officer()
+    {
+        return $this->belongsTo(Officer::class, 'officer_id', 'officer_id');
+    }
 
-    return view('guest.violationhistory', compact('violationRecords'));
-}
+    public function payments()
+    {
+        return $this->hasMany(Payment::class, 'record_id', 'record_id');
+    }
 }

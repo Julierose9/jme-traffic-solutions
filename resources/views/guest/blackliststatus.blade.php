@@ -156,36 +156,37 @@
             </div>
         @endif
 
-        @if(empty($blacklistStatus) && request('plate_number'))
-            <div class="no-records">
-                <h2>No Blacklist Records Found</h2>
-                <p>The vehicle with plate number {{ request('plate_number') }} is not blacklisted.</p>
-            </div>
-        @elseif(empty($blacklistStatus))
-            <div class="no-records">
-                <h2>No Blacklist Records Found</h2>
-                <p>Please enter a plate number to check blacklist status.</p>
-            </div>
+        @if($blacklistStatus->isEmpty())
+    <div class="no-records">
+        <h2>No Blacklist Records Found</h2>
+        @if(request('plate_number'))
+            <p>The vehicle with plate number {{ request('plate_number') }} is not blacklisted or does not belong to you.</p>
         @else
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Plate Number</th>
-                        <th>Status</th>
-                        <th>Reason</th>
-                        <th>Date Added</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>{{ $blacklistStatus->registeredVehicle->plate_number }}</td>
-                        <td>{{ $blacklistStatus->status }}</td>
-                        <td>{{ $blacklistStatus->reason }}</td>
-                        <td>{{ $blacklistStatus->date_added }}</td>
-                    </tr>
-                </tbody>
-            </table>
+            <p>You have no blacklisted vehicles. Enter a plate number to check specific vehicle status.</p>
         @endif
+    </div>
+@else
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Plate Number</th>
+                <th>Status</th>
+                <th>Reason</th>
+                <th>Date Added</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($blacklistStatus as $status)
+                <tr>
+                    <td>{{ $status->registeredVehicle ? $status->registeredVehicle->plate_number : 'N/A' }}</td>
+                    <td>{{ $status->status }}</td>
+                    <td>{{ $status->reason }}</td>
+                    <td>{{ $status->date_added }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+@endif
     </div>
 </div>
 

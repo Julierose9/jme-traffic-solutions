@@ -9,7 +9,7 @@ use App\Http\Controllers\ViolationRecordController;
 use App\Http\Controllers\BlacklistManagementController;
 use App\Http\Controllers\LicenseSuspensionController;
 use App\Http\Controllers\ReportController;
-use App\Http\Controllers\PayFinesController; 
+use App\Http\Controllers\PayFinesController;
 use App\Http\Controllers\SupportController;
 
 // Public Routes
@@ -69,6 +69,15 @@ Route::middleware('auth')->prefix('dashboard')->group(function () {
         // Store Violation
         Route::post('/violation/store', [ViolationController::class, 'store'])->name('violation.store');
 
+<<<<<<< HEAD
+        // Pay Fines (Guest)
+Route::get('/pay-fines', [PayFinesController::class, 'index'])->name('pay.fines');
+Route::post('/pay-fines/{id}', [PayFinesController::class, 'payFine'])->name('pay.fines.pay');
+
+// Pay Fines (Admin)
+Route::get('/pay-fines', [PayFinesController::class, 'index'])->name('admin.pay.fines');
+Route::post('/pay-fines/{id}', [PayFinesController::class, 'payFine'])->name('admin.pay.fines.pay');
+=======
             // Pay Fines (Guest)
     Route::get('/pay-fines', [PayFinesController::class, 'index'])->name('pay.fines');
     Route::post('/pay-fines/{id}', [PayFinesController::class, 'payFine'])->name('pay.fines.pay');
@@ -77,6 +86,7 @@ Route::middleware('auth')->prefix('dashboard')->group(function () {
     Route::get('/pay-fines', [PayFinesController::class, 'index'])->name('admin.pay.fines');
     Route::post('/pay-fines/{id}', [PayFinesController::class, 'payFine'])->name('admin.pay.fines.pay');
         
+>>>>>>> master-copyOne
     });
 
     // Officer Routes
@@ -87,7 +97,7 @@ Route::middleware('auth')->prefix('dashboard')->group(function () {
     // Reports
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/create', [ReportController::class, 'create'])->name('reports.create');
-    Route::post('/reports', [ReportController::class, 'store'])->name('reports.store');
+    Route::post('/reports', [ReportController::class, 'store'])-> name('reports.store');
 
     // Violation History
     Route::get('/violation-history', [ViolationRecordController::class, 'showViolationHistory'])->name('violation.history');
@@ -95,7 +105,7 @@ Route::middleware('auth')->prefix('dashboard')->group(function () {
     // Check Violations
     Route::get('/check-violations', [ViolationController::class, 'check'])->name('violations.check');
 
-    // Blacklist Status - Modified to support GET request
+    // Blacklist Status
     Route::get('/blacklist/status', [BlacklistManagementController::class, 'checkStatus'])->name('blacklist.status');
 
 
@@ -103,6 +113,7 @@ Route::middleware('auth')->prefix('dashboard')->group(function () {
     Route::get('/pay-fines', [PayFinesController::class, 'index'])->name('pay.fines');
     Route::post('/pay-fines/{id}', [PayFinesController::class, 'payFine'])->name('pay.fines.pay');
 
+    // Support
     Route::get('/support', [SupportController::class, 'index'])->name('support');
     Route::post('/support', [SupportController::class, 'submit'])->name('support.submit');
 });

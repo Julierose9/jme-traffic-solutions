@@ -30,8 +30,24 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    // Define constants for roles
+    const ROLE_ADMIN = 'admin';
+    const ROLE_USER = 'user';
+
     public function licenseSuspensions()
     {
         return $this->hasMany(LicenseSuspension::class, 'user_id');
+    }
+
+    // Method to check if the user is an admin
+    public function isAdmin()
+    {
+        return $this->role === self::ROLE_ADMIN;
+    }
+
+    // Method to check if the user is a regular user
+    public function isUser ()
+    {
+        return $this->role === self::ROLE_USER;
     }
 }
