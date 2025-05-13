@@ -142,7 +142,7 @@
                 <a href="{{ route('register.vehicle') }}"><i class="fas fa-car"></i> Register a Vehicle</a>
                 <a href="{{ route('violation.record') }}"><i class="fas fa-exclamation-triangle"></i> Violation Records</a>
                 <a href="{{ route('blacklist.management') }}"><i class="fas fa-ban"></i> Blacklist Management</a>
-                <a href="{{ route('admin.pay.fines') }}"><i class="fas fa-money-bill-wave"></i> Pay Fines</a>
+                <a href="{{ route('admin.pay.fines') }}" class="active"><i class="fas fa-money-bill-wave"></i> Pay Fines</a>
                 <a href="{{ route('license.suspension') }}"><i class="fas fa-ban"></i> License Suspension</a>
             </nav>
             <div class="logout-btn">
@@ -155,7 +155,6 @@
         <div class="main-content">
             <h1>Pay Fines</h1>
             <table class="table">
-<<<<<<< HEAD
                 <thead>
                     <tr>
                         <th>Payment ID</th>
@@ -194,46 +193,6 @@
                     @endif
                 </tbody>
             </table>
-=======
-    <thead>
-        <tr>
-            <th>Payment ID</th>
-            <th>Record ID</th>
-            <th>Payment Date</th>
-            <th>Payment Method</th>
-            <th>Transaction Reference</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if($fines->isEmpty())
-            <tr>
-                <td colspan="6" class="no-records">No fines to pay.</td>
-            </tr>
-        @else
-            @foreach($fines as $fine)
-                <tr>
-                    <td>{{ $fine->payment_id ?? 'N/A' }}</td>
-                    <td>{{ $fine->record_id }}</td>
-                    <td>{{ $fine->payment_date ?? 'N/A' }}</td>
-                    <td>{{ $fine->payment_method ?? 'N/A' }}</td>
-                    <td>{{ $fine->transaction_reference ?? 'N/A' }}</td>
-                    <td>
-                        @if($fine->status === 'unpaid')
-                            <form action="{{ route('admin.pay.fines.pay', $fine->record_id) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="btn">Pay Now</button>
-                            </form>
-                        @else
-                            <span>Paid</span>
-                        @endif
-                    </td>
-                </tr>
-            @endforeach
-        @endif
-    </tbody>
-</table>
->>>>>>> master-copyOne
         </div>
     </div>
     <script>

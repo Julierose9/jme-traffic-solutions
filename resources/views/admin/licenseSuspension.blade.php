@@ -269,7 +269,7 @@
                 </div>
             @endif
 
-            <h1>License Suspension Management</h1>
+            <h1>License Suspension</h1>
             <button class="btn" id="openModalBtn">Add New Suspension</button>
             <table class="table">
                 <thead>

@@ -1,38 +1,85 @@
 <?php
 
-namespace App\Models;
+namespace App\Http\Controllers;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\ViolationRecord;
+use App\Models\Officer;
+use App\Models\Violation;
+use App\Models\RegisteredVehicle;
+use Illuminate\Http\Request;
 
-class ViolationRecord extends Model
+class ViolationRecordController extends Controller
 {
-    protected $table = 'violation_records';
-    protected $primaryKey = 'record_id';
-
-    protected $fillable = [
-        'vehicle_id',
-        'violation_id',
-        'officer_id',
-        'status',
-    ];
-
-    public function violation()
+    public function index()
     {
-        return $this->belongsTo(Violation::class, 'violation_id', 'violation_id');
+        $violationRecords = ViolationRecord::with(['violation', 'registeredVehicle', 'officer'])->get();
+        return view('admin.violationRecords', compact('violationRecords'));
     }
 
-    public function registeredVehicle()
+    public function store(Request $request)
     {
-        return $this->belongsTo(RegisteredVehicle::class, 'vehicle_id', 'reg_vehicle_id');
+        $validatedData = $request->validate([
+            'reg_vehicle_id' => 'required|exists:registered_vehicles,reg_vehicle_id',
+            'officer_id' => 'required|exists:officers,officer_id',
+            'violation_id' => 'required|exists:violations,violation_id',
+            'violation_date' => 'required|date',
+            'location' => 'required|string',
+            'remarks' => 'nullable|string',
+            'status' => 'required|in:paid,unpaid',
+        ]);
+
+        $violationRecord = ViolationRecord::create($validatedData);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Violation record created successfully',
+                'data' => $violationRecord
+            ]);
+        }
+
+        return redirect()->route('violation.record')->with('success', 'Violation record created successfully');
     }
 
-    public function officer()
+    public function update(Request $request, $id)
     {
-        return $this->belongsTo(Officer::class, 'officer_id', 'officer_id');
+        $violationRecord = ViolationRecord::findOrFail($id);
+
+        $validatedData = $request->validate([
+            'reg_vehicle_id' => 'required|exists:registered_vehicles,reg_vehicle_id',
+            'officer_id' => 'required|exists:officers,officer_id',
+            'violation_id' => 'required|exists:violations,violation_id',
+            'violation_date' => 'required|date',
+            'location' => 'required|string',
+            'remarks' => 'nullable|string',
+            'status' => 'required|in:paid,unpaid',
+        ]);
+
+        $violationRecord->update($validatedData);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Violation record updated successfully',
+                'data' => $violationRecord
+            ]);
+        }
+
+        return redirect()->route('violation.record')->with('success', 'Violation record updated successfully');
     }
 
-    public function payments()
+    public function destroy($id)
     {
-        return $this->hasMany(Payment::class, 'record_id', 'record_id');
+        $violationRecord = ViolationRecord::findOrFail($id);
+        $violationRecord->delete();
+
+        if (request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Violation record deleted successfully'
+            ]);
+        }
+
+        return redirect()->route('violation.record')->with('success', 'Violation record deleted successfully');
     }
 }
