@@ -44,23 +44,58 @@ class ViolationRecordController extends Controller
         // Get the authenticated user's ID
         $userId = Auth::id();
 
-        // Build the base query
-        $query = ViolationRecord::whereHas('registeredVehicle', function($query) use ($userId) {
+        // Get violation records
+        $violationRecords = ViolationRecord::whereHas('registeredVehicle', function($query) use ($userId) {
             $query->whereHas('owner', function($q) use ($userId) {
                 $q->where('user_id', $userId);
             });
         })
-        ->with(['violation', 'registeredVehicle', 'officer']);
+        ->with(['violation', 'registeredVehicle', 'officer'])
+        ->get()
+        ->map(function($record) {
+            return (object)[
+                'date' => $record->violation_date,
+                'vehicle' => $record->registeredVehicle->plate_number . ' - ' . 
+                           $record->registeredVehicle->brand . ' ' . 
+                           $record->registeredVehicle->model,
+                'violation' => $record->violation->violation_name,
+                'location' => $record->location,
+                'officer' => $record->officer->fname . ' ' . $record->officer->lname,
+                'penalty_amount' => $record->PenaltyAmount,
+                'status' => $record->Status,
+                'details' => null,
+                'isReport' => false
+            ];
+        });
 
-        // If a specific vehicle is requested, filter by it
-        if ($request->has('vehicle')) {
-            $query->where('reg_vehicle_id', $request->vehicle);
-        }
+        // Get reports
+        $reports = \App\Models\Report::whereHas('vehicle', function($query) use ($userId) {
+            $query->whereHas('owner', function($q) use ($userId) {
+                $q->where('user_id', $userId);
+            });
+        })
+        ->with(['violation', 'vehicle', 'officer'])
+        ->get()
+        ->map(function($report) {
+            return (object)[
+                'date' => $report->report_date,
+                'vehicle' => $report->vehicle->plate_number . ' - ' . 
+                           $report->vehicle->brand . ' ' . 
+                           $report->vehicle->model,
+                'violation' => $report->violation->violation_name,
+                'location' => $report->location,
+                'officer' => $report->officer->fname . ' ' . $report->officer->lname,
+                'penalty_amount' => $report->violation->penalty_amount ?? 0,
+                'status' => $report->status,
+                'details' => $report->report_details,
+                'isReport' => true
+            ];
+        });
 
-        // Get the records ordered by date
-        $violationRecords = $query->orderBy('violation_date', 'desc')->get();
+        // Merge and sort records by date
+        $allRecords = $violationRecords->concat($reports)->sortByDesc('date');
 
-        return view('guest.violationHistory', compact('violationRecords'));
+        return view('guest.violationHistory', compact('allRecords'));
     }
 
     public function store(Request $request)
