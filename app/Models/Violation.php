@@ -17,9 +17,4 @@ class Violation extends Model
         'description',
         'penalty_amount',
     ];
-
-    public function violationRecords()
-    {
-        return $this->hasMany(ViolationRecord::class, 'violation_id', 'violation_id');
-    }
 }

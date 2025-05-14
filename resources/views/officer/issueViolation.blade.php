@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Issue Violation - Admin Dashboard</title>
+    <title> Violations - Admin Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -173,7 +173,7 @@
             <img src="{{ asset('images/image3.png') }}" alt="JME Logo" class="logo">
             <nav>
                 <a href="{{ url('/dashboard/officer') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-                <a href="{{ url('/issue-violation') }}" class="active" id="sidebarOpenModalBtn"><i class="fas fa-exclamation-triangle"></i> Issue Violation</a>
+                <a href="{{ url('/issue-violation') }}" class="active" id="sidebarOpenModalBtn"><i class="fas fa-exclamation-triangle"></i> Violation</a>
                 <a href="{{ route('reports.index') }}"><i class="fas fa-folder-open"></i> Reports</a>
             </nav>
             <div class="logout-btn">
@@ -184,32 +184,28 @@
             </div>
         </div>
         <div class="main-content">
-            <h1>Issue Violation</h1>
+            <h1>Violations</h1>
             <button class="btn" onclick="openGenerateViolationModal()">Generate Violation</button>
             <table class="table" id="violationTable">
                 <thead>
                     <tr>
-                        <th>Record ID</th>
+                        <th>Violation ID</th>
                         <th>Violation Code</th>
                         <th>Description</th>
                         <th>Penalty Amount</th>
-                        <th>Officer Last Name</th>
-                        <th>Officer First Name</th>
-                        <th>Violation Date</th>
-                        <th>Status</th>
+                        <th>Created At</th>
+                        <th>Updated At</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($violationRecords as $record)
+                    @foreach($violations as $violation)
                         <tr>
-                            <td>{{ $record->record_id }}</td>
-                            <td>{{ $record->violation_code }}</td>
-                            <td>{{ $record->description }}</td>
-                            <td>{{ $record->penalty_amount }}</td>
-                            <td>{{ $record->officer_last_name }}</td>
-                            <td>{{ $record->officer_first_name }}</td>
-                            <td>{{ $record->violation_date }}</td>
-                            <td>{{ $record->status }}</td>
+                            <td>{{ $violation->violation_id }}</td>
+                            <td>{{ $violation->violation_code }}</td>
+                            <td>{{ $violation->description }}</td>
+                            <td>{{ $violation->penalty_amount }}</td>
+                            <td>{{ $violation->created_at }}</td>
+                            <td>{{ $violation->updated_at }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -221,9 +217,8 @@
         <div class="modal-content">
             <span class="close" onclick="closeGenerateViolationModal()">×</span>
             <h2>Generate Violation</h2>
-            <form id="violationForm" action="/dashboard/officer/violation" method="POST">
+            <form id="violationForm" action="{{ route('officer.violation.store') }}" method="POST">
                 @csrf
-                <input type="hidden" id="record_id" name="record_id">
                 <div class="form-group">
                     <label for="violation_code">Violation Code:</label>
                     <input type="text" class="form-control" id="violation_code" name="violation_code" required>
@@ -236,45 +231,19 @@
                     <label for="penalty_amount">Penalty Amount:</label>
                     <input type="number" class="form-control" id="penalty_amount" name="penalty_amount" required>
                 </div>
-                <div class="form-group">
-                    <label for="officer_last_name">Officer Last Name:</label>
-                    <input type="text" class="form-control" id="officer_last_name" name="officer_last_name" required>
-                </div>
-                <div class="form-group">
-                    <label for="officer_first_name">Officer First Name:</label>
-                    <input type="text" class="form-control" id="officer_first_name" name="officer_first_name" required>
-                </div>
-                <div class="form-group">
-                    <label for="violation_date">Violation Date:</label>
-                    <input type="date" class="form-control" id="violation_date" name="violation_date" required>
-                </div>
-                <div class="form-group">
-                    <label for="status">Status:</label>
-                    <select class="form-control" id="status" name="status" required>
-                        <option value="" disabled selected>Select Status</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Resolved">Resolved</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Cancelled">Cancelled</option>
-                    </select>
-                </div>
                 <button type="submit" class="btn">Generate Violation</button>
             </form>
         </div>
     </div>
 
     <script>
-        let recordIdCounter = 0;
-
         function openGenerateViolationModal() {
             document.getElementById('generateViolationModal').style.display = 'block';
-            recordIdCounter++;
-            const recordId = 'REC' + recordIdCounter.toString().padStart(4, '0');
-            document.getElementById('record_id').value = recordId;
         }
 
         function closeGenerateViolationModal() {
             document.getElementById('generateViolationModal').style.display = 'none';
+            document.getElementById('violationForm').reset();
         }
 
         window.onclick = function(event) {
@@ -284,38 +253,76 @@
             }
         }
 
+        function validateForm(formData) {
+            const errors = [];
+            const violationCode = formData.get('violation_code').trim();
+            const description = formData.get('description').trim();
+            const penaltyAmount = formData.get('penalty_amount');
+
+            if (!/^[a-zA-Z0-9]{1,10}$/.test(violationCode)) {
+                errors.push('Violation Code must be alphanumeric and up to 10 characters.');
+            }
+
+            if (description.length === 0 || description.length > 255) {
+                errors.push('Description is required and must be less than 255 characters.');
+            }
+
+            if (isNaN(penaltyAmount) || penaltyAmount <= 0) {
+                errors.push('Penalty Amount must be a positive number.');
+            }
+
+            return errors;
+        }
+
         function handleViolationSubmit(event) {
-            event.preventDefault(); // Prevent form submission from reloading the page
+            event.preventDefault();
+
             const form = document.getElementById('violationForm');
             const formData = new FormData(form);
+            const submitButton = form.querySelector('button[type="submit"]');
             const table = document.getElementById('violationTable').getElementsByTagName('tbody')[0];
+
+            const errors = validateForm(formData);
+            if (errors.length > 0) {
+                alert('Please fix the following errors:\n- ' + errors.join('\n- '));
+                return;
+            }
+
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
 
             fetch(form.action, {
                 method: 'POST',
                 body: formData,
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json'
-                }
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin'
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => {
+                        throw new Error(err.message || 'Network response was not ok');
+                    });
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
-                    // Use the data returned from the server to populate the table
                     const violation = data.violation;
                     const newRow = table.insertRow();
                     newRow.innerHTML = `
-                        <td>${violation.record_id}</td>
+                        <td>${violation.violation_id}</td>
                         <td>${violation.violation_code}</td>
                         <td>${violation.description}</td>
                         <td>${violation.penalty_amount}</td>
-                        <td>${violation.officer_last_name}</td>
-                        <td>${violation.officer_first_name}</td>
-                        <td>${violation.violation_date}</td>
-                        <td>${violation.status}</td>
+                        <td>${violation.created_at}</td>
+                        <td>${violation.updated_at}</td>
                     `;
 
-                    // Reset form and close modal
+                    alert('Violation generated successfully!');
                     form.reset();
                     closeGenerateViolationModal();
                 } else {
@@ -324,7 +331,11 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while generating the violation.');
+                alert('An error occurred while generating the violation. Please try again.');
+            })
+            .finally(() => {
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Generate Violation';
             });
         }
 

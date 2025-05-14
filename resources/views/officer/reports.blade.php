@@ -139,7 +139,7 @@
         <img src="{{ asset('images/image3.png') }}" alt="JME Logo" class="logo">
         <nav>
             <a href="{{ url('/dashboard/officer') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-            <a href="{{ route('officer.violation.issue') }}"><i class="fas fa-exclamation-triangle"></i> Issue Violation</a>
+            <a href="{{ route('officer.violation.issue') }}"><i class="fas fa-exclamation-triangle"></i> Violations</a>
             <a href="{{ route('reports.index') }}" class="active"><i class="fas fa-folder-open"></i> Reports</a>
         </nav>
         <div class="logout-btn">
@@ -152,7 +152,7 @@
 
     <div class="main-content">
         <div class="container mt-5">
-            <h1 class="mb-4">Reports</h1>
+            <h1 class="mb-4">My Reports</h1>
             @if(session('success'))
                 <div class="alert alert-success">
                     {{ session('success') }}
@@ -164,13 +164,11 @@
                 <thead>
                     <tr>
                         <th>Report ID</th>
-                        <th>Violation ID</th>
-                        <th>Officer ID</th>
-                        <th>Vehicle ID</th>
-                        <th>Owner ID</th>
-                        <th>Report Details</th>
+                        <th>Violation</th>
+                        <th>Vehicle</th>
+                        <th>Violation Date</th>
                         <th>Location</th>
-                        <th>Report Date</th>
+                        <th>Remarks</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -179,20 +177,18 @@
                     @foreach($reports as $report)
                         <tr>
                             <td>{{ $report->report_id }}</td>
-                            <td>{{ $report->violation_id }}</td>
-                            <td>{{ $report->officer_id }}</td>
-                            <td>{{ $report->reg_vehicle_id }}</td>
-                            <td>{{ $report->own_id }}</td>
-                            <td>{{ $report->report_details }}</td>
+                            <td>{{ $report->violation->violation_code }} - {{ $report->violation->description }}</td>
+                            <td>{{ $report->vehicle->plate_number }}</td>
+                            <td>{{ $report->violation_date }}</td>
                             <td>{{ $report->location }}</td>
-                            <td>{{ $report->report_date }}</td>
-                            <td>{{ $report->status }}</td>
+                            <td>{{ $report->remarks }}</td>
+                            <td>{{ ucfirst($report->status) }}</td>
                             <td>
                                 <a href="{{ route('reports.edit', $report->report_id) }}" class="btn btn-warning btn-sm">Edit</a>
                                 <form action="{{ route('reports.destroy', $report->report_id) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this report?')">Delete</button>
                                 </form>
                             </td>
                         </tr>
@@ -209,63 +205,49 @@
             <form id="reportForm" action="{{ route('reports.store') }}" method="POST">
                 @csrf
                 <div class="form-group">
-                    <label for="violation_id">Violation ID:</label>
+                    <label for="violation_id">Violation:</label>
                     <select class="form-control" id="violation_id" name="violation_id" required>
                         <option value="" disabled selected>Select Violation</option>
                         @foreach(\App\Models\Violation::all() as $violation)
-                            <option value="{{ $violation->violation_id }}">{{ $violation->violation_code }}</option>
+                            <option value="{{ $violation->violation_id }}">{{ $violation->violation_code }} - {{ $violation->description }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="officer_id">Officer ID:</label>
-                    <select class="form-control" id="officer_id" name="officer_id" required>
-                        <option value="" disabled selected>Select Officer</option>
-                        @foreach(\App\Models\Officer::all() as $officer)
-                            <option value="{{ $officer->id }}">{{ $officer->first_name }} {{ $officer->last_name }}</option>
-                        @endforeach
-                    </select>
+                    <label for="officer_id">Officer:</label>
+                    <input type="text" class="form-control" id="officer_name" value="{{ Auth::user()->fname }} {{ Auth::user()->lname }}" readonly>
+                    <input type="hidden" id="officer_id" name="officer_id" value="{{ Auth::user()->officer_id }}">
                 </div>
                 <div class="form-group">
-                    <label for="reg_vehicle_id">Vehicle ID:</label>
+                    <label for="reg_vehicle_id">Vehicle:</label>
                     <select class="form-control" id="reg_vehicle_id" name="reg_vehicle_id" required>
                         <option value="" disabled selected>Select Vehicle</option>
                         @foreach(\App\Models\RegisteredVehicle::all() as $vehicle)
-                            <option value="{{ $vehicle->id }}">{{ $vehicle->id }}</option> <!-- Adjust display field as needed -->
+                            <option value="{{ $vehicle->reg_vehicle_id }}">{{ $vehicle->plate_number }} - {{ $vehicle->brand }} {{ $vehicle->model }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="own_id">Owner ID:</label>
-                    <select class="form-control" id="own_id" name="own_id" required>
-                        <option value="" disabled selected>Select Owner</option>
-                        @foreach(\App\Models\Owner::all() as $owner)
-                            <option value="{{ $owner->id }}">{{ $owner->id }}</option> <!-- Adjust display field as needed -->
-                        @endforeach
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="report_details">Report Details:</label>
-                    <textarea class="form-control" id="report_details" name="report_details" rows="3" required></textarea>
+                    <label for="violation_date">Violation Date:</label>
+                    <input type="datetime-local" class="form-control" id="violation_date" name="violation_date" required>
                 </div>
                 <div class="form-group">
                     <label for="location">Location:</label>
                     <input type="text" class="form-control" id="location" name="location" required>
                 </div>
                 <div class="form-group">
-                    <label for="report_date">Report Date:</label>
-                    <input type="date" class="form-control" id="report_date" name="report_date" required>
+                    <label for="remarks">Remarks:</label>
+                    <textarea class="form-control" id="remarks" name="remarks" rows="3" required></textarea>
                 </div>
                 <div class="form-group">
                     <label for="status">Status:</label>
                     <select class="form-control" id="status" name="status" required>
-                        <option value="" disabled selected>Select Status</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Resolved">Resolved</option>
-                        <option value="Closed">Closed</option>
+                        <option value="pending">Pending</option>
+                        <option value="processing">Processing</option>
+                        <option value="completed">Completed</option>
                     </select>
                 </div>
-                <button type="submit" class="btn">Create Report</button>
+                <button type="submit" class="btn btn-primary">Submit Report</button>
             </form>
         </div>
     </div>
@@ -309,12 +291,10 @@
                     newRow.innerHTML = `
                         <td>${report.report_id}</td>
                         <td>${report.violation_id}</td>
-                        <td>${report.officer_id}</td>
                         <td>${report.reg_vehicle_id}</td>
-                        <td>${report.own_id}</td>
-                        <td>${report.report_details}</td>
+                        <td>${report.violation_date}</td>
                         <td>${report.location}</td>
-                        <td>${report.report_date}</td>
+                        <td>${report.remarks}</td>
                         <td>${report.status}</td>
                         <td>
                             <a href="/reports/${report.report_id}/edit" class="btn btn-warning btn-sm">Edit</a>
