@@ -58,7 +58,7 @@ class ViolationRecordController extends Controller
                 'vehicle' => $record->registeredVehicle->plate_number . ' - ' . 
                            $record->registeredVehicle->brand . ' ' . 
                            $record->registeredVehicle->model,
-                'violation' => $record->violation->violation_name,
+                'violation' => $record->violation->violation_code,
                 'location' => $record->location,
                 'officer' => $record->officer->fname . ' ' . $record->officer->lname,
                 'penalty_amount' => $record->PenaltyAmount,
@@ -82,7 +82,7 @@ class ViolationRecordController extends Controller
                 'vehicle' => $report->vehicle->plate_number . ' - ' . 
                            $report->vehicle->brand . ' ' . 
                            $report->vehicle->model,
-                'violation' => $report->violation->violation_name,
+                'violation' => $report->violation->violation_code,
                 'location' => $report->location,
                 'officer' => $report->officer->fname . ' ' . $report->officer->lname,
                 'penalty_amount' => $report->violation->penalty_amount ?? 0,
