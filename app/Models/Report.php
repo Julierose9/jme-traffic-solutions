@@ -9,7 +9,8 @@ class Report extends Model
 {
     use HasFactory;
 
-    protected $table = 'reports'; // Specify the table name if it's not pluralized
+    protected $table = 'reports';
+    protected $primaryKey = 'report_id';
 
     protected $fillable = [
         'violation_id',
@@ -19,27 +20,32 @@ class Report extends Model
         'report_details',
         'location',
         'report_date',
-        'status',
+        'status'
     ];
 
-    // Define relationships if needed
+    protected $casts = [
+        'report_date' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime'
+    ];
+
     public function violation()
     {
-        return $this->belongsTo(Violation::class);
-    }
-
-    public function officer()
-    {
-        return $this->belongsTo(Officer::class);
+        return $this->belongsTo(Violation::class, 'violation_id');
     }
 
     public function vehicle()
     {
-        return $this->belongsTo(Vehicle::class, 'reg_vehicle_id');
+        return $this->belongsTo(RegisteredVehicle::class, 'reg_vehicle_id');
     }
 
     public function owner()
     {
         return $this->belongsTo(Owner::class, 'own_id');
+    }
+
+    public function officer()
+    {
+        return $this->belongsTo(User::class, 'officer_id');
     }
 }

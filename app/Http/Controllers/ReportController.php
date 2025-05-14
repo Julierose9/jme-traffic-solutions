@@ -65,9 +65,10 @@ class ReportController extends Controller
         $request->validate([
             'violation_id' => 'required|exists:violations,violation_id',
             'reg_vehicle_id' => 'required|exists:registered_vehicles,reg_vehicle_id',
-            'violation_date' => 'required|date',
+            'own_id' => 'required|exists:owners,own_id',
+            'report_details' => 'required|string',
             'location' => 'required|string',
-            'remarks' => 'required|string',
+            'report_date' => 'required|date',
             'status' => 'required|string',
         ]);
 

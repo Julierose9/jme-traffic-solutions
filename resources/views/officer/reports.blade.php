@@ -166,9 +166,10 @@
                         <th>Report ID</th>
                         <th>Violation</th>
                         <th>Vehicle</th>
-                        <th>Violation Date</th>
+                        <th>Owner</th>
+                        <th>Report Date</th>
                         <th>Location</th>
-                        <th>Remarks</th>
+                        <th>Details</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -179,9 +180,10 @@
                             <td>{{ $report->report_id }}</td>
                             <td>{{ $report->violation->violation_code }} - {{ $report->violation->description }}</td>
                             <td>{{ $report->vehicle->plate_number }}</td>
-                            <td>{{ $report->violation_date }}</td>
+                            <td>{{ $report->owner->fname }} {{ $report->owner->lname }}</td>
+                            <td>{{ $report->report_date }}</td>
                             <td>{{ $report->location }}</td>
-                            <td>{{ $report->remarks }}</td>
+                            <td>{{ $report->report_details }}</td>
                             <td>{{ ucfirst($report->status) }}</td>
                             <td>
                                 <a href="{{ route('reports.edit', $report->report_id) }}" class="btn btn-warning btn-sm">Edit</a>
@@ -219,25 +221,33 @@
                     <input type="hidden" id="officer_id" name="officer_id" value="{{ Auth::user()->officer_id }}">
                 </div>
                 <div class="form-group">
-                    <label for="reg_vehicle_id">Vehicle:</label>
-                    <select class="form-control" id="reg_vehicle_id" name="reg_vehicle_id" required>
-                        <option value="" disabled selected>Select Vehicle</option>
-                        @foreach(\App\Models\RegisteredVehicle::all() as $vehicle)
-                            <option value="{{ $vehicle->reg_vehicle_id }}">{{ $vehicle->plate_number }} - {{ $vehicle->brand }} {{ $vehicle->model }}</option>
+                    <label for="own_id">Owner:</label>
+                    <select class="form-control" id="own_id" name="own_id" required onchange="updateVehicleList(this.value)">
+                        <option value="" disabled selected>Select Owner</option>
+                        @foreach(\App\Models\Owner::all() as $owner)
+                            <option value="{{ $owner->own_id }}">
+                                {{ $owner->fname }} {{ $owner->lname }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="violation_date">Violation Date:</label>
-                    <input type="datetime-local" class="form-control" id="violation_date" name="violation_date" required>
+                    <label for="reg_vehicle_id">Vehicle:</label>
+                    <select class="form-control" id="reg_vehicle_id" name="reg_vehicle_id" required disabled>
+                        <option value="" disabled selected>Select Owner First</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="report_date">Report Date:</label>
+                    <input type="datetime-local" class="form-control" id="report_date" name="report_date" required>
                 </div>
                 <div class="form-group">
                     <label for="location">Location:</label>
                     <input type="text" class="form-control" id="location" name="location" required>
                 </div>
                 <div class="form-group">
-                    <label for="remarks">Remarks:</label>
-                    <textarea class="form-control" id="remarks" name="remarks" rows="3" required></textarea>
+                    <label for="report_details">Report Details:</label>
+                    <textarea class="form-control" id="report_details" name="report_details" rows="3" required></textarea>
                 </div>
                 <div class="form-group">
                     <label for="status">Status:</label>
@@ -292,8 +302,10 @@
                         <td>${report.report_id}</td>
                         <td>${report.violation_id}</td>
                         <td>${report.reg_vehicle_id}</td>
-                        <td>${report.violation_date}</td>
+                        <td>${report.own_id}</td>
+                        <td>${report.report_date}</td>
                         <td>${report.location}</td>
+                        <td>${report.report_details}</td>
                         <td>${report.remarks}</td>
                         <td>${report.status}</td>
                         <td>
@@ -322,6 +334,30 @@
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('reportForm').addEventListener('submit', handleReportSubmit);
         });
+
+        function updateVehicleList(ownerId) {
+            const vehicleSelect = document.getElementById('reg_vehicle_id');
+            vehicleSelect.disabled = true;
+            vehicleSelect.innerHTML = '<option value="" disabled selected>Loading vehicles...</option>';
+
+            // Fetch vehicles for the selected owner
+            fetch(`/api/owner/${ownerId}/vehicles`)
+                .then(response => response.json())
+                .then(vehicles => {
+                    vehicleSelect.innerHTML = '<option value="" disabled selected>Select Vehicle</option>';
+                    vehicles.forEach(vehicle => {
+                        const option = document.createElement('option');
+                        option.value = vehicle.reg_vehicle_id;
+                        option.textContent = `${vehicle.plate_number} - ${vehicle.brand} ${vehicle.model}`;
+                        vehicleSelect.appendChild(option);
+                    });
+                    vehicleSelect.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    vehicleSelect.innerHTML = '<option value="" disabled selected>Error loading vehicles</option>';
+                });
+        }
     </script>
 
     <script src="{{ asset('js/jquery.min.js') }}"></script>
