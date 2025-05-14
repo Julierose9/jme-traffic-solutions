@@ -25,12 +25,12 @@ class LicenseSuspensionController extends Controller
         try {
             $validatedData = $request->validate([
                 'own_id' => 'required|exists:owners,own_id',
-                'suspension_start_date' => 'required|date',
-                'suspension_end_date' => 'nullable|date|after_or_equal:suspension_start_date',
-                'suspension_reason' => 'required|string|max:255',
+            'suspension_start_date' => 'required|date',
+            'suspension_end_date' => 'nullable|date|after_or_equal:suspension_start_date',
+            'suspension_reason' => 'required|string|max:255',
                 'suspension_status' => 'required|in:Active,Lifted',
                 'appeal_status' => 'nullable|in:Pending,Approved,Rejected'
-            ]);
+        ]);
 
             $suspension = LicenseSuspension::create($validatedData);
 
@@ -95,7 +95,7 @@ class LicenseSuspensionController extends Controller
     {
         try {
             $suspension = LicenseSuspension::findOrFail($id);
-            $suspension->delete();
+        $suspension->delete();
 
             if (request()->wantsJson()) {
                 return response()->json([

@@ -564,7 +564,7 @@
                 <div class="form-group">
                     <label for="edit_owner_name">Owner:</label>
                     <input type="text" id="edit_owner_name" class="form-control" disabled>
-                    <input type="hidden" id="edit_owner_id" name="own_id">
+                <input type="hidden" id="edit_owner_id" name="own_id">
                 </div>
 
                 <div class="form-group">
@@ -742,7 +742,7 @@
                 document.getElementById('edit_license_number').value = owner.license_number;
 
                 // Show the modal
-                document.getElementById('editVehicleModal').style.display = 'block';
+            document.getElementById('editVehicleModal').style.display = 'block';
             } catch (error) {
                 console.error('Error:', error);
                 alert('Failed to load vehicle details. Please try again.');

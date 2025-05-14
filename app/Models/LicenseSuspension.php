@@ -22,7 +22,7 @@ class LicenseSuspension extends Model
         'suspension_end_date' => 'date'
     ];
 
-    public function owner()
+    public function owner() 
     {
         return $this->belongsTo(Owner::class, 'own_id', 'own_id');
     }

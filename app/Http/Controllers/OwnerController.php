@@ -22,8 +22,8 @@ class OwnerController extends Controller
             $owner = Owner::create($validatedData);
 
             if ($request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
+            return response()->json([
+                'success' => true,
                     'message' => 'Owner registered successfully!',
                     'owner_id' => $owner->own_id
                 ]);
@@ -32,11 +32,11 @@ class OwnerController extends Controller
             return redirect()->back()->with('success', 'Owner registered successfully!');
         } catch (\Exception $e) {
             if ($request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
+            return response()->json([
+                'success' => false,
                     'message' => 'Failed to register owner: ' . $e->getMessage()
-                ], 500);
-            }
+            ], 500);
+        }
 
             return redirect()->back()->with('error', 'Failed to register owner: ' . $e->getMessage())->withInput();
         }

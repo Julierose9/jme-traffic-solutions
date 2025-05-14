@@ -97,12 +97,12 @@ class VehicleController extends Controller
             // Then validate and create the vehicle record
             $vehicleData = $request->validate([
                 'plate_number' => 'required|string|max:255|unique:registered_vehicles,plate_number',
-                'vehicle_type' => 'required|string|max:255',
-                'brand' => 'required|string|max:255',
-                'model' => 'required|string|max:255',
-                'color' => 'required|string|max:255',
-                'registration_date' => 'required|date',
-            ]);
+            'vehicle_type' => 'required|string|max:255',
+            'brand' => 'required|string|max:255',
+            'model' => 'required|string|max:255',
+            'color' => 'required|string|max:255',
+            'registration_date' => 'required|date',
+        ]);
 
             // Add the owner_id to the vehicle data
             $vehicleData['own_id'] = $owner->own_id;
@@ -118,7 +118,7 @@ class VehicleController extends Controller
                 ]);
             }
 
-            return redirect()->route('register.vehicle')->with('success', 'Vehicle registered successfully!');
+        return redirect()->route('register.vehicle')->with('success', 'Vehicle registered successfully!');
         } catch (\Exception $e) {
             if ($request->wantsJson()) {
                 return response()->json([
@@ -143,21 +143,21 @@ class VehicleController extends Controller
             // Start database transaction
             DB::beginTransaction();
 
-            // Validate the incoming request data
-            $validatedData = $request->validate([
-                'reg_vehicle_id' => 'required|exists:registered_vehicles,reg_vehicle_id',
-                'own_id' => 'required|exists:owners,own_id',
+        // Validate the incoming request data
+        $validatedData = $request->validate([
+            'reg_vehicle_id' => 'required|exists:registered_vehicles,reg_vehicle_id',
+            'own_id' => 'required|exists:owners,own_id',
                 'plate_number' => 'required|string|max:255|unique:registered_vehicles,plate_number,' . $request->reg_vehicle_id . ',reg_vehicle_id',
-                'vehicle_type' => 'required|string|max:255',
-                'brand' => 'required|string|max:255',
-                'model' => 'required|string|max:255',
-                'color' => 'required|string|max:255',
-                'registration_date' => 'required|date',
+            'vehicle_type' => 'required|string|max:255',
+            'brand' => 'required|string|max:255',
+            'model' => 'required|string|max:255',
+            'color' => 'required|string|max:255',
+            'registration_date' => 'required|date',
                 // Owner details
                 'address' => 'required|string|max:255',
                 'contact_num' => 'required|string|max:20',
                 'license_number' => 'required|string|max:50|unique:owners,license_number,' . $request->own_id . ',own_id',
-            ]);
+        ]);
 
             // Find the owner and update their details
             $owner = Owner::findOrFail($validatedData['own_id']);
@@ -210,16 +210,16 @@ class VehicleController extends Controller
     public function destroy(Request $request)
     {
         try {
-            // Validate the incoming request data
-            $validatedData = $request->validate([
-                'reg_vehicle_id' => 'required|exists:registered_vehicles,reg_vehicle_id',
-            ]);
+        // Validate the incoming request data
+        $validatedData = $request->validate([
+            'reg_vehicle_id' => 'required|exists:registered_vehicles,reg_vehicle_id',
+        ]);
 
             // Find the vehicle by reg_vehicle_id
             $vehicle = RegisteredVehicle::where('reg_vehicle_id', $request->reg_vehicle_id)->firstOrFail();
 
-            // Delete the vehicle
-            $vehicle->delete();
+        // Delete the vehicle
+        $vehicle->delete();
 
             if ($request->wantsJson()) {
                 return response()->json([
@@ -228,7 +228,7 @@ class VehicleController extends Controller
                 ]);
             }
 
-            return redirect()->route('register.vehicle')->with('success', 'Vehicle deleted successfully!');
+        return redirect()->route('register.vehicle')->with('success', 'Vehicle deleted successfully!');
         } catch (\Exception $e) {
             if ($request->wantsJson()) {
                 return response()->json([

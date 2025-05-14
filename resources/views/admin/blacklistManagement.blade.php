@@ -509,7 +509,7 @@
                 form.appendChild(methodField);
                 document.body.appendChild(form);
                 form.submit();
-            }
+        }
         }
 
         // Close modals when clicking outside

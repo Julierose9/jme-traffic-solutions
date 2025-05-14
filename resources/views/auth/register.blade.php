@@ -199,6 +199,25 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+
+                    <!-- Officer-specific fields -->
+                    <div id="officerFields" style="display: none;">
+                        <div class="mb-3">
+                            <label for="rank" class="form-label">Rank <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control @error('rank') is-invalid @enderror" id="rank" name="rank" value="{{ old('rank') }}">
+                            @error('rank')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="mb-3">
+                            <label for="contact_num" class="form-label">Contact Number <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control @error('contact_num') is-invalid @enderror" id="contact_num" name="contact_num" value="{{ old('contact_num') }}">
+                            @error('contact_num')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
                     <div class="mb-3">
                         <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
                         <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}" required>
@@ -254,6 +273,29 @@
                     return { text: 'Medium', class: 'medium' };
                 }
                 return { text: 'Strong', class: 'strong' };
+            }
+        });
+
+        document.getElementById('role').addEventListener('change', function() {
+            const officerFields = document.getElementById('officerFields');
+            if (this.value === 'officer') {
+                officerFields.style.display = 'block';
+                document.getElementById('rank').required = true;
+                document.getElementById('contact_num').required = true;
+            } else {
+                officerFields.style.display = 'none';
+                document.getElementById('rank').required = false;
+                document.getElementById('contact_num').required = false;
+            }
+        });
+
+        // Show/hide fields on page load if role is pre-selected
+        window.addEventListener('load', function() {
+            const roleSelect = document.getElementById('role');
+            if (roleSelect.value === 'officer') {
+                document.getElementById('officerFields').style.display = 'block';
+                document.getElementById('rank').required = true;
+                document.getElementById('contact_num').required = true;
             }
         });
     </script>

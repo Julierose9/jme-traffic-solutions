@@ -40,9 +40,13 @@ class AuthController extends Controller
             'email' => 'required|email|unique:users,email',
             'username' => 'required|string|unique:users,username',
             'password' => 'required|string|confirmed|min:6',
+            'contact_num' => 'required_if:role,officer|string|max:255',
+            'rank' => 'required_if:role,officer|string|max:255',
         ]);
 
         try {
+            \DB::beginTransaction();
+
             // Create the user
             $user = new User;
             $user->role = $validated['role'];
@@ -54,8 +58,22 @@ class AuthController extends Controller
             $user->password = Hash::make($validated['password']);
             $user->save();
 
+            // If the role is officer, create an officer record
+            if ($validated['role'] === 'officer') {
+                \App\Models\Officer::create([
+                    'fname' => $validated['fname'],
+                    'mname' => $validated['mname'],
+                    'lname' => $validated['lname'],
+                    'email' => $validated['email'],
+                    'rank' => $validated['rank'],
+                    'contact_num' => $validated['contact_num'],
+                ]);
+            }
+
+            \DB::commit();
             return redirect()->route('welcome')->with('success', 'Registration successful! Please log in.');
         } catch (Exception $e) {
+            \DB::rollBack();
             // Log the error for debugging
             \Log::error('User registration failed: ' . $e->getMessage());
 

@@ -12,6 +12,8 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\PayFinesController; 
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\VehicleRegistrationRequestController;
+use App\Models\RegisteredVehicle;
+use App\Models\Owner;
 
 // Public Routes
 Route::get('/', function () {
@@ -57,12 +59,12 @@ Route::middleware(['auth'])->group(function () {
 
 // Admin Routes
 Route::prefix('dashboard/admin')->middleware(['web', 'auth'])->group(function () {
-    Route::get('/', function () {
+        Route::get('/', function () {
         if (auth()->user()->role !== 'admin') {
             return redirect('/')->with('error', 'Unauthorized access');
         }
-        return view('admin.dashboard');
-    })->name('dashboard.admin');
+            return view('admin.dashboard');
+        })->name('dashboard.admin');
 
     // Vehicle Registration Requests
     Route::controller(VehicleRegistrationRequestController::class)->group(function () {
@@ -80,7 +82,7 @@ Route::prefix('dashboard/admin')->middleware(['web', 'auth'])->group(function ()
         Route::delete('/vehicles/delete', 'destroy')->name('delete.vehicle.submit');
     });
 
-    // Violation Records
+        // Violation Records
     Route::controller(ViolationRecordController::class)->group(function () {
         Route::get('/violation-records', 'index')->name('violation.record');
         Route::get('/violation-records/create', 'create')->name('violation.records.create');
@@ -97,7 +99,7 @@ Route::prefix('dashboard/admin')->middleware(['web', 'auth'])->group(function ()
         Route::delete('/blacklist/{id}', 'destroy')->name('blacklist.destroy');
     });
 
-    // License Suspension
+        // License Suspension
     Route::controller(LicenseSuspensionController::class)->group(function () {
         Route::get('/license-suspension', 'index')->name('license.suspension');
         Route::post('/license-suspension', 'store')->name('license.suspension.store');
@@ -107,9 +109,9 @@ Route::prefix('dashboard/admin')->middleware(['web', 'auth'])->group(function ()
 
     // Pay Fines
     Route::get('/pay-fines', [PayFinesController::class, 'adminIndex'])->name('admin.pay.fines');
-});
+    });
 
-// Officer Routes
+    // Officer Routes
 Route::middleware(['auth'])->prefix('dashboard')->group(function () {
     Route::get('/officer', [ViolationController::class, 'index'])->name('dashboard.officer');
     Route::get('/officer/issue-violation', [ViolationController::class, 'create'])->name('officer.violation.issue');
@@ -118,5 +120,45 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
     // Reports
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/create', [ReportController::class, 'create'])->name('reports.create');
-    Route::post('/reports', [ReportController::class, 'store'])-> name('reports.store');
+    Route::post('/reports', [ReportController::class, 'store'])->name('reports.store');
+    Route::get('/reports/{id}/edit', [ReportController::class, 'edit'])->name('reports.edit');
+    Route::put('/reports/{id}', [ReportController::class, 'update'])->name('reports.update');
+    Route::delete('/reports/{id}', [ReportController::class, 'destroy'])->name('reports.destroy');
 });
+
+// Add route for fetching vehicles by owner
+Route::get('/api/owner/{ownerId}/vehicles', function ($ownerId) {
+    try {
+        // First check if owner exists
+        $owner = Owner::findOrFail($ownerId);
+
+        $vehicles = RegisteredVehicle::where('own_id', $ownerId)
+            ->get()
+            ->map(function ($vehicle) {
+                return [
+                    'reg_vehicle_id' => $vehicle->reg_vehicle_id,
+                    'plate_number' => $vehicle->plate_number,
+                    'brand' => $vehicle->brand,
+                    'model' => $vehicle->model,
+                    'vehicle_type' => $vehicle->vehicle_type,
+                    'color' => $vehicle->color
+                ];
+            });
+
+        if ($vehicles->isEmpty()) {
+            return response()->json([
+                'message' => 'No vehicles found for this owner'
+            ], 200);
+        }
+
+        return response()->json($vehicles);
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        return response()->json([
+            'error' => 'Owner not found'
+        ], 404);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Failed to fetch vehicles: ' . $e->getMessage()
+        ], 500);
+    }
+})->middleware('auth');

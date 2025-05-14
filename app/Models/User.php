@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use Notifiable;
+    use HasApiTokens, Notifiable;
 
     protected $primaryKey = 'id';
 
@@ -28,11 +29,13 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'password' => 'hashed',
     ];
 
     // Define constants for roles
     const ROLE_ADMIN = 'admin';
     const ROLE_USER = 'user';
+    const ROLE_OFFICER = 'officer';
 
     public function licenseSuspensions()
     {
@@ -42,6 +45,11 @@ class User extends Authenticatable
     public function owner()
     {
         return $this->hasOne(Owner::class);
+    }
+
+    public function officer()
+    {
+        return $this->hasOne(Officer::class, 'email', 'email');
     }
 
     /**
@@ -58,5 +66,15 @@ class User extends Authenticatable
     public function isUser ()
     {
         return $this->role === self::ROLE_USER;
+    }
+
+    public function isOfficer()
+    {
+        return $this->role === self::ROLE_OFFICER;
+    }
+
+    public function getOfficerId()
+    {
+        return $this->id; // Since the user ID is the same as officer_id for officer users
     }
 }
