@@ -9,8 +9,9 @@ use App\Http\Controllers\ViolationRecordController;
 use App\Http\Controllers\BlacklistManagementController;
 use App\Http\Controllers\LicenseSuspensionController;
 use App\Http\Controllers\ReportController;
-use App\Http\Controllers\PayFinesController;
+use App\Http\Controllers\PayFinesController; 
 use App\Http\Controllers\SupportController;
+use App\Http\Controllers\VehicleRegistrationRequestController;
 
 // Public Routes
 Route::get('/', function () {
@@ -31,10 +32,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Guest Routes
 Route::middleware(['auth'])->group(function () {
-    // Guest Dashboard
-    Route::get('/guest', function () {
-        return view('guest.dashboard');
-    })->name('dashboard.guest');
+// Guest Dashboard
+    Route::get('/guest', [VehicleController::class, 'showGuestDashboard'])->name('dashboard.guest');
 
     // Guest Violation History
     Route::get('/violation-history', [ViolationRecordController::class, 'showViolationHistory'])->name('violation.history');
@@ -49,49 +48,69 @@ Route::middleware(['auth'])->group(function () {
     // Guest Support
     Route::get('/support', [SupportController::class, 'index'])->name('support');
     Route::post('/support', [SupportController::class, 'submit'])->name('support.submit');
+
+    // Guest vehicle registration request route
+    Route::post('/request-vehicle-registration', [VehicleRegistrationRequestController::class, 'store'])
+        ->middleware(['auth'])
+        ->name('request.vehicle.registration');
 });
 
 // Admin Routes
-Route::middleware(['auth'])->prefix('dashboard')->group(function () {
-    Route::prefix('admin')->group(function () {
-        Route::get('/', function () {
-            return view('admin.dashboard');
-        })->name('dashboard.admin');
+Route::prefix('dashboard/admin')->middleware(['web', 'auth'])->group(function () {
+    Route::get('/', function () {
+        if (auth()->user()->role !== 'admin') {
+            return redirect('/')->with('error', 'Unauthorized access');
+        }
+        return view('admin.dashboard');
+    })->name('dashboard.admin');
 
-        // Blacklist Management
-        Route::get('/blacklist-management', [BlacklistManagementController::class, 'index'])->name('blacklist.management');
-        Route::get('/blacklist/create', [BlacklistManagementController::class, 'create'])->name('blacklist.create');
-        Route::post('/blacklist', [BlacklistManagementController::class, 'store'])->name('blacklist.store');
-        Route::get('/blacklist/{id}/edit', [BlacklistManagementController::class, 'edit'])->name('blacklist.edit');
-        Route::put('/blacklist/{id}', [BlacklistManagementController::class, 'update'])->name('blacklist.update');
-        Route::delete('/blacklist/{id}', [BlacklistManagementController::class, 'destroy'])->name('blacklist.destroy');
-
-        // Vehicle Registration
-        Route::get('/register-vehicle', [VehicleController::class, 'showRegisterVehicle'])->name('register.vehicle');
-        Route::post('/register-owner', [OwnerController::class, 'registerOwner'])->name('register.owner.submit');
-        Route::post('/register-vehicle', [VehicleController::class, 'registerVehicle'])->name('register.vehicle.submit');
-        Route::put('/vehicles/edit', [VehicleController::class, 'update'])->name('edit.vehicle.submit');
-        Route::delete('/vehicles/delete', [VehicleController::class, 'destroy'])->name('delete.vehicle.submit');    
-
-        // Violation Records
-        Route::get('/violation-record', [ViolationRecordController::class, 'index'])->name('violation.record');
-        Route::get('/admin/violation-records', [ViolationRecordController::class, 'index'])->name('violation.records');
-
-        // License Suspension
-        Route::get('/license-suspension', [LicenseSuspensionController::class, 'index'])->name('license.suspension');
-        Route::post('/license-suspension', [LicenseSuspensionController::class, 'store'])->name('license.suspension.store');
-        Route::get('/license-suspension/{suspension}/edit', [LicenseSuspensionController::class, 'edit'])->name('license.suspension.edit');
-        Route::delete('/license-suspension/{suspension}', [LicenseSuspensionController::class, 'destroy'])->name('license.suspension.destroy');
-
-        // Store Violation
-        Route::post('/violation/store', [ViolationController::class, 'store'])->name('violation.store');
-
-        // Admin Pay Fines
-        Route::get('/admin-pay-fines', [PayFinesController::class, 'index'])->name('admin.pay.fines');
-        Route::post('/admin-pay-fines/{id}', [PayFinesController::class, 'payFine'])->name('admin.pay.fines.pay');
+    // Vehicle Registration Requests
+    Route::controller(VehicleRegistrationRequestController::class)->group(function () {
+        Route::get('/vehicle-registration-requests', 'index')->name('vehicle.registration.requests');
+        Route::post('/vehicle-registration-requests/{id}/approve', 'approve')->name('vehicle.registration.approve');
+        Route::post('/vehicle-registration-requests/{id}/reject', 'reject')->name('vehicle.registration.reject');
     });
 
-    // Officer Routes
+    // Vehicle Registration Management
+    Route::controller(VehicleController::class)->group(function () {
+        Route::get('/register-vehicle', 'showRegisterVehicle')->name('register.vehicle');
+        Route::post('/register-vehicle', 'registerVehicle')->name('register.vehicle.submit');
+        Route::get('/vehicles/{id}/edit', 'getVehicleDetails')->name('vehicle.details');
+        Route::put('/vehicles/edit', 'update')->name('edit.vehicle.submit');
+        Route::delete('/vehicles/delete', 'destroy')->name('delete.vehicle.submit');
+    });
+
+    // Violation Records
+    Route::controller(ViolationRecordController::class)->group(function () {
+        Route::get('/violation-records', 'index')->name('violation.record');
+        Route::get('/violation-records/create', 'create')->name('violation.records.create');
+        Route::post('/violation-records', 'store')->name('violation.records.store');
+    });
+
+    // Blacklist Management
+    Route::controller(BlacklistManagementController::class)->group(function () {
+        Route::get('/blacklist-management', 'index')->name('blacklist.management');
+        Route::get('/blacklist/create', 'create')->name('blacklist.create');
+        Route::post('/blacklist', 'store')->name('blacklist.store');
+        Route::get('/blacklist/{id}/edit', 'edit')->name('blacklist.edit');
+        Route::put('/blacklist/{id}', 'update')->name('blacklist.update');
+        Route::delete('/blacklist/{id}', 'destroy')->name('blacklist.destroy');
+    });
+
+    // License Suspension
+    Route::controller(LicenseSuspensionController::class)->group(function () {
+        Route::get('/license-suspension', 'index')->name('license.suspension');
+        Route::post('/license-suspension', 'store')->name('license.suspension.store');
+        Route::put('/license-suspension/{id}', 'update')->name('license.suspension.update');
+        Route::delete('/license-suspension/{id}', 'destroy')->name('license.suspension.destroy');
+    });
+
+    // Pay Fines
+    Route::get('/pay-fines', [PayFinesController::class, 'adminIndex'])->name('admin.pay.fines');
+});
+
+// Officer Routes
+Route::middleware(['auth'])->prefix('dashboard')->group(function () {
     Route::get('/officer', [ViolationController::class, 'index'])->name('dashboard.officer');
     Route::get('/officer/issue-violation', [ViolationController::class, 'create'])->name('officer.violation.issue');
     Route::post('/officer/violation', [ViolationController::class, 'store'])->name('officer.violation.store');

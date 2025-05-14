@@ -15,7 +15,13 @@ class Owner extends Model
         'address',
         'contact_num',
         'license_number',
+        'user_id',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function registeredVehicles()
     {

@@ -39,7 +39,16 @@ class User extends Authenticatable
         return $this->hasMany(LicenseSuspension::class, 'user_id');
     }
 
-    // Method to check if the user is an admin
+    public function owner()
+    {
+        return $this->hasOne(Owner::class);
+    }
+
+    /**
+     * Check if the user is an admin
+     *
+     * @return bool
+     */
     public function isAdmin()
     {
         return $this->role === self::ROLE_ADMIN;

@@ -18,18 +18,26 @@ class ViolationRecordController extends Controller
         return view('admin.violationRecords', compact('violationRecords'));
     }
 
-    public function showViolationHistory()
+    public function showViolationHistory(Request $request)
     {
         // Get the authenticated user's ID
         $userId = Auth::id();
 
-        // Get violation records for vehicles owned by the user
-        $violationRecords = ViolationRecord::whereHas('registeredVehicle', function($query) use ($userId) {
-            $query->where('own_id', $userId);
+        // Build the base query
+        $query = ViolationRecord::whereHas('registeredVehicle', function($query) use ($userId) {
+            $query->whereHas('owner', function($q) use ($userId) {
+                $q->where('user_id', $userId);
+            });
         })
-        ->with(['violation', 'registeredVehicle', 'officer'])
-        ->orderBy('violation_date', 'desc')
-        ->get();
+        ->with(['violation', 'registeredVehicle', 'officer']);
+
+        // If a specific vehicle is requested, filter by it
+        if ($request->has('vehicle')) {
+            $query->where('reg_vehicle_id', $request->vehicle);
+        }
+
+        // Get the records ordered by date
+        $violationRecords = $query->orderBy('violation_date', 'desc')->get();
 
         return view('guest.violationHistory', compact('violationRecords'));
     }

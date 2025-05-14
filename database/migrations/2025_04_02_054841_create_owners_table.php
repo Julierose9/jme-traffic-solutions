@@ -11,6 +11,7 @@ class CreateOwnersTable extends Migration
         Schema::create('owners', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->id('own_id');
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->string('lname');
             $table->string('fname');
             $table->string('mname')->nullable();
