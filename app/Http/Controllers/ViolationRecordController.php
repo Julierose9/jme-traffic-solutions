@@ -15,7 +15,28 @@ class ViolationRecordController extends Controller
     public function index()
     {
         $violationRecords = ViolationRecord::with(['violation', 'registeredVehicle', 'officer'])->get();
-        return view('admin.violationRecords', compact('violationRecords'));
+        
+        // Get reports and transform them to match violation records format
+        $reports = \App\Models\Report::with(['violation', 'vehicle', 'owner', 'officer'])->get()
+            ->map(function($report) {
+                return (object)[
+                    'RecordID' => 'R-' . $report->report_id, // Prefix with R to distinguish from violation records
+                    'violationCode' => $report->violation->violation_code ?? 'N/A',
+                    'Description' => $report->report_details,
+                    'PenaltyAmount' => $report->violation->penalty_amount ?? 0,
+                    'PlateNumber' => $report->vehicle->plate_number,
+                    'OfficerLastName' => $report->officer->lname,
+                    'OfficerFirstName' => $report->officer->fname,
+                    'ViolationDate' => $report->report_date,
+                    'Status' => $report->status,
+                    'isReport' => true // Flag to identify reports
+                ];
+            });
+
+        // Merge violation records with transformed reports
+        $allRecords = $violationRecords->concat($reports);
+        
+        return view('admin.violationRecords', compact('allRecords'));
     }
 
     public function showViolationHistory(Request $request)

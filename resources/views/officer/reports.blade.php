@@ -9,6 +9,8 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- Add Select2 for enhanced dropdowns (optional) -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -60,6 +62,7 @@
             border-radius: 5px;
             cursor: pointer;
             margin-bottom: 20px;
+            transition: background-color 0.3s ease;
         }
         .btn:hover {
             background-color: #45a049;
@@ -95,99 +98,88 @@
             border: none;
             border-radius: 0.375rem;
             cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .logout-btn button:hover {
+            background-color: #b22222;
         }
         .modal-header {
-            padding: 1rem;
-            border-bottom: 1px solid #dee2e6;
-            background-color: #fff;
-            border-top-left-radius: 0.3rem;
-            border-top-right-radius: 0.3rem;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            background-color: #ffffff;
+            border-top-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
-        
         .modal-header h2 {
-            font-size: 1.5rem;
-            margin: 0;
-            color: #333;
-            font-weight: 500;
-        }
-
-        .modal-header .close {
             font-size: 1.75rem;
+            margin: 0;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        .modal-header .close {
+            font-size: 1.5rem;
             font-weight: 700;
             line-height: 1;
-            color: #000;
-            opacity: .5;
+            color: #7f8c8d;
+            opacity: 1;
             background: none;
             border: 0;
-            padding: 1rem;
-            margin: -1rem -1rem -1rem auto;
+            padding: 0.75rem;
+            transition: color 0.3s ease;
         }
-
+        .modal-header .close:hover {
+            color: #e74c3c;
+        }
         .btn-primary {
             color: #fff;
-            background-color: #007bff;
-            border-color: #007bff;
-            transition: all 0.2s ease-in-out;
+            background: linear-gradient(90deg, #007bff, #0056b3);
+            border: none;
+            transition: all 0.3s ease;
         }
-
         .btn-primary:hover {
-            background-color: #0056b3;
-            border-color: #0056b3;
-            color: #fff;
+            background: linear-gradient(90deg, #0056b3, #003d80);
+            transform: translateY(-2px);
         }
-
         .btn-danger {
             color: #fff;
             background-color: #dc3545;
             border-color: #dc3545;
-            transition: all 0.2s ease-in-out;
+            transition: all 0.3s ease;
         }
-
         .btn-danger:hover {
             background-color: #c82333;
             border-color: #bd2130;
-            color: #fff;
+            transform: translateY(-2px);
         }
-
         .table .btn {
             padding: 0.25rem 0.5rem;
             font-size: 0.875rem;
             line-height: 1.5;
             border-radius: 0.2rem;
         }
-
         .table .btn-primary {
             color: #fff;
             background-color: #007bff;
             border-color: #007bff;
         }
-
         .table .btn-primary:hover {
             color: #fff;
             background-color: #0056b3;
             border-color: #0056b3;
         }
-
         .table .btn-danger {
             color: #fff;
             background-color: #dc3545;
             border-color: #dc3545;
         }
-
         .table .btn-danger:hover {
             color: #fff;
             background-color: #c82333;
             border-color: #bd2130;
         }
-
-        /* Remove any existing hover effects that might turn buttons green */
-        .btn:hover {
-            opacity: 1;
-        }
-
         .modal {
             display: none;
             position: fixed;
@@ -196,23 +188,22 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(169, 169, 169, 0.5);
+            background-color: rgba(0, 0, 0, 0.5);
             overflow-y: auto;
             padding: 20px;
         }
-
         .modal-content {
-            border-radius: 0.3rem;
+            border-radius: 0.5rem;
             border: none;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            width: 40%;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            width: 50%;
+            max-width: 700px;
             margin: 5% auto;
-            max-width: 600px;
-            background-color: #fff;
+            background-color: #ffffff;
             position: relative;
             animation: modalFadeIn 0.3s ease-out;
+            padding: 1rem;
         }
-
         @keyframes modalFadeIn {
             from {
                 opacity: 0;
@@ -223,88 +214,80 @@
                 transform: translateY(0);
             }
         }
-
         .modal-backdrop {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(169, 169, 169, 0.5);
+            background-color: rgba(0, 0, 0, 0.5);
             z-index: 1040;
         }
-
+        .form-control {
+            display: block;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #2c3e50;
+            background-color: #fff;
+            border: 2px solid #ced4da;
+            border-radius: 0.5rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+            outline: none;
+        }
         .form-control:disabled {
             background-color: #e9ecef;
             opacity: 1;
             cursor: not-allowed;
         }
-
-        .section-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #212529;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .modal-body {
-            padding: 1.5rem;
-        }
-
         .form-group {
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
-
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
+            font-size: 1.1rem;
             font-weight: 500;
-            color: #212529;
+            color: #34495e;
         }
-
-        .form-control {
-            display: block;
-            width: 100%;
-            padding: 0.375rem 0.75rem;
-            font-size: 0.9rem;
-            font-weight: 400;
-            line-height: 1.5;
-            color: #495057;
-            background-color: #fff;
-            border: 1px solid #ced4da;
-            border-radius: 0.25rem;
-            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-        }
-
         .btn-container {
             display: flex;
-            gap: 0.5rem;
-            margin-top: 1.5rem;
+            gap: 1rem;
+            margin-top: 2rem;
             padding-top: 1rem;
-            border-top: 1px solid #dee2e6;
+            border-top: 1px solid #e9ecef;
+            justify-content: flex-end;
         }
-
         .btn {
             display: inline-block;
-            font-weight: 400;
+            font-weight: 500;
             text-align: center;
             vertical-align: middle;
             user-select: none;
-            padding: 0.375rem 0.75rem;
-            font-size: 0.9rem;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
             line-height: 1.5;
-            border-radius: 0.25rem;
-            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
         }
-
         .btn-secondary {
             color: #fff;
             background-color: #6c757d;
             border-color: #6c757d;
         }
-
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+        #createReportModal .modal-body {
+            padding: 2rem;
+        }
         #createReportModal {
             display: none;
             position: fixed;
@@ -314,35 +297,32 @@
             width: 100%;
             height: 100%;
             overflow-y: auto;
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgba(0,0,0,0.5);
             padding: 20px;
         }
         .close {
-            color: #aaa;
+            color: #7f8c8d;
             float: right;
-            font-size: 28px;
+            font-size: 1.5rem;
             font-weight: bold;
             cursor: pointer;
+            transition: color 0.3s ease;
         }
         .close:hover,
         .close:focus {
-            color: black;
+            color: #e74c3c;
             text-decoration: none;
             cursor: pointer;
         }
-        .form-group {
-            margin-bottom: 15px;
-        }
         textarea.form-control {
             height: auto;
-            min-height: 80px;
+            min-height: 100px;
+            resize: vertical;
         }
-        /* Fix for modal scrolling */
         .modal-content {
             max-height: 90vh;
             overflow-y: auto;
         }
-        /* Make sure inputs are not disabled or readonly */
         input:not([type="submit"]):not([readonly]),
         textarea:not([readonly]),
         select:not([disabled]) {
@@ -357,10 +337,36 @@
         .table td .btn {
             margin-right: 5px;
         }
-
         .table td form {
             margin: 0;
             padding: 0;
+        }
+        /* Loading Spinner for Submit Button */
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+        }
+        .btn-loading:after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #fff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 90%;
+                margin: 10% auto;
+            }
         }
     </style>
 </head>
@@ -437,103 +443,117 @@
     <div id="createReportModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeCreateReportModal()">×</span>
-            <h2>Create Report</h2>
-            <form id="reportForm" action="{{ route('reports.store') }}" method="POST">
-                @csrf
-                <div class="form-group">
-                    <label for="violation_id">Violation:</label>
-                    <select class="form-control" id="violation_id" name="violation_id" required>
-                        <option value="" disabled selected>Select Violation</option>
-                        @foreach(\App\Models\Violation::all() as $violation)
-                            <option value="{{ $violation->violation_id }}">{{ $violation->violation_code }} - {{ $violation->description }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="officer_name">Officer:</label>
-                    <input type="text" class="form-control" id="officer_name" value="{{ Auth::user()->fname }} {{ Auth::user()->lname }}" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="own_id">Owner:</label>
-                    <select class="form-control" id="own_id" name="own_id" required onchange="updateVehicleList(this.value)">
-                        <option value="" disabled selected>Select Owner</option>
-                        @foreach(\App\Models\Owner::whereHas('registeredVehicles')->get() as $owner)
-                            <option value="{{ $owner->own_id }}">
-                                {{ $owner->fname }} {{ $owner->lname }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="reg_vehicle_id">Vehicle:</label>
-                    <select class="form-control" id="reg_vehicle_id" name="reg_vehicle_id" required disabled>
-                        <option value="" disabled selected>Select Owner First</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="report_date">Report Date:</label>
-                    <input type="date" class="form-control" id="report_date" name="report_date" required>
-                </div>
-                <div class="form-group">
-                    <label for="location">Location:</label>
-                    <input type="text" class="form-control" id="location" name="location" required>
-                </div>
-                <div class="form-group">
-                    <label for="report_details">Report Details:</label>
-                    <textarea class="form-control" id="report_details" name="report_details" rows="3" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="status">Status:</label>
-                    <select class="form-control" id="status" name="status" required>
-                        <option value="pending">Pending</option>
-                        <option value="processing">Processing</option>
-                        <option value="completed">Completed</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary">Submit Report</button>
-            </form>
+            <div class="modal-header">
+                <h2>Create New Report</h2>
+            </div>
+            <div class="modal-body">
+                <form id="reportForm" action="{{ route('reports.store') }}" method="POST" novalidate>
+                    @csrf
+                    <div class="form-group">
+                        <label for="violation_id">Violation:</label>
+                        <select class="form-control" id="violation_id" name="violation_id" required>
+                            <option value="" disabled selected>Select Violation</option>
+                            @foreach(\App\Models\Violation::all() as $violation)
+                                <option value="{{ $violation->violation_id }}">{{ $violation->violation_code }} - {{ $violation->description }}</option>
+                            @endforeach
+                        </select>
+                        <div class="invalid-feedback">Please select a violation.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="officer_name">Officer:</label>
+                        <input type="text" class="form-control" id="officer_name" value="{{ Auth::user()->fname }} {{ Auth::user()->lname }}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="own_id">Owner:</label>
+                        <select class="form-control" id="own_id" name="own_id" required onchange="updateVehicleList(this.value)">
+                            <option value="" disabled selected>Select Owner</option>
+                            @foreach(\App\Models\Owner::whereHas('registeredVehicles')
+                                ->whereNotNull('fname')
+                                ->whereNotNull('lname')
+                                ->get() as $owner)
+                                <option value="{{ $owner->own_id }}">
+                                    {{ $owner->fname }} {{ $owner->lname }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <div class="invalid-feedback">Please select an owner.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg_vehicle_id">Vehicle:</label>
+                        <select class="form-control" id="reg_vehicle_id" name="reg_vehicle_id" required disabled>
+                            <option value="" disabled selected>Select Owner First</option>
+                        </select>
+                        <div class="invalid-feedback">Please select a vehicle.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="report_date">Report Date:</label>
+                        <input type="date" class="form-control" id="report_date" name="report_date" value="{{ now()->format('Y-m-d') }}" required>
+                        <div class="invalid-feedback">Please enter a report date.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Location:</label>
+                        <input type="text" class="form-control" id="location" name="location" required>
+                        <div class="invalid-feedback">Please enter a location.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="report_details">Report Details:</label>
+                        <textarea class="form-control" id="report_details" name="report_details" rows="4" required></textarea>
+                        <div class="invalid-feedback">Please enter report details.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status:</label>
+                        <select class="form-control" id="status" name="status" required>
+                            <option value="pending">Pending</option>
+                            <option value="processing">Processing</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                        <div class="invalid-feedback">Please select a status.</div>
+                    </div>
+                    <div class="btn-container">
+                        <button type="submit" class="btn btn-primary" id="submitButton">
+                            Submit Report
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="closeCreateReportModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
     <div id="editReportModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Edit Vehicle and Owner Details</h2>
-                <button type="button" class="close" onclick="closeEditReportModal()">&times;</button>
+                <h2>Edit Report</h2>
+                <button type="button" class="close" onclick="closeEditReportModal()">×</button>
             </div>
-            <form id="editReportForm" method="POST">
-                @csrf
-                @method('PUT')
-                <div class="modal-body">
+            <div class="modal-body">
+                <form id="editReportForm" method="POST">
+                    @csrf
+                    @method('PUT')
                     <div class="section-title">Owner Information</div>
                     <div class="form-group">
                         <label for="edit_owner_name">Owner:</label>
                         <input type="text" class="form-control" id="edit_owner_name" disabled>
                         <input type="hidden" id="edit_own_id" name="own_id">
                     </div>
-
                     <div class="form-group">
                         <label for="edit_vehicle_info">Vehicle:</label>
                         <input type="text" class="form-control" id="edit_vehicle_info" disabled>
                         <input type="hidden" id="edit_reg_vehicle_id" name="reg_vehicle_id">
                     </div>
-
                     <div class="section-title">Report Information</div>
                     <div class="form-group">
                         <label for="edit_report_date">Report Date:</label>
                         <input type="date" class="form-control" id="edit_report_date" name="report_date" required>
                     </div>
-
                     <div class="form-group">
                         <label for="edit_location">Location:</label>
                         <input type="text" class="form-control" id="edit_location" name="location" required>
                     </div>
-
                     <div class="form-group">
                         <label for="edit_report_details">Report Details:</label>
-                        <textarea class="form-control" id="edit_report_details" name="report_details" rows="3" required></textarea>
+                        <textarea class="form-control" id="edit_report_details" name="report_details" rows="4" required></textarea>
                     </div>
-
                     <div class="form-group">
                         <label for="edit_status">Status:</label>
                         <select class="form-control" id="edit_status" name="status" required>
@@ -542,35 +562,67 @@
                             <option value="completed">Completed</option>
                         </select>
                     </div>
-
                     <div class="btn-container">
                         <button type="submit" class="btn btn-primary">Update Report</button>
                         <button type="button" class="btn btn-secondary" onclick="closeEditReportModal()">Cancel</button>
                     </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Add Select2 for enhanced dropdowns (optional) -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
+        // Set baseUrl for API requests
+        const baseUrl = "{{ url('/') }}";
+
         function openCreateReportModal() {
             document.getElementById('createReportModal').style.display = 'block';
+            // Initialize Select2 on dropdowns
+            $('#violation_id, #own_id, #reg_vehicle_id').select2({
+                placeholder: "Select an option",
+                allowClear: true,
+                width: '100%'
+            });
+        }
+
+        function resetCreateReportForm() {
+            const form = document.getElementById('reportForm');
+            form.reset();
+            const vehicleSelect = document.getElementById('reg_vehicle_id');
+            vehicleSelect.innerHTML = '<option value="" disabled selected>Select Owner First</option>';
+            vehicleSelect.disabled = true;
+            // Destroy and reinitialize Select2 to reset
+            $('#violation_id, #own_id, #reg_vehicle_id').select2('destroy').select2({
+                placeholder: "Select an option",
+                allowClear: true,
+                width: '100%'
+            });
         }
 
         function closeCreateReportModal() {
             document.getElementById('createReportModal').style.display = 'none';
+            resetCreateReportForm();
         }
 
         function openEditReportModal(reportId) {
             const modal = document.getElementById('editReportModal');
             const form = document.getElementById('editReportForm');
             modal.style.display = 'block';
-            
-            // Set the form action
-            form.action = `/dashboard/reports/${reportId}`;
+            form.action = `${baseUrl}/dashboard/reports/${reportId}`;
 
-            // Fetch report data
-            fetch(`/dashboard/reports/${reportId}/edit`, {
+            // Initialize Select2 for status dropdown
+            $('#edit_status').select2({
+                placeholder: "Select a status",
+                allowClear: true,
+                width: '100%'
+            });
+
+            fetch(`${baseUrl}/dashboard/reports/${reportId}/edit`, {
                 headers: {
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
@@ -584,15 +636,16 @@
                 return response.json();
             })
             .then(data => {
-                // Populate form fields
                 document.getElementById('edit_own_id').value = data.own_id;
                 document.getElementById('edit_owner_name').value = `${data.owner.fname} ${data.owner.lname}`;
                 document.getElementById('edit_reg_vehicle_id').value = data.reg_vehicle_id;
                 document.getElementById('edit_vehicle_info').value = `${data.vehicle.plate_number} - ${data.vehicle.brand} ${data.vehicle.model}`;
-                document.getElementById('edit_report_date').value = data.report_date;
+                // Set only the date part for the input type="date"
+                document.getElementById('edit_report_date').value = data.report_date.substring(0, 10);
                 document.getElementById('edit_location').value = data.location;
                 document.getElementById('edit_report_details').value = data.report_details;
-                document.getElementById('edit_status').value = data.status;
+                // Set status and trigger change for Select2
+                $('#edit_status').val(data.status).trigger('change');
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -608,9 +661,16 @@
         function handleReportSubmit(event) {
             event.preventDefault();
             const form = document.getElementById('reportForm');
-            const formData = new FormData(form);
+            const submitButton = document.getElementById('submitButton');
+            if (!form.checkValidity()) {
+                form.classList.add('was-validated');
+                return;
+            }
 
-            // Convert FormData to JSON
+            submitButton.classList.add('btn-loading');
+            submitButton.disabled = true;
+
+            const formData = new FormData(form);
             const data = {};
             formData.forEach((value, key) => {
                 data[key] = value;
@@ -631,16 +691,21 @@
                     window.location.reload();
                 } else {
                     alert(data.message || 'Failed to create report');
+                    submitButton.classList.remove('btn-loading');
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Submit Report';
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
                 alert('An error occurred while creating the report');
+                submitButton.classList.remove('btn-loading');
+                submitButton.disabled = false;
+                submitButton.textContent = 'Submit Report';
             });
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Add form submission handler for edit form
             document.getElementById('editReportForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 const form = this;
@@ -683,25 +748,24 @@
             vehicleSelect.disabled = true;
             vehicleSelect.innerHTML = '<option value="" disabled selected>Loading vehicles...</option>';
 
-            // Fetch vehicles for the selected owner
-            fetch(`/api/owner/${ownerId}/vehicles`, {
+            fetch(`${baseUrl}/api/owner/${ownerId}/vehicles`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'X-Requested-With': 'XMLHttpRequest'
                 },
-                credentials: 'include' // Include cookies in the request
+                credentials: 'include'
             })
             .then(response => {
                 console.log('Response status:', response.status);
-                return response.json().then(data => {
-                    console.log('Response data:', data);
-                    if (!response.ok) {
+                if (!response.ok) {
+                    return response.json().then(data => {
                         throw new Error(data.error || `HTTP error! status: ${response.status}`);
-                    }
-                    return data;
-                });
+                    });
+                }
+                return response.json();
             })
             .then(data => {
                 if (Array.isArray(data) && data.length > 0) {
@@ -713,22 +777,20 @@
                         vehicleSelect.appendChild(option);
                     });
                     vehicleSelect.disabled = false;
-                } else if (data.message) {
-                    vehicleSelect.innerHTML = `<option value="" disabled selected>${data.message}</option>`;
-                    vehicleSelect.disabled = true;
+                    $('#reg_vehicle_id').trigger('change.select2');
                 } else {
                     vehicleSelect.innerHTML = '<option value="" disabled selected>No vehicles found for this owner</option>';
                     vehicleSelect.disabled = true;
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                vehicleSelect.innerHTML = '<option value="" disabled selected>Error loading vehicles. Please try again.</option>';
+                console.error('Error fetching vehicles:', error, error.stack);
+                vehicleSelect.innerHTML = '<option value="" disabled selected>Error loading vehicles: ' + error.message + '</option>';
                 vehicleSelect.disabled = true;
+                alert('Failed to load vehicles. Please check the console for details or try again later.');
             });
         }
 
-        // Close modal when clicking outside
         window.onclick = function(event) {
             const createModal = document.getElementById('createReportModal');
             const editModal = document.getElementById('editReportModal');
@@ -739,9 +801,5 @@
             }
         }
     </script>
-
-    <script src="{{ asset('js/jquery.min.js') }}"></script>
-    <script src="{{ asset('js/popper.min.js') }}"></script>
-    <script src="{{ asset('js/bootstrap.min.js') }}"></script>
 </body>
 </html>

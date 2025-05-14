@@ -41,7 +41,15 @@ class ReportController extends Controller
 
     public function create()
     {
-        return view('create_report'); 
+        try {
+            $violations = \App\Models\Violation::all();
+            $owners = \App\Models\Owner::all();
+            
+            return view('create_report', compact('violations', 'owners'));
+        } catch (\Exception $e) {
+            \Log::error('Error loading create report form: ' . $e->getMessage());
+            return redirect()->route('reports.index')->withErrors(['error' => 'Error loading create report form. Please try again.']);
+        }
     }
 
     public function store(Request $request)
@@ -86,6 +94,19 @@ class ReportController extends Controller
                 'report_date' => $request->report_date,
                 'status' => $request->status
             ]);
+
+            // Create a corresponding ViolationRecord and link it to the report
+            $violationRecord = \App\Models\ViolationRecord::create([
+                'reg_vehicle_id' => $request->reg_vehicle_id,
+                'officer_id' => $officer->officer_id,
+                'violation_id' => $request->violation_id,
+                'violation_date' => $request->report_date,
+                'location' => $request->location,
+                'remarks' => $request->report_details,
+                'status' => 'unpaid', // or use $request->status if you want to match
+            ]);
+            $report->violation_record_id = $violationRecord->record_id;
+            $report->save();
 
             return response()->json([
                 'success' => true,

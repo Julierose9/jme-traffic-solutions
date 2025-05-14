@@ -145,12 +145,7 @@ Route::get('/api/owner/{ownerId}/vehicles', function ($ownerId) {
                 ];
             });
 
-        if ($vehicles->isEmpty()) {
-            return response()->json([
-                'message' => 'No vehicles found for this owner'
-            ], 200);
-        }
-
+        // Always return an array, even if empty
         return response()->json($vehicles);
     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
         return response()->json([
@@ -162,3 +157,24 @@ Route::get('/api/owner/{ownerId}/vehicles', function ($ownerId) {
         ], 500);
     }
 })->middleware('auth');
+
+// One-time migration route to create ViolationRecords for existing Reports
+Route::get('/admin/migrate-reports-to-violation-records', function () {
+    $count = 0;
+    $reports = \App\Models\Report::whereNull('violation_record_id')->get();
+    foreach ($reports as $report) {
+        $violationRecord = \App\Models\ViolationRecord::create([
+            'reg_vehicle_id' => $report->reg_vehicle_id,
+            'officer_id' => $report->officer_id,
+            'violation_id' => $report->violation_id,
+            'violation_date' => $report->report_date,
+            'location' => $report->location,
+            'remarks' => $report->report_details,
+            'status' => 'unpaid',
+        ]);
+        $report->violation_record_id = $violationRecord->record_id;
+        $report->save();
+        $count++;
+    }
+    return "Migrated $count reports to violation records.";
+});

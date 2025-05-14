@@ -20,7 +20,8 @@ class Report extends Model
         'report_details',
         'location',
         'report_date',
-        'status'
+        'status',
+        'violation_record_id'
     ];
 
     protected $casts = [
@@ -47,5 +48,10 @@ class Report extends Model
     public function officer()
     {
         return $this->belongsTo(User::class, 'officer_id');
+    }
+
+    public function violationRecord()
+    {
+        return $this->belongsTo(ViolationRecord::class, 'violation_record_id');
     }
 }
