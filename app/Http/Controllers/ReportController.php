@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Report;
+use App\Models\RegisteredVehicle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -10,9 +11,15 @@ class ReportController extends Controller
 {
     public function index()
     {
-        // Only get reports for the logged-in officer
-        $reports = Report::where('officer_id', Auth::user()->officer_id)->get();
-        return view('officer.reports', compact('reports'));    
+        // Get reports for the logged-in officer with relationships
+        $reports = Report::where('officer_id', Auth::user()->officer_id)
+            ->with(['violation', 'vehicle', 'owner'])
+            ->get();
+            
+        // Get all owners for the dropdown
+        $owners = \App\Models\Owner::with('user')->get();
+        
+        return view('officer.reports', compact('reports', 'owners'));    
     }
 
     public function create()
@@ -25,17 +32,18 @@ class ReportController extends Controller
         $request->validate([
             'violation_id' => 'required|exists:violations,violation_id',
             'reg_vehicle_id' => 'required|exists:registered_vehicles,reg_vehicle_id',
-            'violation_date' => 'required|date',
+            'own_id' => 'required|exists:owners,own_id',
+            'report_details' => 'required|string',
             'location' => 'required|string',
-            'remarks' => 'required|string',
+            'report_date' => 'required|date',
             'status' => 'required|string',
         ]);
 
-        // Automatically set the officer_id to the logged-in user
+        // Prepare the data
         $data = $request->all();
         $data['officer_id'] = Auth::user()->officer_id;
 
-        Report::create($data);
+        $report = Report::create($data);
 
         return redirect()->route('reports.index')->with('success', 'Report created successfully.');
     }

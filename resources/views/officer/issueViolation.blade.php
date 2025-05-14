@@ -193,8 +193,6 @@
                         <th>Violation Code</th>
                         <th>Description</th>
                         <th>Penalty Amount</th>
-                        <th>Created At</th>
-                        <th>Updated At</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -204,8 +202,6 @@
                             <td>{{ $violation->violation_code }}</td>
                             <td>{{ $violation->description }}</td>
                             <td>{{ $violation->penalty_amount }}</td>
-                            <td>{{ $violation->created_at }}</td>
-                            <td>{{ $violation->updated_at }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -318,8 +314,6 @@
                         <td>${violation.violation_code}</td>
                         <td>${violation.description}</td>
                         <td>${violation.penalty_amount}</td>
-                        <td>${violation.created_at}</td>
-                        <td>${violation.updated_at}</td>
                     `;
 
                     alert('Violation generated successfully!');
