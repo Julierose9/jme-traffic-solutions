@@ -214,12 +214,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if($violationRecords->isEmpty())
+                    @if($allRecords->isEmpty())
                         <tr>
-                            <td colspan="10" class="no-records">No violation records found.</td>
+                            <td colspan="10" class="no-records">No records found.</td>
                         </tr>
                     @else
-                        @foreach($violationRecords as $record)
+                        @foreach($allRecords as $record)
                         <tr>
                             <td>{{ $record->RecordID }}</td>
                             <td>{{ $record->violationCode }}</td>
@@ -231,37 +231,74 @@
                             <td>{{ $record->ViolationDate }}</td>
                             <td>{{ $record->Status }}</td>
                             <td>
-                                <button class="btn" onclick="updateStatus({{ $record->RecordID }})">Update Status</button>
-                                <button class="btn" onclick="attachDocument({{ $record->RecordID }})">Attach Document</button>
+                                @if(isset($record->isReport))
+                                    <button class="btn btn-info" onclick="viewReportDetails('{{ $record->Description }}')">
+                                        View Details
+                                    </button>
+                                @else
+                                    <button class="btn" onclick="updateStatus({{ $record->RecordID }})">Update Status</button>
+                                    <button class="btn" onclick="attachDocument({{ $record->RecordID }})">Attach Document</button>
+                                @endif
                             </td>
                         </tr>
                         @endforeach
                     @endif
                 </tbody>
             </table>
-        </div>
-    </div>
 
-    <script>
-        function filterRecords() {
-            const input = document.getElementById('searchInput');
-            const filter = input.value.toLowerCase();
-            const table = document.getElementById('recordsTable');
-            const tr = table.getElementsByTagName('tr');
+            <!-- Modal for Report Details -->
+            <div class="modal fade" id="reportDetailsModal" tabindex="-1" role="dialog" aria-labelledby="reportDetailsModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="reportDetailsModalLabel">Report Details</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p id="reportDetailsContent"></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            for (let i = 1; i < tr.length; i++) {
-                const tdOfficerLastName = tr[i].getElementsByTagName('td')[5];
-                const tdPlateNumber = tr[i].getElementsByTagName('td')[4];
-                if (tdOfficerLastName || tdPlateNumber) {
-                    const txtOfficerLastName = tdOfficerLastName.textContent || tdOfficerLastName.innerText const txtPlateNumber = tdPlateNumber.textContent || tdPlateNumber.innerText;
-                    if (txtOfficerLastName.toLowerCase().indexOf(filter) > -1 || txtPlateNumber.toLowerCase().indexOf(filter) > -1) {
-                        tr[i].style.display = '';
-                    } else {
-                        tr[i].style.display = 'none';
+            <script>
+                function viewReportDetails(details) {
+                    document.getElementById('reportDetailsContent').textContent = details;
+                    $('#reportDetailsModal').modal('show');
+                }
+
+                function filterRecords() {
+                    const input = document.getElementById('searchInput');
+                    const filter = input.value.toLowerCase();
+                    const table = document.getElementById('recordsTable');
+                    const tr = table.getElementsByTagName('tr');
+
+                    for (let i = 1; i < tr.length; i++) {
+                        const row = tr[i];
+                        const cells = row.getElementsByTagName('td');
+                        let found = false;
+                        
+                        for (let j = 0; j < cells.length; j++) {
+                            const cell = cells[j];
+                            if (cell) {
+                                const text = cell.textContent || cell.innerText;
+                                if (text.toLowerCase().indexOf(filter) > -1) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        row.style.display = found ? '' : 'none';
                     }
                 }
-            }
-        }
-    </script>
+            </script>
+        </div>
+    </div>
 </body>
 </html>

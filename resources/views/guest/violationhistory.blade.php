@@ -155,38 +155,67 @@
                         <th>Officer</th>
                         <th>Penalty Amount</th>
                         <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @if($violationRecords->isEmpty())
+                    @if($allRecords->isEmpty())
                         <tr>
-                            <td colspan="7" class="no-records">No violation records found.</td>
+                            <td colspan="8" class="no-records">No records found.</td>
                         </tr>
                     @else
-                        @foreach($violationRecords as $record)
+                        @foreach($allRecords as $record)
                             <tr>
-                                <td>{{ $record->violation_date->format('M d, Y') }}</td>
-                                <td>{{ $record->registeredVehicle->plate_number }}</td>
-                                <td>
-                                    {{ $record->violation->description }}
-                                    @if($record->remarks)
-                                        <br>
-                                        <small class="text-muted">{{ $record->remarks }}</small>
-                                    @endif
-                                </td>
+                                <td>{{ \Carbon\Carbon::parse($record->date)->format('M d, Y') }}</td>
+                                <td>{{ $record->vehicle }}</td>
+                                <td>{{ $record->violation }}</td>
                                 <td>{{ $record->location }}</td>
-                                <td>{{ $record->officer->lname }}, {{ $record->officer->fname }}</td>
-                                <td>₱{{ number_format($record->violation->penalty_amount, 2) }}</td>
+                                <td>{{ $record->officer }}</td>
+                                <td>₱{{ number_format($record->penalty_amount, 2) }}</td>
                                 <td>
                                     <span class="status-badge status-{{ strtolower($record->status) }}">
                                         {{ ucfirst($record->status) }}
                                     </span>
+                                </td>
+                                <td>
+                                    @if($record->isReport && $record->details)
+                                        <button class="btn btn-sm btn-info" onclick="viewDetails('{{ addslashes($record->details) }}')">
+                                            View Details
+                                        </button>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach
                     @endif
                 </tbody>
             </table>
+
+            <!-- Modal for Report Details -->
+            <div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="detailsModalLabel">Report Details</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p id="detailsContent"></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                function viewDetails(details) {
+                    document.getElementById('detailsContent').textContent = details;
+                    $('#detailsModal').modal('show');
+                }
+            </script>
         </div>
     </div>
 </body>
