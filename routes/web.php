@@ -158,23 +158,22 @@ Route::get('/api/owner/{ownerId}/vehicles', function ($ownerId) {
     }
 })->middleware('auth');
 
-// One-time migration route to create ViolationRecords for existing Reports
-Route::get('/admin/migrate-reports-to-violation-records', function () {
+// One-time route to list and fix violation records where the officer is actually an admin
+Route::get('/admin/fix-admin-officer-in-violations', function () {
+    $adminOfficers = \App\Models\Officer::whereHas('user', function($q) {
+        $q->where('role', 'admin');
+    })->get();
+    $adminOfficerIds = $adminOfficers->pluck('officer_id')->toArray();
+    $affectedRecords = \App\Models\ViolationRecord::whereIn('officer_id', $adminOfficerIds)->get();
     $count = 0;
-    $reports = \App\Models\Report::whereNull('violation_record_id')->get();
-    foreach ($reports as $report) {
-        $violationRecord = \App\Models\ViolationRecord::create([
-            'reg_vehicle_id' => $report->reg_vehicle_id,
-            'officer_id' => $report->officer_id,
-            'violation_id' => $report->violation_id,
-            'violation_date' => $report->report_date,
-            'location' => $report->location,
-            'remarks' => $report->report_details,
-            'status' => 'unpaid',
-        ]);
-        $report->violation_record_id = $violationRecord->record_id;
-        $report->save();
-        $count++;
+    foreach ($affectedRecords as $record) {
+        // Try to find the correct officer from the linked report
+        $report = \App\Models\Report::where('violation_record_id', $record->record_id)->first();
+        if ($report && $report->officer_id && !in_array($report->officer_id, $adminOfficerIds)) {
+            $record->officer_id = $report->officer_id;
+            $record->save();
+            $count++;
+        }
     }
-    return "Migrated $count reports to violation records.";
+    return "Checked and fixed $count violation records that had an admin as officer.";
 });

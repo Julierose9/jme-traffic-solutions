@@ -44,31 +44,7 @@ class ViolationRecordController extends Controller
         // Get the authenticated user's ID
         $userId = Auth::id();
 
-        // Get violation records
-        $violationRecords = ViolationRecord::whereHas('registeredVehicle', function($query) use ($userId) {
-            $query->whereHas('owner', function($q) use ($userId) {
-                $q->where('user_id', $userId);
-            });
-        })
-        ->with(['violation', 'registeredVehicle', 'officer'])
-        ->get()
-        ->map(function($record) {
-            return (object)[
-                'date' => $record->violation_date,
-                'vehicle' => $record->registeredVehicle->plate_number . ' - ' . 
-                           $record->registeredVehicle->brand . ' ' . 
-                           $record->registeredVehicle->model,
-                'violation' => $record->violation->violation_code,
-                'location' => $record->location,
-                'officer' => $record->officer->fname . ' ' . $record->officer->lname,
-                'penalty_amount' => $record->PenaltyAmount,
-                'status' => $record->Status,
-                'details' => null,
-                'isReport' => false
-            ];
-        });
-
-        // Get reports
+        // Only get reports for vehicles owned by the user
         $reports = \App\Models\Report::whereHas('vehicle', function($query) use ($userId) {
             $query->whereHas('owner', function($q) use ($userId) {
                 $q->where('user_id', $userId);
@@ -78,22 +54,21 @@ class ViolationRecordController extends Controller
         ->get()
         ->map(function($report) {
             return (object)[
-                'date' => $report->report_date,
-                'vehicle' => $report->vehicle->plate_number . ' - ' . 
-                           $report->vehicle->brand . ' ' . 
-                           $report->vehicle->model,
-                'violation' => $report->violation->violation_code,
-                'location' => $report->location,
-                'officer' => $report->officer->fname . ' ' . $report->officer->lname,
-                'penalty_amount' => $report->violation->penalty_amount ?? 0,
-                'status' => $report->status,
-                'details' => $report->report_details,
+                'RecordID' => 'R-' . $report->report_id,
+                'violationCode' => $report->violation->violation_code,
+                'Description' => $report->report_details,
+                'PenaltyAmount' => $report->violation->penalty_amount ?? 0,
+                'PlateNumber' => $report->vehicle->plate_number,
+                'OfficerLastName' => $report->officer->lname,
+                'OfficerFirstName' => $report->officer->fname,
+                'ViolationDate' => $report->report_date,
+                'Status' => $report->status,
                 'isReport' => true
             ];
         });
 
-        // Merge and sort records by date
-        $allRecords = $violationRecords->concat($reports)->sortByDesc('date');
+        // Only pass reports to the view
+        $allRecords = $reports->sortByDesc('ViolationDate');
 
         return view('guest.violationHistory', compact('allRecords'));
     }

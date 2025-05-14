@@ -145,15 +145,17 @@
         </div>
         <div class="main-content">
             <h1>My Violation History</h1>
-            <table class="table">
+            <table class="table" id="recordsTable">
                 <thead>
                     <tr>
-                        <th>Date</th>
-                        <th>Vehicle</th>
-                        <th>Violation</th>
-                        <th>Location</th>
-                        <th>Officer</th>
+                        <th>Record ID</th>
+                        <th>Violation Code</th>
+                        <th>Description</th>
                         <th>Penalty Amount</th>
+                        <th>Plate Number</th>
+                        <th>Officer Last Name</th>
+                        <th>Officer First Name</th>
+                        <th>Violation Date</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -161,30 +163,36 @@
                 <tbody>
                     @if($allRecords->isEmpty())
                         <tr>
-                            <td colspan="8" class="no-records">No records found.</td>
+                            <td colspan="10" class="no-records">No records found.</td>
                         </tr>
                     @else
                         @foreach($allRecords as $record)
-                            <tr>
-                                <td>{{ \Carbon\Carbon::parse($record->date)->format('M d, Y') }}</td>
-                                <td>{{ $record->vehicle }}</td>
-                                <td>{{ $record->violation }}</td>
-                                <td>{{ $record->location }}</td>
-                                <td>{{ $record->officer }}</td>
-                                <td>₱{{ number_format($record->penalty_amount, 2) }}</td>
-                                <td>
-                                    <span class="status-badge status-{{ strtolower($record->status) }}">
-                                        {{ ucfirst($record->status) }}
-                                    </span>
-                                </td>
-                                <td>
-                                    @if($record->isReport && $record->details)
-                                        <button class="btn btn-sm btn-info" onclick="viewDetails('{{ addslashes($record->details) }}')">
-                                            View Details
-                                        </button>
-                                    @endif
-                                </td>
-                            </tr>
+                        <tr>
+                            <td>{{ $record->RecordID }}</td>
+                            <td>{{ $record->violationCode }}</td>
+                            <td>{{ $record->Description }}</td>
+                            <td>₱{{ number_format($record->PenaltyAmount, 2) }}</td>
+                            <td>{{ $record->PlateNumber }}</td>
+                            <td>{{ $record->OfficerLastName }}</td>
+                            <td>{{ $record->OfficerFirstName }}</td>
+                            <td>{{ \Carbon\Carbon::parse($record->ViolationDate)->format('M d, Y') }}</td>
+                            <td>
+                                <span class="status-badge status-{{ strtolower($record->Status) }}">
+                                    {{ ucfirst($record->Status) }}
+                                </span>
+                            </td>
+                            <td>
+                                @if($record->isReport)
+                                    <button class="btn btn-info" onclick="viewReportDetails('{{ addslashes($record->Description) }}', '{{ $record->RecordID }}', '{{ $record->ViolationDate }}', '{{ $record->OfficerFirstName }} {{ $record->OfficerLastName }}')">
+                                        View Details
+                                    </button>
+                                @elseif($record->hasReport)
+                                    <button class="btn btn-info" onclick="viewReportDetails('{{ addslashes($record->reportDetails) }}', '{{ $record->RecordID }}', '{{ $record->ViolationDate }}', '{{ $record->OfficerFirstName }} {{ $record->OfficerLastName }}')">
+                                        View Report
+                                    </button>
+                                @endif
+                            </td>
+                        </tr>
                         @endforeach
                     @endif
                 </tbody>
@@ -201,7 +209,16 @@
                             </button>
                         </div>
                         <div class="modal-body">
-                            <p id="detailsContent"></p>
+                            <div class="report-info">
+                                <p><strong>Record ID:</strong> <span id="recordId"></span></p>
+                                <p><strong>Date:</strong> <span id="reportDate"></span></p>
+                                <p><strong>Officer:</strong> <span id="officerName"></span></p>
+                            </div>
+                            <hr>
+                            <div class="report-content">
+                                <h6>Report Details:</h6>
+                                <p id="detailsContent"></p>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -211,8 +228,11 @@
             </div>
 
             <script>
-                function viewDetails(details) {
+                function viewReportDetails(details, recordId, date, officerName) {
                     document.getElementById('detailsContent').textContent = details;
+                    document.getElementById('recordId').textContent = recordId;
+                    document.getElementById('reportDate').textContent = date;
+                    document.getElementById('officerName').textContent = officerName;
                     $('#detailsModal').modal('show');
                 }
             </script>
