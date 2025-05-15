@@ -143,7 +143,6 @@
                 <a href="{{ route('violation.record') }}"><i class="fas fa-exclamation-triangle"></i> Violation Records</a>
                 <a href="{{ route('blacklist.management') }}"><i class="fas fa-ban"></i> Blacklist Management</a>
                 <a href="{{ route('admin.pay.fines') }}" class="active"><i class="fas fa-money-bill-wave"></i> Pay Fines</a>
-                <a href="{{ route('license.suspension') }}"><i class="fas fa-ban"></i> License Suspension</a>
             </nav>
             <div class="logout-btn">
                 <form method="POST" action="{{ route('logout') }}">

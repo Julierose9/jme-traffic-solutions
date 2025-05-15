@@ -87,9 +87,39 @@ class ReportController extends Controller
                 'status' => $request->status
             ]);
 
+            // Check for unpaid violations
+            $unpaidCount = Report::where('reg_vehicle_id', $request->reg_vehicle_id)
+                ->where('status', 'pending')
+                ->count();
+
+            // If there are more than 3 unpaid violations, create a blacklist entry
+            if ($unpaidCount >= 3) {
+                $vehicle = \App\Models\RegisteredVehicle::with('owner')->find($request->reg_vehicle_id);
+                
+                // Check if vehicle is not already blacklisted
+                $existingBlacklist = \App\Models\Blacklist::where('reg_vehicle_id', $request->reg_vehicle_id)
+                    ->where('status', 'Active')
+                    ->first();
+
+                if (!$existingBlacklist) {
+                    $description = "Multiple Unpaid Violations ({$unpaidCount})";
+                    \App\Models\Blacklist::create([
+                        'report_id' => $report->report_id,
+                        'reg_vehicle_id' => $request->reg_vehicle_id,
+                        'own_id' => $request->own_id,
+                        'reason' => $description, // Set the reason same as description
+                        'blacklist_type' => 'Violation-Based',
+                        'description' => $description,
+                        'date_added' => now(),
+                        'resolution_status' => 'Pending',
+                        'status' => 'Active'
+                    ]);
+                }
+            }
+
             return response()->json([
                 'success' => true,
-                'message' => 'Report created successfully',
+                'message' => 'Report created successfully' . ($unpaidCount >= 3 ? ' and vehicle has been blacklisted due to multiple unpaid violations.' : ''),
                 'report' => $report->load(['violation', 'vehicle', 'owner'])
             ]);
 

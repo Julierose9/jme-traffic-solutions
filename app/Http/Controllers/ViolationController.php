@@ -37,6 +37,24 @@ class ViolationController extends Controller
     public function store(Request $request)
     {
         try {
+            // Check if this is a violation type creation
+            if ($request->has('violation_code')) {
+                $validatedData = $request->validate([
+                    'violation_code' => 'required|string|max:10|unique:violations,violation_code|regex:/^[a-zA-Z0-9-]{1,10}$/',
+                    'description' => 'required|string|max:255',
+                    'penalty_amount' => 'required|numeric|min:0'
+                ]);
+
+                $violation = Violation::create($validatedData);
+
+                return response()->json([
+                    'success' => true,
+                    'violation' => $violation,
+                    'message' => 'Violation type created successfully'
+                ]);
+            }
+
+            // If not creating a violation type, then it's a violation record
             $validatedData = $request->validate([
                 'violation_id' => 'required|exists:violations,violation_id',
                 'reg_vehicle_id' => 'required|exists:registered_vehicles,reg_vehicle_id',
@@ -63,12 +81,12 @@ class ViolationController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
+                'message' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'An error occurred while generating the violation. Please try again.',
+                'message' => 'An error occurred while processing the request: ' . $e->getMessage(),
             ], 500);
         }
     }

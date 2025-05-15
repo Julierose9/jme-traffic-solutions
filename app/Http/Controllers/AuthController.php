@@ -31,8 +31,8 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        // Validate the request
-        $validated = $request->validate([
+        // Base validation rules for all users
+        $baseRules = [
             'role' => 'required|in:admin,officer,guest',
             'fname' => 'required|string|max:255',
             'mname' => 'nullable|string|max:255',
@@ -40,9 +40,22 @@ class AuthController extends Controller
             'email' => 'required|email|unique:users,email',
             'username' => 'required|string|unique:users,username',
             'password' => 'required|string|confirmed|min:6',
-            'contact_num' => 'required_if:role,officer|string|max:255',
-            'rank' => 'required_if:role,officer|string|max:255',
-        ]);
+        ];
+
+        // Additional validation rules for officers only
+        $officerRules = [
+            'contact_num' => 'required|string|max:255',
+            'rank' => 'required|string|max:255',
+        ];
+
+        // Apply validation rules based on role
+        $rules = $baseRules;
+        if ($request->input('role') === 'officer') {
+            $rules = array_merge($baseRules, $officerRules);
+        }
+
+        // Validate the request
+        $validated = $request->validate($rules);
 
         try {
             \DB::beginTransaction();

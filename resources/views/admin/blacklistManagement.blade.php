@@ -294,9 +294,8 @@
                 <a href="{{ route('dashboard.admin') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
                 <a href="{{ route('register.vehicle') }}"><i class="fas fa-car"></i> Register a Vehicle</a>
                 <a href="{{ route('violation.record') }}"><i class="fas fa-exclamation-triangle"></i> Violation Records</a>
-                <a href="{{route('blacklist.management')}}"><i class="fas fa-ban"></i> Blacklist Management</a>
+                <a href="{{ route('blacklist.management') }}" class="active"><i class="fas fa-ban"></i> Blacklist Management</a>
                 <a href="{{ route('admin.pay.fines') }}"><i class="fas fa-money-bill-wave"></i> Pay Fines</a>
-                <a href="{{ route('license.suspension') }}"><i class="fas fa-ban"></i> License Suspension</a>
             </nav>
             <div class="logout-btn">
                 <form method="POST" action="{{ route('logout') }}">
@@ -307,49 +306,58 @@
         </div>
         <div class="main-content">
             <h1>Blacklist Management</h1>
-            <button class="btn" id="openModalBtn">Add New Blacklist Entry</button>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Blacklist ID</th>
-                        <th>Plate Number</th>
-                        <th>Owner Last Name</th>
-                        <th>Owner First Name</th>
-                        <th>Reason</th>
-                        <th>Blacklist Type</th>
-                        <th>Date Added</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if($blacklistedVehicles->isEmpty())
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
                         <tr>
-                            <td colspan="9" class="no-records">No blacklisted vehicles found.</td>
+                            <th>Blacklist ID</th>
+                            <th>Report ID</th>
+                            <th>Plate Number</th>
+                            <th>Owner Last Name</th>
+                            <th>Owner First Name</th>
+                            <th>Violation Description</th>
+                            <th>Blacklist Type</th>
+                            <th>Date Added</th>
+                            <th>Resolution Status</th>
+                            <th>Status</th>
+                            <th>Actions</th>
                         </tr>
-                    @else
-                        @foreach($blacklistedVehicles as $vehicle)
+                    </thead>
+                    <tbody>
+                        @if($blacklistedVehicles->isEmpty())
                             <tr>
-                                <td>{{ $vehicle->blacklist_id }}</td>
-                                <td>{{ $vehicle->registeredVehicle->plate_number }}</td>
-                                <td>{{ $vehicle->owner->lname }}</td>
-                                <td>{{ $vehicle->owner->fname }}</td>
-                                <td>{{ $vehicle->reason }}</td>
-                                <td>{{ $vehicle->blacklist_type }}</td>
-                                <td>{{ $vehicle->date_added }}</td>
-                                <td>
-                                    <span class="badge {{ $vehicle->status === 'Active' ? 'badge-danger' : 'badge-success' }}">
-                                        {{ $vehicle->status }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <button class="edit-btn" onclick="openEditModal('{{ $vehicle->blacklist_id }}', '{{ $vehicle->reg_vehicle_id }}', '{{ $vehicle->own_id }}', '{{ $vehicle->reason }}', '{{ $vehicle->blacklist_type }}', '{{ $vehicle->status }}', '{{ $vehicle->appeal_status }}')"><i class="fas fa-edit"></i> Edit</button> <button class="delete-btn" onclick="openDeleteModal('{{ $vehicle->blacklist_id }}')"><i class="fas fa-trash"></i> Delete</button>
-                                </td>
+                                <td colspan="9" class="no-records">No blacklisted vehicles found.</td>
                             </tr>
-                        @endforeach
-                    @endif
-                </tbody>
-            </table>
+                        @else
+                            @foreach($blacklistedVehicles as $vehicle)
+                                <tr>
+                                    <td>{{ $vehicle->blacklist_id }}</td>
+                                    <td>{{ $vehicle->report_id }}</td>
+                                    <td>{{ $vehicle->registeredVehicle->plate_number }}</td>
+                                    <td>{{ $vehicle->owner->lname }}</td>
+                                    <td>{{ $vehicle->owner->fname }}</td>
+                                    <td>{{ $vehicle->violation_description }}</td>
+                                    <td>{{ $vehicle->blacklist_type }}</td>
+                                    <td>{{ $vehicle->date_added }}</td>
+                                    <td>
+                                        <span class="badge {{ $vehicle->resolution_status === 'Resolved' ? 'badge-success' : 'badge-warning' }}">
+                                            {{ $vehicle->resolution_status }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge {{ $vehicle->status === 'Active' ? 'badge-danger' : 'badge-success' }}">
+                                            {{ $vehicle->status }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="edit-btn" onclick="openEditModal('{{ $vehicle->blacklist_id }}', '{{ $vehicle->reg_vehicle_id }}', '{{ $vehicle->own_id }}', '{{ $vehicle->reason }}', '{{ $vehicle->blacklist_type }}', '{{ $vehicle->status }}', '{{ $vehicle->appeal_status }}')"><i class="fas fa-edit"></i> Edit</button> <button class="delete-btn" onclick="openDeleteModal('{{ $vehicle->blacklist_id }}')"><i class="fas fa-trash"></i> Delete</button>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @endif
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -509,7 +517,7 @@
                 form.appendChild(methodField);
                 document.body.appendChild(form);
                 form.submit();
-        }
+            }
         }
 
         // Close modals when clicking outside

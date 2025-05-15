@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title> Violations - Admin Dashboard</title>
+    <title>Generate Violations </title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -255,8 +255,8 @@
             const description = formData.get('description').trim();
             const penaltyAmount = formData.get('penalty_amount');
 
-            if (!/^[a-zA-Z0-9]{1,10}$/.test(violationCode)) {
-                errors.push('Violation Code must be alphanumeric and up to 10 characters.');
+            if (!/^[a-zA-Z0-9-]{1,10}$/.test(violationCode)) {
+                errors.push('Violation Code must be 1-10 characters long and can only contain letters, numbers, and hyphens.');
             }
 
             if (description.length === 0 || description.length > 255) {
@@ -300,6 +300,11 @@
             .then(response => {
                 if (!response.ok) {
                     return response.json().then(err => {
+                        if (err.message && typeof err.message === 'object') {
+                            // Handle validation errors
+                            const errorMessages = Object.values(err.message).flat();
+                            throw new Error(errorMessages.join('\n'));
+                        }
                         throw new Error(err.message || 'Network response was not ok');
                     });
                 }
@@ -316,7 +321,7 @@
                         <td>${violation.penalty_amount}</td>
                     `;
 
-                    alert('Violation generated successfully!');
+                    alert(data.message || 'Violation generated successfully!');
                     form.reset();
                     closeGenerateViolationModal();
                 } else {
@@ -325,7 +330,7 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while generating the violation. Please try again.');
+                alert(error.message || 'An error occurred while generating the violation. Please try again.');
             })
             .finally(() => {
                 submitButton.disabled = false;
