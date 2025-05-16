@@ -131,6 +131,68 @@
             border-radius: 0.375rem;
             cursor: pointer;
         }
+
+        .badge {
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 700;
+            line-height: 1;
+            color: #fff;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.25rem;
+        }
+
+        .bg-primary {
+            background-color: #0d6efd;
+        }
+
+        .bg-info {
+            background-color: #0dcaf0;
+        }
+
+        .bg-success {
+            background-color: #198754;
+        }
+
+        .text-monospace {
+            font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.875em;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .table th {
+            background-color: #0a1f44;
+            color: white;
+            font-weight: 600;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.375rem;
+        }
+
+        .alert-success {
+            background-color: #d1e7dd;
+            color: #0f5132;
+            border: 1px solid #badbcc;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #842029;
+            border: 1px solid #f5c2c7;
+        }
     </style>
 </head>
 <body>
@@ -152,46 +214,65 @@
             </div>
         </div>
         <div class="main-content">
-            <h1>Pay Fines</h1>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Payment ID</th>
-                        <th>Record ID</th>
-                        <th>Payment Date</th>
-                        <th>Payment Method</th>
-                        <th>Transaction Reference</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if($fines->isEmpty())
-                        <tr>
-                            <td colspan="6" class="no-records">No fines to pay.</td>
-                        </tr>
-                    @else
-                        @foreach($fines as $fine)
+            <h1 class="text-2xl font-bold mb-4">Payment Records</h1>
+
+            @if(session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if($payments->isEmpty())
+                <div class="no-records">
+                    <h2>No Payment Records Found</h2>
+                    <p>There are no payment records in the system.</p>
+                </div>
+            @else
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
                             <tr>
-                                <td>{{ $fine->payment_id ?? 'N/A' }}</td>
-                                <td>{{ $fine->record_id }}</td>
-                                <td>{{ $fine->payment_date ?? 'N/A' }}</td>
-                                <td>{{ $fine->payment_method ?? 'N/A' }}</td>
-                                <td>{{ $fine->transaction_reference ?? 'N/A' }}</td>
-                                <td>
-                                    @if($fine->status === 'unpaid')
-                                        <form action="{{ route('admin.pay.fines.pay', $fine->record_id) }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="btn">Pay Now</button>
-                                        </form>
-                                    @else
-                                        <span>Paid</span>
-                                    @endif
-                                </td>
+                                <th>Payment Date</th>
+                                <th>Type</th>
+                                <th>Vehicle</th>
+                                <th>Violation</th>
+                                <th>Amount Paid</th>
+                                <th>Payment Method</th>
+                                <th>Transaction Reference</th>
+                                <th>Paid By</th>
                             </tr>
-                        @endforeach
-                    @endif
-                </tbody>
-            </table>
+                        </thead>
+                        <tbody>
+                            @foreach($payments as $payment)
+                                <tr>
+                                    <td>{{ $payment->date }}</td>
+                                    <td>
+                                        <span class="badge {{ $payment->type === 'ViolationRecord' ? 'bg-primary' : 'bg-info' }}">
+                                            {{ $payment->type === 'ViolationRecord' ? 'Violation' : 'Report' }}
+                                        </span>
+                                    </td>
+                                    <td>{{ $payment->vehicle }}</td>
+                                    <td>{{ $payment->violation }}</td>
+                                    <td>₱{{ number_format($payment->amount, 2) }}</td>
+                                    <td>
+                                        <span class="badge bg-success">{{ $payment->payment_method }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-monospace">{{ $payment->transaction_reference }}</span>
+                                    </td>
+                                    <td>{{ $payment->payer }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
         </div>
     </div>
     <script>

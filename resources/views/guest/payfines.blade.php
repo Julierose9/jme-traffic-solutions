@@ -116,6 +116,54 @@
             border-radius: 0.375rem;
             cursor: pointer;
         }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-unpaid, .status-pending {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .status-paid {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .form-control-sm {
+            font-size: 0.875rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            margin-bottom: 0.5rem;
+            width: 100%;
+            border: 1px solid #d1d5db;
+        }
+
+        .form-control-sm:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+            outline: none;
+        }
+
+        .btn-success {
+            background-color: #10b981;
+            border-color: #059669;
+            color: white;
+            transition: all 0.2s;
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+            border-color: #047857;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
@@ -160,10 +208,11 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Record ID</th>
+                        <th>Date</th>
+                        <th>Vehicle</th>
+                        <th>Type</th>
                         <th>Violation Code</th>
                         <th>Penalty Amount</th>
-                        <th>Amount Paid</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -171,15 +220,35 @@
                 <tbody>
                     @foreach($fines as $fine)
                         <tr>
-                            <td>{{ $fine->record_id ?? 'N/A' }}</td>
-                            <td>{{ $fine->violation ? $fine->violation->violation_code : 'N/A' }}</td>
-                            <td>{{ $fine->violation ? $fine->violation->penalty_amount : 'N/A' }}</td>
-                            <td>{{ $fine->status === 'paid' ? ($fine->violation ? $fine->violation->penalty_amount : 0) : 0 }}</td>
-                            <td>{{ $fine->status }}</td>
+                            <td>{{ \Carbon\Carbon::parse($fine->date)->format('M d, Y') }}</td>
+                            <td>{{ $fine->vehicle }}</td>
+                            <td>{{ ucfirst($fine->type) }}</td>
+                            <td>{{ $fine->violation_code }}</td>
+                            <td>₱{{ number_format($fine->penalty_amount, 2) }}</td>
                             <td>
-                                <form action="{{ route('pay.fines.pay', $fine->record_id) }}" method="POST">
+                                <span class="status-badge status-{{ strtolower($fine->status) }}">
+                                    {{ ucfirst($fine->status) }}
+                                </span>
+                            </td>
+                            <td>
+                                <form action="{{ route('pay.fines.pay', ['id' => $fine->id]) }}" method="POST" class="d-inline">
                                     @csrf
-                                    <button type="submit" class="btn btn-success">Pay Fine</button>
+                                    <div class="form-group mb-2">
+                                        <input type="date" name="payment_date" class="form-control form-control-sm" 
+                                               value="{{ now()->format('Y-m-d') }}" required>
+                                    </div>
+                                    <div class="form-group mb-2">
+                                        <select name="payment_method" class="form-control form-control-sm" required>
+                                            <option value="">Select Payment Method</option>
+                                            <option value="Credit Card">Credit Card</option>
+                                            <option value="Debit Card">Debit Card</option>
+                                            <option value="GCash">GCash</option>
+                                            <option value="Maya">Maya</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        <i class="fas fa-money-bill-wave"></i> Pay Now
+                                    </button>
                                 </form>
                             </td>
                         </tr>

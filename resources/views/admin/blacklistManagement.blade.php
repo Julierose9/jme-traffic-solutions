@@ -318,7 +318,6 @@
                             <th>Violation Description</th>
                             <th>Blacklist Type</th>
                             <th>Date Added</th>
-                            <th>Resolution Status</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -339,11 +338,6 @@
                                     <td>{{ $vehicle->violation_description }}</td>
                                     <td>{{ $vehicle->blacklist_type }}</td>
                                     <td>{{ $vehicle->date_added }}</td>
-                                    <td>
-                                        <span class="badge {{ $vehicle->resolution_status === 'Resolved' ? 'badge-success' : 'badge-warning' }}">
-                                            {{ $vehicle->resolution_status }}
-                                        </span>
-                                    </td>
                                     <td>
                                         <span class="badge {{ $vehicle->status === 'Active' ? 'badge-danger' : 'badge-success' }}">
                                             {{ $vehicle->status }}
@@ -479,8 +473,8 @@
             const modal = document.getElementById('editModal');
             const form = document.getElementById('editForm');
 
-            // Set form action
-            form.action = `/blacklist/${id}`;
+            // Set form action using the proper route
+            form.action = `{{ url('/dashboard/admin/blacklist') }}/${id}`;
 
             // Set form values
             document.getElementById('edit_reg_vehicle_id').value = regVehicleId;

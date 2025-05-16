@@ -7,6 +7,7 @@ use App\Models\Officer;
 use App\Models\Violation;
 use App\Models\RegisteredVehicle;
 use App\Models\User;
+use App\Models\Report;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,10 +15,10 @@ class ViolationRecordController extends Controller
 {
     public function index()
     {
-        $violationRecords = ViolationRecord::with(['violation', 'registeredVehicle', 'officer'])->get();
+        $violationRecords = ViolationRecord::with(['violation', 'vehicle', 'officer'])->get();
         
         // Get reports and transform them to match violation records format
-        $reports = \App\Models\Report::with(['violation', 'vehicle', 'owner', 'officer'])->get()
+        $reports = Report::with(['violation', 'vehicle', 'owner', 'officer'])->get()
             ->map(function($report) {
                 return (object)[
                     'RecordID' => 'R-' . $report->report_id, // Prefix with R to distinguish from violation records
@@ -45,52 +46,49 @@ class ViolationRecordController extends Controller
         $userId = Auth::id();
 
         // Get violation records
-        $violationRecords = ViolationRecord::whereHas('registeredVehicle', function($query) use ($userId) {
-            $query->whereHas('owner', function($q) use ($userId) {
-                $q->where('user_id', $userId);
+        $violationRecords = ViolationRecord::with(['violation', 'vehicle', 'officer'])
+            ->whereHas('vehicle.owner', function($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })
+            ->get()
+            ->map(function($record) {
+                return (object)[
+                    'date' => $record->violation_date,
+                    'vehicle' => $record->vehicle->plate_number . ' - ' . 
+                               $record->vehicle->brand . ' ' . 
+                               $record->vehicle->model,
+                    'violation' => $record->violation->violation_code,
+                    'location' => $record->location,
+                    'officer' => $record->officer->fname . ' ' . $record->officer->lname,
+                    'penalty_amount' => $record->violation->penalty_amount ?? 0,
+                    'status' => $record->status,
+                    'record_id' => $record->record_id,
+                    'isReport' => false
+                ];
             });
-        })
-        ->with(['violation', 'registeredVehicle', 'officer'])
-        ->get()
-        ->map(function($record) {
-            return (object)[
-                'date' => $record->violation_date,
-                'vehicle' => $record->registeredVehicle->plate_number . ' - ' . 
-                           $record->registeredVehicle->brand . ' ' . 
-                           $record->registeredVehicle->model,
-                'violation' => $record->violation->violation_code,
-                'location' => $record->location,
-                'officer' => $record->officer->fname . ' ' . $record->officer->lname,
-                'penalty_amount' => $record->PenaltyAmount,
-                'status' => $record->Status,
-                'details' => null,
-                'isReport' => false
-            ];
-        });
 
-        // Get reports
-        $reports = \App\Models\Report::whereHas('vehicle', function($query) use ($userId) {
-            $query->whereHas('owner', function($q) use ($userId) {
-                $q->where('user_id', $userId);
+        // Get reports for the same user
+        $reports = Report::with(['violation', 'vehicle', 'officer'])
+            ->whereHas('vehicle.owner', function($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })
+            ->get()
+            ->map(function($report) {
+                return (object)[
+                    'date' => $report->report_date,
+                    'vehicle' => $report->vehicle->plate_number . ' - ' . 
+                               $report->vehicle->brand . ' ' . 
+                               $report->vehicle->model,
+                    'violation' => $report->violation->violation_code,
+                    'location' => $report->location,
+                    'officer' => $report->officer->fname . ' ' . $report->officer->lname,
+                    'penalty_amount' => $report->violation->penalty_amount ?? 0,
+                    'status' => $report->status,
+                    'details' => $report->report_details,
+                    'record_id' => $report->report_id,
+                    'isReport' => true
+                ];
             });
-        })
-        ->with(['violation', 'vehicle', 'officer'])
-        ->get()
-        ->map(function($report) {
-            return (object)[
-                'date' => $report->report_date,
-                'vehicle' => $report->vehicle->plate_number . ' - ' . 
-                           $report->vehicle->brand . ' ' . 
-                           $report->vehicle->model,
-                'violation' => $report->violation->violation_code,
-                'location' => $report->location,
-                'officer' => $report->officer->fname . ' ' . $report->officer->lname,
-                'penalty_amount' => $report->violation->penalty_amount ?? 0,
-                'status' => $report->status,
-                'details' => $report->report_details,
-                'isReport' => true
-            ];
-        });
 
         // Merge and sort records by date
         $allRecords = $violationRecords->concat($reports)->sortByDesc('date');

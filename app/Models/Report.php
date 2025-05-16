@@ -48,4 +48,9 @@ class Report extends Model
     {
         return $this->belongsTo(User::class, 'officer_id');
     }
+
+    public function payments()
+    {
+        return $this->morphMany(Payment::class, 'payable');
+    }
 }

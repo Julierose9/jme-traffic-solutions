@@ -28,6 +28,11 @@ class ViolationRecord extends Model
         return $this->belongsTo(Violation::class, 'violation_id', 'violation_id');
     }
 
+    public function vehicle()
+    {
+        return $this->belongsTo(RegisteredVehicle::class, 'reg_vehicle_id', 'reg_vehicle_id');
+    }
+
     public function registeredVehicle()
     {
         return $this->belongsTo(RegisteredVehicle::class, 'reg_vehicle_id', 'reg_vehicle_id');
@@ -40,6 +45,6 @@ class ViolationRecord extends Model
 
     public function payments()
     {
-        return $this->hasMany(Payment::class, 'record_id', 'record_id');
+        return $this->morphMany(Payment::class, 'payable');
     }
 }

@@ -131,22 +131,34 @@ class BlacklistManagementController extends Controller
         }
     }
 
-    public function checkStatus(Request $request)
+    public function checkStatus()
     {
-        $userId = Auth::id();
-    
-        $query = Blacklist::with(['registeredVehicle', 'owner'])
-            ->join('registered_vehicles', 'blacklists.reg_vehicle_id', '=', 'registered_vehicles.reg_vehicle_id')
-            ->join('owners', 'blacklists.own_id', '=', 'owners.own_id')
-            ->where('owners.own_id', $userId)
-            ->select('blacklists.*');
-    
-        if ($request->has('plate_number') && !empty($request->plate_number)) {
-            $query->where('registered_vehicles.plate_number', $request->plate_number);
-        }
-    
-        $blacklistStatus = $query->get();
-    
+        $userId = auth()->id();
+
+        // Get blacklist entries for the authenticated user's vehicles
+        $blacklistStatus = Blacklist::with(['vehicle', 'report'])
+            ->whereHas('vehicle.owner', function($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })
+            ->where('status', 'Active')
+            ->get()
+            ->map(function($blacklist) {
+                return (object)[
+                    'vehicle' => $blacklist->vehicle->plate_number . ' - ' . 
+                                $blacklist->vehicle->brand . ' ' . 
+                                $blacklist->vehicle->model,
+                    'reason' => $blacklist->reason,
+                    'type' => $blacklist->blacklist_type,
+                    'date_added' => \Carbon\Carbon::parse($blacklist->date_added)->format('M d, Y'),
+                    'description' => $blacklist->description,
+                    'report' => $blacklist->report ? [
+                        'details' => $blacklist->report->report_details,
+                        'date' => \Carbon\Carbon::parse($blacklist->report->report_date)->format('M d, Y'),
+                        'location' => $blacklist->report->location
+                    ] : null
+                ];
+            });
+
         return view('guest.blackliststatus', compact('blacklistStatus'));
     }
 }

@@ -123,6 +123,39 @@
             background-color: #ef4444;
             color: white;
         }
+
+        .btn-success {
+            background-color: #10b981;
+            border-color: #059669;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+            border-color: #047857;
+            color: white;
+        }
+
+        .btn-info {
+            background-color: #3b82f6;
+            border-color: #2563eb;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background-color: #2563eb;
+            border-color: #1d4ed8;
+            color: white;
+        }
+
+        .btn i {
+            margin-right: 5px;
+        }
+
+        .d-inline {
+            display: inline-block;
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body>
@@ -178,10 +211,10 @@
                                     </span>
                                 </td>
                                 <td>
-                                    @if($record->isReport && $record->details)
-                                        <button class="btn btn-sm btn-info" onclick="viewDetails('{{ addslashes($record->details) }}')">
-                                            View Details
-                                        </button>
+                                    @if($record->status == 'pending' || $record->status == 'unpaid')
+                                        <a href="{{ route('pay.fines') }}" class="btn btn-sm btn-success">
+                                            <i class="fas fa-money-bill-wave"></i> Pay Now
+                                        </a>
                                     @endif
                                 </td>
                             </tr>
@@ -189,33 +222,6 @@
                     @endif
                 </tbody>
             </table>
-
-            <!-- Modal for Report Details -->
-            <div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="detailsModalLabel">Report Details</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <p id="detailsContent"></p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <script>
-                function viewDetails(details) {
-                    document.getElementById('detailsContent').textContent = details;
-                    $('#detailsModal').modal('show');
-                }
-            </script>
         </div>
     </div>
 </body>
