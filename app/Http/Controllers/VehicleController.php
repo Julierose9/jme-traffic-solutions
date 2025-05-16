@@ -66,7 +66,21 @@ class VehicleController extends Controller
                 $query->where('user_id', $userId);
             })->get();
 
-        return view('guest.dashboard', compact('registeredVehicles'));
+        // Calculate total pending payments from violation records and reports
+        $pendingPayments = 0;
+        foreach ($registeredVehicles as $vehicle) {
+            // Count unpaid violation records
+            $pendingPayments += $vehicle->violationRecords()
+                ->where('status', 'unpaid')
+                ->count();
+            
+            // Count pending reports
+            $pendingPayments += $vehicle->reports()
+                ->where('status', 'pending')
+                ->count();
+        }
+
+        return view('guest.dashboard', compact('registeredVehicles', 'pendingPayments'));
     }
 
     // Method to handle the vehicle registration form submission

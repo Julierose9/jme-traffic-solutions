@@ -146,19 +146,19 @@
             <div class="stats-grid">
                 <div class="stats-card">
                     <h2>PENDING PAYMENTS</h2>
-                    <p>0</p>
+                    <p>{{App\Models\ViolationRecord::where('status', 'unpaid')->count() + App\Models\Report::where('status', 'pending')->count()}}</p>
                 </div>
                 <div class="stats-card">
                     <h2>TOTAL VIOLATIONS</h2>
-                    <p>0</p>
+                    <p>{{App\Models\ViolationRecord::count() + App\Models\Report::count()}}</p>
                 </div>
                 <div class="stats-card">
                     <h2>REGISTERED VEHICLES</h2>
-                    <p>0</p>
+                    <p>{{App\Models\RegisteredVehicle::count()}}</p>
                 </div>
                 <div class="stats-card">
                     <h2>BLACKLISTED VEHICLES</h2>
-                    <p>0</p>
+                    <p>{{App\Models\Blacklist::count()}}</p>
                 </div>
             </div>
         </div>

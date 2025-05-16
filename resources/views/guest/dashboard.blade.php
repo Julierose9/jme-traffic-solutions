@@ -310,6 +310,22 @@
         .w-100 {
             width: 100%;
         }
+
+        .stat-number a {
+            text-decoration: none;
+        }
+        .stat-number a:hover {
+            text-decoration: underline;
+        }
+        .btn-block {
+            margin-bottom: 10px;
+        }
+        .table-responsive {
+            margin-top: 15px;
+        }
+        .alert {
+            margin-bottom: 0;
+        }
     </style>
 </head>
 <body>
@@ -431,9 +447,11 @@
                     <div class="col-md-4">
                         <div class="stat-item">
                             <h4>Active Violations</h4>
-                            <p class="stat-number">{{ $registeredVehicles->sum(function($vehicle) {
-                                return $vehicle->violationRecords()->where('status', 'unpaid')->count();
-                            }) }}</p>
+                            <p class="stat-number">
+                                <a href="{{ route('pay.fines') }}" class="text-danger">
+                                    {{ $pendingPayments }}
+                                </a>
+                            </p>
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -447,17 +465,89 @@
                 </div>
             </div>
 
+            <!-- Active Violations Section -->
+            <!-- <div class="stats-card mt-4">
+                <h2><i class="fas fa-exclamation-triangle"></i> Active Violations</h2>
+                @php
+                    $activeViolations = collect();
+                    foreach($registeredVehicles as $vehicle) {
+                        $violations = $vehicle->violationRecords()->where('status', 'unpaid')->get();
+                        foreach($violations as $violation) {
+                            $activeViolations->push([
+                                'vehicle' => $vehicle,
+                                'violation' => $violation
+                            ]);
+                        }
+                    }
+                @endphp
+
+                @if($activeViolations->count() > 0)
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Vehicle</th>
+                                    <th>Violation</th>
+                                    <th>Penalty Amount</th>
+                                    <th>Type</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($activeViolations as $record)
+                                    <tr>
+                                        <td>{{ \Carbon\Carbon::parse($record['violation']->violation_date)->format('M d, Y') }}</td>
+                                        <td>{{ $record['vehicle']->plate_number }} ({{ $record['vehicle']->brand }} {{ $record['vehicle']->model }})</td>
+                                        <td>{{ $record['violation']->violation_code }}</td>
+                                        <td>₱{{ number_format($record['violation']->penalty_amount, 2) }}</td>
+                                        <td>
+                                            <span class="badge badge-danger">Violation</span>
+                                        </td>
+                                        <td>
+                                            <a href="{{ route('pay.fines') }}" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-money-bill-wave"></i> Pay Fine
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="alert alert-success mt-3">
+                        <i class="fas fa-check-circle"></i> You have no active violations.
+                    </div>
+                @endif
+            </div> -->
+
             <div class="stats-card">
                 <h2>Quick Links</h2>
-                <p>Access your violation history, check for any outstanding fines, or view your blacklist status.</p>
+                <div class="row">
+                    <div class="col-md-4">
+                        <a href="{{ route('violation.history') }}" class="btn btn-primary btn-block">
+                            <i class="fas fa-history"></i> View Violation History
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{ route('pay.fines') }}" class="btn btn-danger btn-block">
+                            <i class="fas fa-money-bill-wave"></i> Pay Outstanding Fines
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{ route('blacklist.status') }}" class="btn btn-warning btn-block">
+                            <i class="fas fa-user-slash"></i> Check Blacklist Status
+                        </a>
+                    </div>
+                </div>
             </div>
+
             <div class="stats-card">
-                <h2>Need Assistance?</h2>
-                <p>If you have any questions or need help, feel free to reach out to our support team.</p>
-            </div>
-            <div class="stats-card">
-                <h2>Stay Informed</h2>
-                <p>Keep track of your vehicle's status and ensure compliance with traffic regulations.</p>
+                <h2><i class="fas fa-headset"></i> Need Assistance?</h2>
+                <p>If you have any questions or need help, our support team is here to assist you.</p>
+                <a href="{{ route('support') }}" class="btn btn-info">
+                    <i class="fas fa-envelope"></i> Contact Support
+                </a>
             </div>
         </div>
     </div>

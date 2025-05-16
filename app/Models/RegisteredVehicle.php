@@ -32,4 +32,9 @@ class RegisteredVehicle extends Model
     {
         return $this->hasMany(ViolationRecord::class, 'reg_vehicle_id', 'reg_vehicle_id');
     }
+
+    public function reports()
+    {
+        return $this->hasMany(Report::class, 'reg_vehicle_id', 'reg_vehicle_id');
+    }
 }
