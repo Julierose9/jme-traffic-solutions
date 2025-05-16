@@ -113,7 +113,7 @@ Route::prefix('dashboard/admin')->middleware(['web', 'auth'])->group(function ()
 
     // Officer Routes
 Route::middleware(['auth'])->prefix('dashboard')->group(function () {
-    Route::get('/officer', [ViolationController::class, 'index'])->name('dashboard.officer');
+    Route::get('/officer', [App\Http\Controllers\OfficerDashboardController::class, 'index'])->name('dashboard.officer');
     Route::get('/officer/issue-violation', [ViolationController::class, 'create'])->name('officer.violation.issue');
     Route::post('/officer/violation', [ViolationController::class, 'store'])->name('officer.violation.store');
 

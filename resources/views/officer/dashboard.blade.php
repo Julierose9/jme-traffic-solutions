@@ -116,64 +116,21 @@
         <div class="row">
             <div class="col-md-4">
                 <div class="stats-card">
-                    <h3>Total Violations Issued</h3>
-                    <div class="stats-number">{{ $violations->count() ?? 0 }}</div>
+                    <h3>Total Records Issued</h3>
+                    <div class="stats-number">{{ $totalRecords }}</div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="stats-card">
-                    <h3>Pending Violations</h3>
-                    <div class="stats-number">{{ $violations->where('status', 'pending')->count() ?? 0 }}</div>
+                    <h3>Pending Records</h3>
+                    <div class="stats-number">{{ $pendingRecords }}</div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="stats-card">
-                    <h3>Completed Violations</h3>
-                    <div class="stats-number">{{ $violations->where('status', 'completed')->count() ?? 0 }}</div>
+                    <h3>Completed Records</h3>
+                    <div class="stats-number">{{ $completedRecords }}</div>
                 </div>
-            </div>
-        </div>
-
-        <div class="mt-4">
-            <h2>Recent Violations</h2>
-            <div class="table-responsive">
-                @if($violations->count() > 0)
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Violation Code</th>
-                                <th>Vehicle</th>
-                                <th>Date</th>
-                                <th>Location</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($violations->take(5) as $violation)
-                                <tr>
-                                    <td>{{ $violation->violation->violation_code }}</td>
-                                    <td>{{ $violation->vehicle->plate_number }}</td>
-                                    <td>{{ $violation->violation_date }}</td>
-                                    <td>{{ $violation->location }}</td>
-                                    <td>{{ ucfirst($violation->status) }}</td>
-                                    <td>
-                                        <a href="{{ route('violations.edit', $violation->record_id) }}" class="btn btn-warning btn-sm">Edit</a>
-                                        <form action="{{ route('violations.destroy', $violation->record_id) }}" method="POST" style="display:inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this violation?')">Delete</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                @else
-                    <div class="alert alert-info">
-                        No violations have been issued yet. Click the "Violations" link in the sidebar to issue a new violation.
-                    </div>
-                @endif
             </div>
         </div>
     </div>
