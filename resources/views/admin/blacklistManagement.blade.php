@@ -284,6 +284,99 @@
         .edit-btn:hover { background-color: #0056b3; }
         .delete-btn { background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; }
         .delete-btn:hover { background-color: #c82333; }
+        .btn-delete-custom {
+            border: 2px solid #ef4444;
+            background: #fff;
+            color: #ef4444;
+            border-radius: 12px;
+            padding: 6px 18px;
+            font-weight: 500;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-delete-custom:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+        .btn-edit-custom {
+            background: #0090d0;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 6px 18px;
+            font-weight: 500;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-edit-custom:hover {
+            background: #0077b6;
+            color: #fff;
+        }
+        .btn-logout-custom {
+            border: 2px solid #ef4444;
+            background: #fff;
+            color: #ef4444;
+            border-radius: 12px;
+            padding: 6px 18px;
+            font-weight: 500;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-logout-custom:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+        .table {
+            min-width: 900px;
+        }
+        .table th, .table td {
+            white-space: nowrap;
+        }
+        .table th, .table td {
+            vertical-align: middle;
+        }
+        .table th:nth-child(2), .table td:nth-child(2) {
+            min-width: 120px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-edit-custom, .btn-delete-custom {
+            height: 40px;
+            min-width: 110px;
+            font-size: 1rem;
+            border-radius: 16px;
+            padding: 0 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        .btn-edit-custom {
+            background: #0090d0;
+            color: #fff;
+            border: none;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-edit-custom:hover {
+            background: #0077b6;
+            color: #fff;
+        }
+        .btn-delete-custom {
+            border: 2px solid #ef4444;
+            background: #fff;
+            color: #ef4444;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-delete-custom:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+        .btn-edit-custom i, .btn-delete-custom i {
+            margin-right: 8px;
+            font-size: 1.2em;
+        }
     </style>
 </head>
 <body>
@@ -300,7 +393,7 @@
             <div class="logout-btn">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                    <button type="submit" class="btn-logout-custom"><i class="fas fa-sign-out-alt"></i> Logout</button>
                 </form>
             </div>
         </div>
@@ -344,7 +437,7 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <button class="edit-btn" onclick="openEditModal('{{ $vehicle->blacklist_id }}', '{{ $vehicle->reg_vehicle_id }}', '{{ $vehicle->own_id }}', '{{ $vehicle->reason }}', '{{ $vehicle->blacklist_type }}', '{{ $vehicle->status }}', '{{ $vehicle->appeal_status }}')"><i class="fas fa-edit"></i> Edit</button> <button class="delete-btn" onclick="openDeleteModal('{{ $vehicle->blacklist_id }}')"><i class="fas fa-trash"></i> Delete</button>
+                                        <button class="btn-edit-custom" onclick="openEditModal('{{ $vehicle->blacklist_id }}', '{{ $vehicle->reg_vehicle_id }}', '{{ $vehicle->own_id }}', '{{ $vehicle->reason }}', '{{ $vehicle->blacklist_type }}', '{{ $vehicle->status }}', '{{ $vehicle->appeal_status }}')"><i class="fas fa-edit"></i> Edit</button> <button class="btn-delete-custom" onclick="openDeleteModal('{{ $vehicle->blacklist_id }}')"><i class="fas fa-trash"></i> Delete</button>
                                     </td>
                                 </tr>
                             @endforeach

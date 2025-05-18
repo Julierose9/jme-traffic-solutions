@@ -60,8 +60,14 @@
             padding: 2rem;
         }
 
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on mobile */
+        }
+
         .table {
             width: 100%;
+            min-width: 600px; /* Minimum width to ensure scrollability */
             border-collapse: collapse;
             margin-top: 20px;
             background-color: white;
@@ -74,6 +80,7 @@
             border: 1px solid #dddddd;
             text-align: left;
             padding: 12px;
+            white-space: nowrap; /* Prevents text wrapping, creating a single-line effect */
         }
 
         .table th {
@@ -156,6 +163,34 @@
             display: inline-block;
             margin-right: 5px;
         }
+
+        .btn-delete-custom {
+            border: 2px solid #ef4444;
+            background: #fff;
+            color: #ef4444;
+            border-radius: 12px;
+            padding: 6px 18px;
+            font-weight: 500;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-delete-custom:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .btn-logout-custom {
+            border: 2px solid #ef4444;
+            background: #fff;
+            color: #ef4444;
+            border-radius: 12px;
+            padding: 6px 18px;
+            font-weight: 500;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-logout-custom:hover {
+            background: #ef4444;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -172,56 +207,58 @@
             <div class="logout-btn">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                    <button type="submit" class="btn-logout-custom"><i class="fas fa-sign-out-alt"></i> Logout</button>
                 </form>
             </div>
         </div>
         <div class="main-content">
             <h1>My Violation History</h1>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Vehicle</th>
-                        <th>Violation</th>
-                        <th>Location</th>
-                        <th>Officer</th>
-                        <th>Penalty Amount</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if($allRecords->isEmpty())
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
                         <tr>
-                            <td colspan="8" class="no-records">No records found.</td>
+                            <th>Date</th>
+                            <th>Vehicle</th>
+                            <th>Violation</th>
+                            <th>Location</th>
+                            <th>Officer</th>
+                            <th>Penalty Amount</th>
+                            <th>Status</th>
+                            <th>Actions</th>
                         </tr>
-                    @else
-                        @foreach($allRecords as $record)
+                    </thead>
+                    <tbody>
+                        @if($allRecords->isEmpty())
                             <tr>
-                                <td>{{ \Carbon\Carbon::parse($record->date)->format('M d, Y') }}</td>
-                                <td>{{ $record->vehicle }}</td>
-                                <td>{{ $record->violation }}</td>
-                                <td>{{ $record->location }}</td>
-                                <td>{{ $record->officer }}</td>
-                                <td>₱{{ number_format($record->penalty_amount, 2) }}</td>
-                                <td>
-                                    <span class="status-badge status-{{ strtolower($record->status) }}">
-                                        {{ ucfirst($record->status) }}
-                                    </span>
-                                </td>
-                                <td>
-                                    @if($record->status == 'pending' || $record->status == 'unpaid')
-                                        <a href="{{ route('pay.fines') }}" class="btn btn-sm btn-success">
-                                            <i class="fas fa-money-bill-wave"></i> Pay Now
-                                        </a>
-                                    @endif
-                                </td>
+                                <td colspan="8" class="no-records">No records found.</td>
                             </tr>
-                        @endforeach
-                    @endif
-                </tbody>
-            </table>
+                        @else
+                            @foreach($allRecords as $record)
+                                <tr>
+                                    <td>{{ \Carbon\Carbon::parse($record->date)->format('M d, Y') }}</td>
+                                    <td>{{ $record->vehicle }}</td>
+                                    <td>{{ $record->violation }}</td>
+                                    <td>{{ $record->location }}</td>
+                                    <td>{{ $record->officer }}</td>
+                                    <td>₱{{ number_format($record->penalty_amount, 2) }}</td>
+                                    <td>
+                                        <span class="status-badge status-{{ strtolower($record->status) }}">
+                                            {{ ucfirst($record->status) }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if($record->status == 'pending' || $record->status == 'unpaid')
+                                            <a href="{{ route('pay.fines') }}" class="btn btn-sm btn-success">
+                                                <i class="fas fa-money-bill-wave"></i> Pay Now
+                                            </a>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @endif
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </body>

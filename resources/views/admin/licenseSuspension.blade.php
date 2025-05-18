@@ -235,6 +235,47 @@
         .action-buttons .delete-btn:hover {
             background-color: #b91c1c;
         }
+
+        .btn-delete-custom {
+            border: 2px solid #ef4444;
+            background: #fff;
+            color: #ef4444;
+            border-radius: 12px;
+            padding: 6px 18px;
+            font-weight: 500;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-delete-custom:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .btn-edit-custom {
+            background: #0090d0;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 6px 18px;
+            font-weight: 500;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-edit-custom:hover {
+            background: #0077b6;
+            color: #fff;
+        }
+        .btn-logout-custom {
+            border: 2px solid #ef4444;
+            background: #fff;
+            color: #ef4444;
+            border-radius: 12px;
+            padding: 6px 18px;
+            font-weight: 500;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-logout-custom:hover {
+            background: #ef4444;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -252,7 +293,7 @@
             <div class="logout-btn">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                    <button type="submit" class="btn-logout-custom"><i class="fas fa-sign-out-alt"></i> Logout</button>
                 </form>
             </div>
         </div>
@@ -300,12 +341,8 @@
                                 <td>{{ $suspension->suspension_status }}</td>
                                 <td>{{ $suspension->appeal_status ?? 'N/A' }}</td>
                                 <td class="action-buttons">
-                                    <button class="edit-btn" onclick="openEditModal({{ $suspension }})">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </button>
-                                    <button class="delete-btn" onclick="deleteSuspension({{ $suspension->suspension_id }})">
-                                        <i class="fas fa-trash"></i> Delete
-                                    </button>
+                                    <button class="btn-edit-custom" onclick="openEditModal({{ $suspension }})"><i class="fas fa-edit"></i> Edit</button>
+                                    <button class="btn-delete-custom" onclick="deleteSuspension({{ $suspension->suspension_id }})"><i class="fas fa-trash"></i> Delete</button>
                                 </td>
                             </tr>
                         @endforeach

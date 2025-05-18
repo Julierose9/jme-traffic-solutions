@@ -326,6 +326,34 @@
         .alert {
             margin-bottom: 0;
         }
+
+        .btn-delete-custom {
+            border: 2px solid #ef4444;
+            background: #fff;
+            color: #ef4444;
+            border-radius: 12px;
+            padding: 6px 18px;
+            font-weight: 500;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-delete-custom:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .btn-logout-custom {
+            border: 2px solid #ef4444;
+            background: #fff;
+            color: #ef4444;
+            border-radius: 12px;
+            padding: 6px 18px;
+            font-weight: 500;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-logout-custom:hover {
+            background: #ef4444;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -334,7 +362,7 @@
             <img src="{{ asset('images/image3.png') }}" alt="JME Logo" class="logo">
             <nav>
             <a href="{{ route('dashboard.guest') }}" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-            <a href="{{ route('violation.history') }}"><i class="fas fa-exclamation-triangle"></i>Violation History</a>
+            <a href="{{ route('violation.history') }}"><i class="fas fa-history"></i>Violation History</a>
                 <a href="{{ route('blacklist.status') }}"><i class="fas fa-user-slash"></i> Blacklist Status</a>
                 <a href="{{ route('pay.fines') }}" class="hover:bg-blue-800"><i class="fas fa-money-bill-wave"></i> Pay Fines</a>
                 <a href="{{ route('support') }}" class="hover:bg-blue-800"><i class="fas fa-headset"></i> Support</a> 
@@ -342,7 +370,7 @@
             <div class="logout-btn">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                    <button type="submit" class="btn-logout-custom"><i class="fas fa-sign-out-alt"></i> Logout</button>
                 </form>
             </div>
         </div>
@@ -350,40 +378,8 @@
         <div class="main-content">
             <h1 class="text-2xl font-bold">Guest Dashboard</h1>
             <p class="text-gray-600 welcome-message">Welcome! Today is <strong>{{ date('l, F j, Y') }}</strong>.</p>
+            <button class="btn btn-info mb-4" onclick="openProfileModal()"><i class="fas fa-user"></i> View Profile</button>
             
-            <div class="stats-card mb-4">
-                <h2 class="mb-3">Personal Information</h2>
-                <div class="row justify-content-center">
-                    <div class="col-md-8">
-                        <div class="card">
-                            <div class="card-body">
-                                <h3 class="card-title mb-3 text-center">Owner Details</h3>
-                                <table class="table table-borderless">
-                                    <tr>
-                                        <th width="30%">Name:</th>
-                                        <td>{{ Auth::user()->lname }}, {{ Auth::user()->fname }} {{ Auth::user()->mname }}</td>
-                                    </tr>
-                                    @if(Auth::user()->owner)
-                                    <tr>
-                                        <th>Address:</th>
-                                        <td>{{ Auth::user()->owner->address }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Contact Number:</th>
-                                        <td>{{ Auth::user()->owner->contact_num }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>License Number:</th>
-                                        <td>{{ Auth::user()->owner->license_number }}</td>
-                                    </tr>
-                                    @endif
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div class="stats-card">
                 <h2>Your Registered Vehicles</h2>
                 @if(isset($registeredVehicles) && $registeredVehicles->count() > 0)
@@ -465,62 +461,6 @@
                 </div>
             </div>
 
-            <!-- Active Violations Section -->
-            <!-- <div class="stats-card mt-4">
-                <h2><i class="fas fa-exclamation-triangle"></i> Active Violations</h2>
-                @php
-                    $activeViolations = collect();
-                    foreach($registeredVehicles as $vehicle) {
-                        $violations = $vehicle->violationRecords()->where('status', 'unpaid')->get();
-                        foreach($violations as $violation) {
-                            $activeViolations->push([
-                                'vehicle' => $vehicle,
-                                'violation' => $violation
-                            ]);
-                        }
-                    }
-                @endphp
-
-                @if($activeViolations->count() > 0)
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Vehicle</th>
-                                    <th>Violation</th>
-                                    <th>Penalty Amount</th>
-                                    <th>Type</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($activeViolations as $record)
-                                    <tr>
-                                        <td>{{ \Carbon\Carbon::parse($record['violation']->violation_date)->format('M d, Y') }}</td>
-                                        <td>{{ $record['vehicle']->plate_number }} ({{ $record['vehicle']->brand }} {{ $record['vehicle']->model }})</td>
-                                        <td>{{ $record['violation']->violation_code }}</td>
-                                        <td>₱{{ number_format($record['violation']->penalty_amount, 2) }}</td>
-                                        <td>
-                                            <span class="badge badge-danger">Violation</span>
-                                        </td>
-                                        <td>
-                                            <a href="{{ route('pay.fines') }}" class="btn btn-danger btn-sm">
-                                                <i class="fas fa-money-bill-wave"></i> Pay Fine
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @else
-                    <div class="alert alert-success mt-3">
-                        <i class="fas fa-check-circle"></i> You have no active violations.
-                    </div>
-                @endif
-            </div> -->
-
             <div class="stats-card">
                 <h2>Quick Links</h2>
                 <div class="row">
@@ -555,7 +495,7 @@
     <!-- Request Vehicle Registration Modal -->
     <div id="requestVehicleModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeRequestVehicleModal()">&times;</span>
+            <span class="close" onclick="closeRequestVehicleModal()" style="position:absolute; right:15px; top:10px; font-size:28px; font-weight:bold; color:#aaa; cursor:pointer;">&times;</span>
             <h2>Request Vehicle Registration</h2>
             <form id="requestVehicleForm" method="POST" action="{{ route('request.vehicle.registration') }}">
                 @csrf
@@ -624,6 +564,24 @@
                     <button type="submit" class="btn btn-primary">Submit Request</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeProfileModal()" style="position:absolute; right:15px; top:10px; font-size:28px; font-weight:bold; color:#aaa; cursor:pointer;">&times;</span>
+            <h2>Profile Information</h2>
+            <div class="text-center mb-3">
+                <img src="{{ Auth::user()->avatar ?? asset('images/download.jpg') }}" alt="Profile Picture" class="rounded-circle" width="80" height="80">
+            </div>
+            <p><strong>Name:</strong> {{ Auth::user()->lname }}, {{ Auth::user()->fname }} {{ Auth::user()->mname }}</p>
+            <p><strong>Email:</strong> {{ Auth::user()->email }}</p>
+            @if(Auth::user()->owner)
+                <p><strong>Address:</strong> {{ Auth::user()->owner->address }}</p>
+                <p><strong>Contact Number:</strong> {{ Auth::user()->owner->contact_num }}</p>
+                <p><strong>License Number:</strong> {{ Auth::user()->owner->license_number }}</p>
+            @endif
         </div>
     </div>
 
@@ -746,6 +704,13 @@
             if (event.target === requestVehicleModal) {
                 closeRequestVehicleModal();
             }
+        }
+
+        function openProfileModal() {
+            document.getElementById('profileModal').style.display = 'block';
+        }
+        function closeProfileModal() {
+            document.getElementById('profileModal').style.display = 'none';
         }
     </script>
 </body>

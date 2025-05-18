@@ -11,357 +11,321 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #edf2f7;
-        }
-        .sidebar {
-            width: 18rem;
-            background-color: #0a1f44;
-            color: #ffffff;
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            display: flex;
-            flex-direction: column;
-            padding-top: 1rem;
-            overflow-y: auto;
-        }
-        .sidebar .logo {
-            width: 7rem;
-            margin: 0 auto 1rem;
-            display: block;
-        }
-        .sidebar nav a {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 1.5rem;
-            color: #ffffff;
-            text-decoration: none;
-            font-weight: 500;
-            transition: background-color 0.2s;
-        }
-        .sidebar nav a i {
-            margin-right: 0.75rem;
-        }
-        .sidebar nav a:hover,
-        .sidebar nav a.active {
-            background-color: #102a5a;
-        }
-        .main-content {
-            margin-left: 18rem;
-            padding: 2rem;
-        }
-        .btn {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-bottom: 20px;
-        }
-        .btn:hover {
-            background-color: #45a049;
-        }
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        .table th, .table td {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
-        }
-        .table th {
-            background-color: #f2f2f2;
-        }
-        .no-records {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-        }
-        .logout-btn {
-            margin-top: auto;
-            padding: 1rem;
-        }
-        .logout-btn button {
-            width: 100%;
-            background-color: #dc2626;
-            color: #ffffff;
-            font-weight: 600;
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 0.375rem;
-            cursor: pointer;
-        }
-        .modal-header {
-            padding: 1rem;
-            border-bottom: 1px solid #dee2e6;
-            background-color: #fff;
-            border-top-left-radius: 0.3rem;
-            border-top-right-radius: 0.3rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .modal-header h2 {
-            font-size: 1.5rem;
-            margin: 0;
-            color: #333;
-            font-weight: 500;
-        }
+    font-family: 'Poppins', sans-serif;
+    background-color: #e0e7ff;
+    margin: 0; /* Ensure no default margin prevents scrolling */
+    height: 100%; /* Allow body to expand with content */
+}
 
-        .modal-header .close {
-            font-size: 1.75rem;
-            font-weight: 700;
-            line-height: 1;
-            color: #000;
-            opacity: .5;
-            background: none;
-            border: 0;
-            padding: 1rem;
-            margin: -1rem -1rem -1rem auto;
-        }
+.sidebar {
+    width: 18rem;
+    background-color: #0a1f44;
+    color: #ffffff;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    padding-top: 1rem;
+    overflow-y: auto; /* Allow sidebar to scroll if content overflows */
+}
 
-        .btn-primary {
-            color: #fff;
-            background-color: #007bff;
-            border-color: #007bff;
-            transition: all 0.2s ease-in-out;
-        }
+.sidebar .logo {
+    width: 7rem;
+    margin: 0 auto 1rem;
+    display: block;
+}
 
-        .btn-primary:hover {
-            background-color: #0056b3;
-            border-color: #0056b3;
-            color: #fff;
-        }
+.sidebar nav a {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
 
-        .btn-danger {
-            color: #fff;
-            background-color: #dc3545;
-            border-color: #dc3545;
-            transition: all 0.2s ease-in-out;
-        }
+.sidebar nav a i {
+    margin-right: 0.75rem;
+}
 
-        .btn-danger:hover {
-            background-color: #c82333;
-            border-color: #bd2130;
-            color: #fff;
-        }
+.sidebar nav a:hover,
+.sidebar nav a.active {
+    background-color: #102a5a;
+}
 
-        .table .btn {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.875rem;
-            line-height: 1.5;
-            border-radius: 0.2rem;
-        }
+.main-content {
+    margin-left: 18rem;
+    padding: 2rem;
+    overflow-y: auto; /* Ensure main content is scrollable */
+    height: 100vh; /* Full viewport height */
+    box-sizing: border-box; /* Include padding in height calculation */
+}
 
-        .table .btn-primary {
-            color: #fff;
-            background-color: #007bff;
-            border-color: #007bff;
-        }
+.btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
 
-        .table .btn-primary:hover {
-            color: #fff;
-            background-color: #0056b3;
-            border-color: #0056b3;
-        }
+.btn:hover {
+    background-color: #45a049;
+}
 
-        .table .btn-danger {
-            color: #fff;
-            background-color: #dc3545;
-            border-color: #dc3545;
-        }
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
 
-        .table .btn-danger:hover {
-            color: #fff;
-            background-color: #c82333;
-            border-color: #bd2130;
-        }
+.table th, .table td {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
 
-        /* Remove any existing hover effects that might turn buttons green */
-        .btn:hover {
-            opacity: 1;
-        }
+.table th {
+    background-color: #f2f2f2;
+}
 
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1050;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(169, 169, 169, 0.5);
-            overflow-y: auto;
-            padding: 20px;
-        }
+.no-records {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
 
-        .modal-content {
-            border-radius: 0.3rem;
-            border: none;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            width: 40%;
-            margin: 5% auto;
-            max-width: 600px;
-            background-color: #fff;
-            position: relative;
-            animation: modalFadeIn 0.3s ease-out;
-        }
+.logout-btn {
+    margin-top: auto;
+    padding: 1rem;
+}
 
-        @keyframes modalFadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+.logout-btn button {
+    width: 100%;
+    background-color: #dc2626;
+    color: #ffffff;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+}
 
-        .modal-backdrop {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(169, 169, 169, 0.5);
-            z-index: 1040;
-        }
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1050;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+    padding: 20px;
+    overflow-y: auto; /* Allow modal to scroll if content overflows */
+}
 
-        .form-control:disabled {
-            background-color: #e9ecef;
-            opacity: 1;
-            cursor: not-allowed;
-        }
+.modal-content {
+    background-color: #fefefe;
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 700px;
+    border-radius: 5px;
+    max-height: 80vh; /* Limit modal height to 80% of viewport */
+    overflow-y: auto; /* Enable scrolling within modal content */
+}
 
-        .section-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #212529;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid #dee2e6;
-        }
+.close {
+    color: #aaa;
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
 
-        .modal-body {
-            padding: 1.5rem;
-        }
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
 
-        .form-group {
-            margin-bottom: 1rem;
-        }
+.modal-header h2 {
+    font-size: 1.5rem;
+    margin: 0 0 20px 0;
+    color: #333;
+    font-weight: 500;
+}
 
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #212529;
-        }
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
 
-        .form-control {
-            display: block;
-            width: 100%;
-            padding: 0.375rem 0.75rem;
-            font-size: 0.9rem;
-            font-weight: 400;
-            line-height: 1.5;
-            color: #495057;
-            background-color: #fff;
-            border: 1px solid #ced4da;
-            border-radius: 0.25rem;
-            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-        }
+.form-grid div {
+    margin-bottom: 0;
+}
 
-        .btn-container {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1.5rem;
-            padding-top: 1rem;
-            border-top: 1px solid #dee2e6;
-        }
+.form-grid label {
+    display: block;
+    margin-bottom: 5px;
+}
 
-        .btn {
-            display: inline-block;
-            font-weight: 400;
-            text-align: center;
-            vertical-align: middle;
-            user-select: none;
-            padding: 0.375rem 0.75rem;
-            font-size: 0.9rem;
-            line-height: 1.5;
-            border-radius: 0.25rem;
-            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-        }
+.form-grid input,
+.form-grid select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+}
 
-        .btn-secondary {
-            color: #fff;
-            background-color: #6c757d;
-            border-color: #6c757d;
-        }
+.form-grid input:focus,
+.form-grid select:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+}
 
-        #createReportModal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow-y: auto;
-            background-color: rgba(0,0,0,0.4);
-            padding: 20px;
-        }
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        textarea.form-control {
-            height: auto;
-            min-height: 80px;
-        }
-        /* Fix for modal scrolling */
-        .modal-content {
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        /* Make sure inputs are not disabled or readonly */
-        input:not([type="submit"]):not([readonly]),
-        textarea:not([readonly]),
-        select:not([disabled]) {
-            background-color: #fff !important;
-            cursor: text !important;
-            pointer-events: auto !important;
-            opacity: 1 !important;
-        }
-        .container {
-            padding: 1rem;
-        }
-        .table td .btn {
-            margin-right: 5px;
-        }
+.form-grid .section-title {
+    grid-column: 1 / -1;
+}
 
-        .table td form {
-            margin: 0;
-            padding: 0;
-        }
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+    }
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+}
+
+form button {
+    background-color: #28a745;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    grid-column: 1 / -1;
+}
+
+form button:hover {
+    background-color: #218838;
+}
+
+.btn-submit {
+    background-color: #28a745;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+}
+
+.btn-submit:hover {
+    background-color: #218838;
+}
+
+.btn-edit-custom, .btn-delete-custom {
+    padding: 6px 18px;
+    border-radius: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-edit-custom {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+}
+
+.btn-edit-custom:hover {
+    background-color: #0056b3;
+}
+
+.btn-delete-custom {
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+}
+
+.btn-delete-custom:hover {
+    background-color: #c82333;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.modal-body {
+    padding: 0;
+}
+
+.table td .btn {
+    margin-right: 5px;
+}
+
+.table td form {
+    margin: 0;
+    padding: 0;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.table {
+    min-width: 900px;
+}
+
+.table th, .table td {
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-edit-custom i, .btn-delete-custom i {
+    font-size: 1.2em;
+}
     </style>
 </head>
 <body>
@@ -375,7 +339,7 @@
         <div class="logout-btn">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                <button type="submit" class="btn-logout-custom"><i class="fas fa-sign-out-alt"></i> Logout</button>
             </form>
         </div>
     </div>
@@ -415,16 +379,12 @@
                             <td>{{ $report->location }}</td>
                             <td>{{ $report->report_details }}</td>
                             <td>{{ ucfirst($report->status) }}</td>
-                            <td>
-                                <button onclick="openEditReportModal({{ $report->report_id }})" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-edit"></i> Edit
-                                </button>
+                            <td class="action-buttons">
+                                <button class="btn-edit-custom" onclick="openEditReportModal({{ $report->report_id }})"><i class="fas fa-edit"></i> Edit</button>
                                 <form action="{{ route('reports.destroy', $report->report_id) }}" method="POST" style="display:inline-block;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this report?')">
-                                        <i class="fas fa-trash"></i> Delete
-                                    </button>
+                                    <button type="submit" class="btn-delete-custom"><i class="fas fa-trash"></i> Delete</button>
                                 </form>
                             </td>
                         </tr>
@@ -440,112 +400,108 @@
             <h2>Create Report</h2>
             <form id="reportForm" action="{{ route('reports.store') }}" method="POST">
                 @csrf
-                <div class="form-group">
-                    <label for="violation_id">Violation:</label>
-                    <select class="form-control" id="violation_id" name="violation_id" required>
-                        <option value="" disabled selected>Select Violation</option>
-                        @foreach(\App\Models\Violation::all() as $violation)
-                            <option value="{{ $violation->violation_id }}">{{ $violation->violation_code }} - {{ $violation->description }}</option>
-                        @endforeach
-                    </select>
+                <div class="modal-body">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="violation_id">Violation:</label>
+                            <select class="form-control" id="violation_id" name="violation_id" required>
+                                <option value="" disabled selected>Select Violation</option>
+                                @foreach(\App\Models\Violation::all() as $violation)
+                                    <option value="{{ $violation->violation_id }}">{{ $violation->violation_code }} - {{ $violation->description }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="officer_name">Officer:</label>
+                            <input type="text" class="form-control" id="officer_name" value="{{ Auth::user()->fname }} {{ Auth::user()->lname }}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="own_id">Owner:</label>
+                            <select class="form-control" id="own_id" name="own_id" required onchange="updateVehicleList(this.value)">
+                                <option value="" disabled selected>Select Owner</option>
+                                @foreach(\App\Models\Owner::whereHas('registeredVehicles')->get() as $owner)
+                                    <option value="{{ $owner->own_id }}">
+                                        {{ $owner->fname }} {{ $owner->lname }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="reg_vehicle_id">Vehicle:</label>
+                            <select class="form-control" id="reg_vehicle_id" name="reg_vehicle_id" required disabled>
+                                <option value="" disabled selected>Select Owner First</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="report_date">Report Date:</label>
+                            <input type="date" class="form-control" id="report_date" name="report_date" required value="2025-05-18">
+                        </div>
+                        <div class="form-group">
+                            <label for="location">Location:</label>
+                            <input type="text" class="form-control" id="location" name="location" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="report_details">Report Details:</label>
+                            <textarea class="form-control" id="report_details" name="report_details" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Status:</label>
+                            <select class="form-control" id="status" name="status" required>
+                                <option value="pending">Pending</option>
+                                <option value="processing">Processing</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-submit">Submit Report</button>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="officer_name">Officer:</label>
-                    <input type="text" class="form-control" id="officer_name" value="{{ Auth::user()->fname }} {{ Auth::user()->lname }}" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="own_id">Owner:</label>
-                    <select class="form-control" id="own_id" name="own_id" required onchange="updateVehicleList(this.value)">
-                        <option value="" disabled selected>Select Owner</option>
-                        @foreach(\App\Models\Owner::whereHas('registeredVehicles')->get() as $owner)
-                            <option value="{{ $owner->own_id }}">
-                                {{ $owner->fname }} {{ $owner->lname }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="reg_vehicle_id">Vehicle:</label>
-                    <select class="form-control" id="reg_vehicle_id" name="reg_vehicle_id" required disabled>
-                        <option value="" disabled selected>Select Owner First</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="report_date">Report Date:</label>
-                    <input type="date" class="form-control" id="report_date" name="report_date" required>
-                </div>
-                <div class="form-group">
-                    <label for="location">Location:</label>
-                    <input type="text" class="form-control" id="location" name="location" required>
-                </div>
-                <div class="form-group">
-                    <label for="report_details">Report Details:</label>
-                    <textarea class="form-control" id="report_details" name="report_details" rows="3" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="status">Status:</label>
-                    <select class="form-control" id="status" name="status" required>
-                        <option value="pending">Pending</option>
-                        <option value="processing">Processing</option>
-                        <option value="completed">Completed</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary">Submit Report</button>
             </form>
         </div>
     </div>
 
     <div id="editReportModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2>Edit Vehicle and Owner Details</h2>
-                <button type="button" class="close" onclick="closeEditReportModal()">&times;</button>
-            </div>
+            <span class="close" onclick="closeEditReportModal()">×</span>
+            <h2>Edit Report</h2>
             <form id="editReportForm" method="POST">
                 @csrf
                 @method('PUT')
                 <div class="modal-body">
-                    <div class="section-title">Owner Information</div>
-                    <div class="form-group">
-                        <label for="edit_owner_name">Owner:</label>
-                        <input type="text" class="form-control" id="edit_owner_name" disabled>
-                        <input type="hidden" id="edit_own_id" name="own_id">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="edit_vehicle_info">Vehicle:</label>
-                        <input type="text" class="form-control" id="edit_vehicle_info" disabled>
-                        <input type="hidden" id="edit_reg_vehicle_id" name="reg_vehicle_id">
-                    </div>
-
-                    <div class="section-title">Report Information</div>
-                    <div class="form-group">
-                        <label for="edit_report_date">Report Date:</label>
-                        <input type="date" class="form-control" id="edit_report_date" name="report_date" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="edit_location">Location:</label>
-                        <input type="text" class="form-control" id="edit_location" name="location" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="edit_report_details">Report Details:</label>
-                        <textarea class="form-control" id="edit_report_details" name="report_details" rows="3" required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="edit_status">Status:</label>
-                        <select class="form-control" id="edit_status" name="status" required>
-                            <option value="pending">Pending</option>
-                            <option value="processing">Processing</option>
-                            <option value="completed">Completed</option>
-                        </select>
-                    </div>
-
-                    <div class="btn-container">
-                        <button type="submit" class="btn btn-primary">Update Report</button>
-                        <button type="button" class="btn btn-secondary" onclick="closeEditReportModal()">Cancel</button>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="edit_owner_name">Owner:</label>
+                            <input type="text" class="form-control" id="edit_owner_name" disabled>
+                            <input type="hidden" id="edit_own_id" name="own_id">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit_vehicle_info">Vehicle:</label>
+                            <input type="text" class="form-control" id="edit_vehicle_info" disabled>
+                            <input type="hidden" id="edit_reg_vehicle_id" name="reg_vehicle_id">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit_report_date">Report Date:</label>
+                            <input type="date" class="form-control" id="edit_report_date" name="report_date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit_location">Location:</label>
+                            <input type="text" class="form-control" id="edit_location" name="location" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit_report_details">Report Details:</label>
+                            <textarea class="form-control" id="edit_report_details" name="report_details" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit_status">Status:</label>
+                            <select class="form-control" id="edit_status" name="status" required>
+                                <option value="pending">Pending</option>
+                                <option value="processing">Processing</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                        <div class="btn-container">
+                            <button type="submit" class="btn-submit">Update Report</button>
+                            <button type="button" class="btn-secondary" onclick="closeEditReportModal()">Cancel</button>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -565,11 +521,7 @@
             const modal = document.getElementById('editReportModal');
             const form = document.getElementById('editReportForm');
             modal.style.display = 'block';
-            
-            // Set the form action
             form.action = `/dashboard/reports/${reportId}`;
-
-            // Fetch report data
             fetch(`/dashboard/reports/${reportId}/edit`, {
                 headers: {
                     'Accept': 'application/json',
@@ -584,7 +536,6 @@
                 return response.json();
             })
             .then(data => {
-                // Populate form fields
                 document.getElementById('edit_own_id').value = data.own_id;
                 document.getElementById('edit_owner_name').value = `${data.owner.fname} ${data.owner.lname}`;
                 document.getElementById('edit_reg_vehicle_id').value = data.reg_vehicle_id;
@@ -609,13 +560,10 @@
             event.preventDefault();
             const form = document.getElementById('reportForm');
             const formData = new FormData(form);
-
-            // Convert FormData to JSON
             const data = {};
             formData.forEach((value, key) => {
                 data[key] = value;
             });
-
             fetch(form.action, {
                 method: 'POST',
                 headers: {
@@ -640,7 +588,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Add form submission handler for edit form
             document.getElementById('editReportForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 const form = this;
@@ -649,7 +596,6 @@
                 formData.forEach((value, key) => {
                     data[key] = value;
                 });
-
                 fetch(form.action, {
                     method: 'POST',
                     headers: {
@@ -672,7 +618,6 @@
                     alert('An error occurred while updating the report');
                 });
             });
-
             document.getElementById('reportForm').addEventListener('submit', handleReportSubmit);
             document.getElementById('location').removeAttribute('readonly');
             document.getElementById('report_details').removeAttribute('readonly');
@@ -682,8 +627,6 @@
             const vehicleSelect = document.getElementById('reg_vehicle_id');
             vehicleSelect.disabled = true;
             vehicleSelect.innerHTML = '<option value="" disabled selected>Loading vehicles...</option>';
-
-            // Fetch vehicles for the selected owner
             fetch(`/api/owner/${ownerId}/vehicles`, {
                 method: 'GET',
                 headers: {
@@ -691,7 +634,7 @@
                     'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 },
-                credentials: 'include' // Include cookies in the request
+                credentials: 'include'
             })
             .then(response => {
                 console.log('Response status:', response.status);
@@ -728,7 +671,6 @@
             });
         }
 
-        // Close modal when clicking outside
         window.onclick = function(event) {
             const createModal = document.getElementById('createReportModal');
             const editModal = document.getElementById('editReportModal');
@@ -739,7 +681,6 @@
             }
         }
     </script>
-
     <script src="{{ asset('js/jquery.min.js') }}"></script>
     <script src="{{ asset('js/popper.min.js') }}"></script>
     <script src="{{ asset('js/bootstrap.min.js') }}"></script>

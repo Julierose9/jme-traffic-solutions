@@ -161,14 +161,155 @@
                     <p>{{App\Models\Blacklist::count()}}</p>
                 </div>
             </div>
+
+            <div class="row mt-4">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Recent Violations</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Vehicle</th>
+                                            <th>Violation Type</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach(App\Models\ViolationRecord::latest()->take(5)->get() as $violation)
+                                        <tr>
+                                            <td>{{ $violation->vehicle->plate_number }}</td>
+                                            <td>{{ $violation->violation_type }}</td>
+                                            <td>{{ $violation->created_at->format('M d, Y') }}</td>
+                                            <td>
+                                                <span class="badge badge-{{ $violation->status === 'paid' ? 'success' : 'warning' }}">
+                                                    {{ ucfirst($violation->status) }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">Payment Status</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="paymentChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">Monthly Statistics</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="monthlyStatsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0">Quick Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 mb-3">
+                                    <a href="{{ route('register.vehicle') }}" class="btn btn-primary btn-block">
+                                        <i class="fas fa-car"></i> Register Vehicle
+                                    </a>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <a href="{{ route('violation.record') }}" class="btn btn-danger btn-block">
+                                        <i class="fas fa-exclamation-triangle"></i> Add Violation
+                                    </a>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <a href="{{ route('admin.pay.fines') }}" class="btn btn-success btn-block">
+                                        <i class="fas fa-money-bill-wave"></i> Process Payment
+                                    </a>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <a href="{{ route('blacklist.management') }}" class="btn btn-dark btn-block">
+                                        <i class="fas fa-ban"></i> Manage Blacklist
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        function toggleDropdown(id) {
-            const dropdown = document.getElementById(id);
-            dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
-        }
+        // Payment Status Chart
+        const paymentCtx = document.getElementById('paymentChart').getContext('2d');
+        new Chart(paymentCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Paid', 'Unpaid', 'Pending'],
+                datasets: [{
+                    data: [
+                        {{App\Models\ViolationRecord::where('status', 'paid')->count()}},
+                        {{App\Models\ViolationRecord::where('status', 'unpaid')->count()}},
+                        {{App\Models\ViolationRecord::where('status', 'pending')->count()}}
+                    ],
+                    backgroundColor: ['#10B981', '#EF4444', '#F59E0B']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Monthly Statistics Chart
+        const monthlyCtx = document.getElementById('monthlyStatsChart').getContext('2d');
+        new Chart(monthlyCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Violations',
+                    data: [65, 59, 80, 81, 56, 55],
+                    borderColor: '#3B82F6',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
     </script>
 </body>
 </html>

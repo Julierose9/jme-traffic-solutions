@@ -112,35 +112,68 @@
         </div>
 
         <div class="main-content">
-            <h1 class="text-2xl font-bold">Support</h1>
+            <h2 class="font-weight-bold text-center mb-2" style="font-size:2rem;">How Can We Help You?</h2>
+            <p class="text-center mb-4" style="color:#4a5568;">We're here to assist you with any questions or concerns you may have.</p>
 
-            @if(session('success'))
-                <div class="alert alert-success mt-4">
-                    {{ session('success') }}
+            <div class="row mb-4 justify-content-center">
+                <div class="col-md-3 mb-3">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="mb-2"><i class="fas fa-question-circle fa-2x text-primary"></i></div>
+                            <h5 class="card-title font-weight-bold">Frequently Asked Questions</h5>
+                            <p class="card-text">Find quick answers to common questions about violations, payments, and blacklist status.</p>
+                        </div>
+                    </div>
                 </div>
-            @endif
-            @if(session('error'))
-                <div class="alert alert-danger mt-4">
-                    {{ session('error') }}
+                <div class="col-md-3 mb-3">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="mb-2"><i class="fas fa-phone-alt fa-2x text-primary"></i></div>
+                            <h5 class="card-title font-weight-bold">Contact Information</h5>
+                            <p class="card-text">Reach out to our support team through phone or email for immediate assistance.</p>
+                        </div>
+                    </div>
                 </div>
-            @endif
+                <div class="col-md-3 mb-3">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="mb-2"><i class="fas fa-clock fa-2x text-primary"></i></div>
+                            <h5 class="card-title font-weight-bold">Response Time</h5>
+                            <p class="card-text">We typically respond to inquiries within 24 hours during business days.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            <form action="{{ route('support.submit') }}" method="POST" class="mt-4">
-                @csrf
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <input type="text" class="form-control" id="name" name="name" required>
-                </div>
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" class="form-control" id="email" name="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="message">Message</label>
-                    <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Submit</button>
-            </form>
+            <div class="card shadow-sm p-4 mb-4">
+                <h4 class="mb-3 font-weight-bold">Send Us a Message</h4>
+                @if(session('success'))
+                    <div class="alert alert-success mt-2">
+                        {{ session('success') }}
+                    </div>
+                @endif
+                @if(session('error'))
+                    <div class="alert alert-danger mt-2">
+                        {{ session('error') }}
+                    </div>
+                @endif
+                <form action="{{ route('support.submit') }}" method="POST">
+                    @csrf
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Your Message</label>
+                        <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
         </div>
     </div>
 

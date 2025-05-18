@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Generate Violations </title>
+    <title>Generate Violations</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -165,6 +165,72 @@
             text-decoration: none;
             cursor: pointer;
         }
+        .btn-delete-custom {
+            border: 2px solid #ef4444;
+            background: #fff;
+            color: #ef4444;
+            border-radius: 12px;
+            padding: 6px 18px;
+            font-weight: 500;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-delete-custom:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+        .btn-edit-custom {
+            background: #0090d0;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 6px 18px;
+            font-weight: 500;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-edit-custom:hover {
+            background: #0077b6;
+            color: #fff;
+        }
+        .btn-logout-custom {
+            border: 2px solid #ef4444;
+            background: #fff;
+            color: #ef4444;
+            border-radius: 12px;
+            padding: 6px 18px;
+            font-weight: 500;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-logout-custom:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+        .table {
+            min-width: 900px;
+        }
+        .table th, .table td {
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+        .action-buttons {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .status-text {
+            margin-left: 10px;
+            font-weight: 500;
+            color: #28a745;
+            transition: opacity 0.3s;
+        }
+        .status-text.error {
+            color: #dc3545;
+        }
+        .status-text.hidden {
+            opacity: 0;
+        }
     </style>
 </head>
 <body>
@@ -179,7 +245,7 @@
             <div class="logout-btn">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                    <button type="submit" class="btn-logout-custom"><i class="fas fa-sign-out-alt"></i> Logout</button>
                 </form>
             </div>
         </div>
@@ -193,6 +259,7 @@
                         <th>Violation Code</th>
                         <th>Description</th>
                         <th>Penalty Amount</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -202,6 +269,11 @@
                             <td>{{ $violation->violation_code }}</td>
                             <td>{{ $violation->description }}</td>
                             <td>{{ $violation->penalty_amount }}</td>
+                            <td class="action-buttons">
+                                <button class="btn-edit-custom" data-id="{{ $violation->violation_id }}"><i class="fas fa-edit"></i> Edit</button>
+                                <button class="btn-delete-custom" data-id="{{ $violation->violation_id }}"><i class="fas fa-trash"></i> Delete</button>
+                                <span class="status-text hidden" data-id="{{ $violation->violation_id }}"></span>
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -211,7 +283,7 @@
 
     <div id="generateViolationModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeGenerateViolationModal()">×</span>
+            <span class="close" onclick="closeGenerateViolationModal()" style="position:absolute; right:15px; top:10px; font-size:28px; font-weight:bold; color:#aaa; cursor:pointer;">×</span>
             <h2>Generate Violation</h2>
             <form id="violationForm" action="{{ route('officer.violation.store') }}" method="POST">
                 @csrf
@@ -301,7 +373,6 @@
                 if (!response.ok) {
                     return response.json().then(err => {
                         if (err.message && typeof err.message === 'object') {
-                            // Handle validation errors
                             const errorMessages = Object.values(err.message).flat();
                             throw new Error(errorMessages.join('\n'));
                         }
@@ -319,6 +390,11 @@
                         <td>${violation.violation_code}</td>
                         <td>${violation.description}</td>
                         <td>${violation.penalty_amount}</td>
+                        <td class="action-buttons">
+                            <button class="btn-edit-custom" data-id="${violation.violation_id}"><i class="fas fa-edit"></i> Edit</button>
+                            <button class="btn-delete-custom" data-id="${violation.violation_id}"><i class="fas fa-trash"></i> Delete</button>
+                            <span class="status-text hidden" data-id="${violation.violation_id}"></span>
+                        </td>
                     `;
 
                     alert(data.message || 'Violation generated successfully!');
@@ -340,7 +416,41 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('violationForm').addEventListener('submit', handleViolationSubmit);
+
+            const table = document.getElementById('violationTable');
+            table.addEventListener('click', function(event) {
+                const deleteButton = event.target.closest('.btn-delete-custom');
+                const editButton = event.target.closest('.btn-edit-custom');
+                const statusElement = event.target.closest('td')?.querySelector('.status-text');
+
+                if (deleteButton && statusElement) {
+                    const violationId = deleteButton.getAttribute('data-id');
+                    statusElement.textContent = 'Deleting...';
+                    statusElement.classList.remove('hidden');
+
+                    setTimeout(() => {
+                        statusElement.textContent = 'Deleted';
+                        statusElement.classList.add('hidden');
+                        setTimeout(() => {
+                            deleteButton.closest('tr').remove();
+                        }, 500);
+                    }, 1000);
+                }
+
+                if (editButton && statusElement) {
+                    const violationId = editButton.getAttribute('data-id');
+                    statusElement.textContent = 'Editing...';
+                    statusElement.classList.remove('hidden');
+
+                    setTimeout(() => {
+                        statusElement.textContent = 'Edited';
+                        statusElement.classList.add('hidden');
+                    }, 1000);
+                }
+            });
         });
+
+        document.getElementById('sidebarOpenModalBtn').addEventListener('click', openGenerateViolationModal);
     </script>
 
     <script src="{{ asset('js/jquery.min.js') }}"></script>

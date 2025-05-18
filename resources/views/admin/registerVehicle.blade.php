@@ -114,11 +114,11 @@
 
         .modal-content {
             background-color: #fefefe;
-            margin: 15% auto;
+            margin: 10% auto;
             padding: 20px;
             border: 1px solid #888;
             width: 80%;
-            max-width: 500px;
+            max-width: 700px; /* Increased width for two-column layout */
             border-radius: 5px;
         }
 
@@ -136,17 +136,24 @@
             cursor: pointer;
         }
 
-        form div {
-            margin-bottom: 15px;
+        /* Two-column form layout */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
         }
 
-        form label {
+        .form-grid div {
+            margin-bottom: 0; /* Remove bottom margin since grid gap handles spacing */
+        }
+
+        .form-grid label {
             display: block;
             margin-bottom: 5px;
         }
 
-        form input,
-        form select {
+        .form-grid input,
+        .form-grid select {
             width: 100%;
             padding: 8px;
             border: 1px solid #ccc;
@@ -156,11 +163,23 @@
             font-size: 14px;
         }
 
-        form input:focus,
-        form select:focus {
+        .form-grid input:focus,
+        .form-grid select:focus {
             outline: none;
             border-color: #4CAF50;
             box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+        }
+
+        /* Ensure section titles span both columns */
+        .form-grid .section-title {
+            grid-column: 1 / -1;
+        }
+
+        /* Responsive design for smaller screens */
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         form button {
@@ -171,6 +190,7 @@
             border-radius: 5px;
             cursor: pointer;
             width: 100%;
+            grid-column: 1 / -1; /* Button spans both columns */
         }
 
         form button:hover {
@@ -193,31 +213,44 @@
             cursor: pointer;
         }
 
-        .action-buttons button {
-            padding: 5px 10px;
-            margin-right: 5px;
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-edit-custom, .btn-delete-custom {
+            height: 40px;
+            min-width: 110px;
+            font-size: 1rem;
+            border-radius: 16px;
+            padding: 0 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        .btn-edit-custom {
+            background: #0090d0;
+            color: #fff;
             border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 14px;
+            transition: background 0.2s, color 0.2s;
         }
-
-        .action-buttons .edit-btn {
-            background-color: #2563eb;
-            color: white;
+        .btn-edit-custom:hover {
+            background: #0077b6;
+            color: #fff;
         }
-
-        .action-buttons .edit-btn:hover {
-            background-color: #1d4ed8;
+        .btn-delete-custom {
+            border: 2px solid #ef4444;
+            background: #fff;
+            color: #ef4444;
+            transition: background 0.2s, color 0.2s;
         }
-
-        .action-buttons .delete-btn {
-            background-color: #dc2626;
-            color: white;
+        .btn-delete-custom:hover {
+            background: #ef4444;
+            color: #fff;
         }
-
-        .action-buttons .delete-btn:hover {
-            background-color: #b91c1c;
+        .btn-edit-custom i, .btn-delete-custom i {
+            margin-right: 8px;
+            font-size: 1.2em;
         }
 
         .alert-success {
@@ -315,13 +348,13 @@
             @if (session('success'))
                 <div class="alert-success">
                     {{ session('success') }}
-                    <span class="close-alert" onclick="this.parentElement.style.display='none'">&times;</span>
+                    <span class="close-alert" onclick="this.parentElement.style.display='none'">×</span>
                 </div>
             @endif
 
             <div class="mb-4">
                 <h1>Vehicle Registration Management</h1>
-                <div class="d-flex justify-content-end mb-3">
+                <div class="d-flex justify-content-start mb-3">
                     <button class="btn btn-primary" onclick="openVehicleModal()">Register a New Vehicle</button>
                 </div>
             </div>
@@ -413,244 +446,251 @@
                     <h2>Registered Vehicles</h2>
                 </div>
                 <div class="card-body">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Vehicle ID</th>
-                        <th>Owner ID</th>
-                        <th>Plate Number</th>
-                        <th>Vehicle Type</th>
-                        <th>Brand</th>
-                        <th>Model</th>
-                        <th>Color</th>
-                        <th>Registration Date</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($registeredVehicles as $vehicle)
-                    <tr>
-                        <td>{{ $vehicle->reg_vehicle_id }}</td>
-                        <td>{{ $vehicle->own_id }}</td>
-                        <td>{{ $vehicle->plate_number }}</td>
-                        <td>{{ $vehicle->vehicle_type }}</td>
-                        <td>{{ $vehicle->brand }}</td>
-                        <td>{{ $vehicle->model }}</td>
-                        <td>{{ $vehicle->color }}</td>
-                        <td>{{ $vehicle->registration_date }}</td>
-                        <td class="action-buttons">
-                            <button class="edit-btn" onclick="openEditVehicleModal('{{ $vehicle->reg_vehicle_id }}')"><i class="fas fa-edit"></i> Edit</button>
-                            <button class="delete-btn" onclick="openDeleteVehicleModal('{{ $vehicle->reg_vehicle_id }}')"><i class="fas fa-trash"></i> Delete</button>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Vehicle ID</th>
+                                <th>Owner ID</th>
+                                <th>Plate Number</th>
+                                <th>Vehicle Type</th>
+                                <th>Brand</th>
+                                <th>Model</th>
+                                <th>Color</th>
+                                <th>Registration Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($registeredVehicles as $vehicle)
+                            <tr>
+                                <td>{{ $vehicle->reg_vehicle_id }}</td>
+                                <td>{{ $vehicle->own_id }}</td>
+                                <td>{{ $vehicle->plate_number }}</td>
+                                <td>{{ $vehicle->vehicle_type }}</td>
+                                <td>{{ $vehicle->brand }}</td>
+                                <td>{{ $vehicle->model }}</td>
+                                <td>{{ $vehicle->color }}</td>
+                                <td>{{ $vehicle->registration_date }}</td>
+                                <td class="action-buttons">
+                                    <button class="btn-edit-custom" onclick="openEditVehicleModal('{{ $vehicle->reg_vehicle_id }}')"><i class="fas fa-edit"></i> Edit</button>
+                                    <button class="btn-delete-custom" onclick="openDeleteVehicleModal('{{ $vehicle->reg_vehicle_id }}')"><i class="fas fa-trash"></i> Delete</button>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- Register Vehicle Modal -->
     <div id="registerVehicleModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeVehicleModal()">×</span>
+            <span class="close" onclick="closeVehicleModal()" style="position:absolute; right:15px; top:10px; font-size:28px; font-weight:bold; color:#aaa; cursor:pointer;">×</span>
             <h2>Register a Vehicle</h2>
             <form id="registerVehicleForm" method="POST" action="{{ route('register.vehicle.submit') }}">
                 @csrf
-                <div class="form-group">
-                    <label for="user_id">Guest Name:</label>
-                    <select name="user_id" id="user_id" required class="form-control">
-                        <option value="" disabled selected>Select Guest</option>
-                        @foreach($users as $user)
-                            <option value="{{ $user->id }}">
-                                {{ $user->lname }}, {{ $user->fname }} {{ $user->mname ? $user->mname : '' }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="user_id">Guest Name:</label>
+                        <select name="user_id" id="user_id" required class="form-control">
+                            <option value="" disabled selected>Select Guest</option>
+                            @foreach($users as $user)
+                                <option value="{{ $user->id }}">
+                                    {{ $user->lname }}, {{ $user->fname }} {{ $user->mname ? $user->mname : '' }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                <div class="form-group">
-                    <label for="address">Address:</label>
-                    <input type="text" id="address" name="address" required class="form-control">
-                </div>
+                    <div class="form-group">
+                        <label for="address">Address:</label>
+                        <input type="text" id="address" name="address" required class="form-control">
+                    </div>
 
-                <div class="form-group">
-                    <label for="contact_num">Contact Number:</label>
-                    <input type="text" id="contact_num" name="contact_num" required class="form-control">
-                </div>
+                    <div class="form-group">
+                        <label for="contact_num">Contact Number:</label>
+                        <input type="text" id="contact_num" name="contact_num" required class="form-control">
+                    </div>
 
-                <div class="form-group">
-                    <label for="license_number">License Number:</label>
-                    <input type="text" id="license_number" name="license_number" required class="form-control">
-                </div>
+                    <div class="form-group">
+                        <label for="license_number">License Number:</label>
+                        <input type="text" id="license_number" name="license_number" required class="form-control">
+                    </div>
 
-                <div class="form-group">
-                    <label for="plate_number">Plate Number:</label>
-                    <input type="text" id="plate_number" name="plate_number" required class="form-control">
-                </div>
+                    <div class="form-group">
+                        <label for="plate_number">Plate Number:</label>
+                        <input type="text" id="plate_number" name="plate_number" required class="form-control">
+                    </div>
 
-                <div class="form-group">
-                    <label for="vehicle_type">Vehicle Type:</label>
-                    <select id="vehicle_type" name="vehicle_type" required class="form-control">
-                        <option value="" disabled selected>Select Vehicle Type</option>
-                        <option value="Car">Car</option>
-                        <option value="Motorcycle">Motorcycle</option>
-                        <option value="Truck">Truck</option>
-                        <option value="Van">Van</option>
-                        <option value="SUV">SUV</option>
-                        <option value="Bus">Bus</option>
-                    </select>
-                </div>
+                    <div class="form-group">
+                        <label for="vehicle_type">Vehicle Type:</label>
+                        <select id="vehicle_type" name="vehicle_type" required class="form-control">
+                            <option value="" disabled selected>Select Vehicle Type</option>
+                            <option value="Car">Car</option>
+                            <option value="Motorcycle">Motorcycle</option>
+                            <option value="Truck">Truck</option>
+                            <option value="Van">Van</option>
+                            <option value="SUV">SUV</option>
+                            <option value="Bus">Bus</option>
+                        </select>
+                    </div>
 
-                <div class="form-group">
-                    <label for="brand">Brand:</label>
-                    <select id="brand" name="brand" required class="form-control">
-                        <option value="" disabled selected>Select Brand</option>
-                        <option value="Toyota">Toyota</option>
-                        <option value="Honda">Honda</option>
-                        <option value="Ford">Ford</option>
-                        <option value="BMW">BMW</option>
-                        <option value="Mercedes-Benz">Mercedes-Benz</option>
-                        <option value="Hyundai">Hyundai</option>
-                        <option value="Tesla">Tesla</option>
-                        <option value="Yamaha">Yamaha</option>
-                        <option value="Suzuki">Suzuki</option>
-                    </select>
-                </div>
+                    <div class="form-group">
+                        <label for="brand">Brand:</label>
+                        <select id="brand" name="brand" required class="form-control">
+                            <option value="" disabled selected>Select Brand</option>
+                            <option value="Toyota">Toyota</option>
+                            <option value="Honda">Honda</option>
+                            <option value="Ford">Ford</option>
+                            <option value="BMW">BMW</option>
+                            <option value="Mercedes-Benz">Mercedes-Benz</option>
+                            <option value="Hyundai">Hyundai</option>
+                            <option value="Tesla">Tesla</option>
+                            <option value="Yamaha">Yamaha</option>
+                            <option value="Suzuki">Suzuki</option>
+                        </select>
+                    </div>
 
-                <div class="form-group">
-                    <label for="model">Model:</label>
-                    <select id="model" name="model" required class="form-control">
-                        <option value="" disabled selected>Select Model</option>
-                    </select>
-                </div>
+                    <div class="form-group">
+                        <label for="model">Model:</label>
+                        <select id="model" name="model" required class="form-control">
+                            <option value="" disabled selected>Select Model</option>
+                        </select>
+                    </div>
 
-                <div class="form-group">
-                    <label for="color">Color:</label>
-                    <select id="color" name="color" required class="form-control">
-                        <option value="" disabled selected>Select Color</option>
-                        <option value="Black">Black</option>
-                        <option value="White">White</option>
-                        <option value="Silver">Silver</option>
-                        <option value="Red">Red</option>
-                        <option value="Blue">Blue</option>
-                        <option value="Gray">Gray</option>
-                        <option value="Green">Green</option>
-                        <option value="Yellow">Yellow</option>
-                    </select>
-                </div>
+                    <div class="form-group">
+                        <label for="color">Color:</label>
+                        <select id="color" name="color" required class="form-control">
+                            <option value="" disabled selected>Select Color</option>
+                            <option value="Black">Black</option>
+                            <option value="White">White</option>
+                            <option value="Silver">Silver</option>
+                            <option value="Red">Red</option>
+                            <option value="Blue">Blue</option>
+                            <option value="Gray">Gray</option>
+                            <option value="Green">Green</option>
+                            <option value="Yellow">Yellow</option>
+                        </select>
+                    </div>
 
-                <div class="form-group">
-                    <label for="registration_date">Registration Date:</label>
-                    <input type="date" id="registration_date" name="registration_date" required class="form-control">
-                </div>
+                    <div class="form-group">
+                        <label for="registration_date">Registration Date:</label>
+                        <input type="date" id="registration_date" name="registration_date" required class="form-control" value="2025-05-18">
+                    </div>
 
-                <button type="submit" class="btn btn-primary">Register Vehicle</button>
+                    <button type="submit" class="btn btn-primary">Register Vehicle</button>
+                </div>
             </form>
         </div>
     </div>
 
+    <!-- Edit Vehicle Modal -->
     <div id="editVehicleModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeEditVehicleModal()">×</span>
+            <span class="close" onclick="closeEditVehicleModal()" style="position:absolute; right:15px; top:10px; font-size:28px; font-weight:bold; color:#aaa; cursor:pointer;">×</span>
             <h2>Edit Vehicle and Owner Details</h2>
             <form id="editVehicleForm" method="POST" action="{{ route('edit.vehicle.submit') }}">
                 @csrf
                 @method('PUT')
-                <input type="hidden" id="edit_vehicle_id" name="reg_vehicle_id">
-                
-                <h3 class="section-title">Owner Information</h3>
-                <div class="form-group">
-                    <label for="edit_owner_name">Owner:</label>
-                    <input type="text" id="edit_owner_name" class="form-control" disabled>
-                <input type="hidden" id="edit_owner_id" name="own_id">
-                </div>
+                <div class="form-grid">
+                    <input type="hidden" id="edit_vehicle_id" name="reg_vehicle_id">
+                    
+                    <h3 class="section-title">Owner Information</h3>
+                    <div class="form-group">
+                        <label for="edit_owner_name">Owner:</label>
+                        <input type="text" id="edit_owner_name" class="form-control" disabled>
+                        <input type="hidden" id="edit_owner_id" name="own_id">
+                    </div>
 
-                <div class="form-group">
-                    <label for="edit_address">Address:</label>
-                    <input type="text" id="edit_address" name="address" class="form-control" required>
-                </div>
+                    <div class="form-group">
+                        <label for="edit_address">Address:</label>
+                        <input type="text" id="edit_address" name="address" class="form-control" required>
+                    </div>
 
-                <div class="form-group">
-                    <label for="edit_contact_num">Contact Number:</label>
-                    <input type="text" id="edit_contact_num" name="contact_num" class="form-control" required>
-                </div>
+                    <div class="form-group">
+                        <label for="edit_contact_num">Contact Number:</label>
+                        <input type="text" id="edit_contact_num" name="contact_num" class="form-control" required>
+                    </div>
 
-                <div class="form-group">
-                    <label for="edit_license_number">License Number:</label>
-                    <input type="text" id="edit_license_number" name="license_number" class="form-control" required>
-                </div>
+                    <div class="form-group">
+                        <label for="edit_license_number">License Number:</label>
+                        <input type="text" id="edit_license_number" name="license_number" class="form-control" required>
+                    </div>
 
-                <h3 class="section-title">Vehicle Information</h3>
-                <div class="form-group">
-                    <label for="edit_plate_number">Plate Number:</label>
-                    <input type="text" id="edit_plate_number" name="plate_number" class="form-control" required>
-                </div>
+                    <h3 class="section-title">Vehicle Information</h3>
+                    <div class="form-group">
+                        <label for="edit_plate_number">Plate Number:</label>
+                        <input type="text" id="edit_plate_number" name="plate_number" class="form-control" required>
+                    </div>
 
-                <div class="form-group">
-                    <label for="edit_vehicle_type">Vehicle Type:</label>
-                    <select id="edit_vehicle_type" name="vehicle_type" class="form-control" required>
-                        <option value="" disabled>Select Vehicle Type</option>
-                        <option value="Car">Car</option>
-                        <option value="Motorcycle">Motorcycle</option>
-                        <option value="Truck">Truck</option>
-                        <option value="Van">Van</option>
-                        <option value="SUV">SUV</option>
-                        <option value="Bus">Bus</option>
-                    </select>
-                </div>
+                    <div class="form-group">
+                        <label for="edit_vehicle_type">Vehicle Type:</label>
+                        <select id="edit_vehicle_type" name="vehicle_type" class="form-control" required>
+                            <option value="" disabled>Select Vehicle Type</option>
+                            <option value="Car">Car</option>
+                            <option value="Motorcycle">Motorcycle</option>
+                            <option value="Truck">Truck</option>
+                            <option value="Van">Van</option>
+                            <option value="SUV">SUV</option>
+                            <option value="Bus">Bus</option>
+                        </select>
+                    </div>
 
-                <div class="form-group">
-                    <label for="edit_brand">Brand:</label>
-                    <select id="edit_brand" name="brand" class="form-control" required>
-                        <option value="" disabled>Select Brand</option>
-                        <option value="Toyota">Toyota</option>
-                        <option value="Honda">Honda</option>
-                        <option value="Ford">Ford</option>
-                        <option value="BMW">BMW</option>
-                        <option value="Mercedes-Benz">Mercedes-Benz</option>
-                        <option value="Hyundai">Hyundai</option>
-                        <option value="Tesla">Tesla</option>
-                        <option value="Yamaha">Yamaha</option>
-                        <option value="Suzuki">Suzuki</option>
-                    </select>
-                </div>
+                    <div class="form-group">
+                        <label for="edit_brand">Brand:</label>
+                        <select id="edit_brand" name="brand" class="form-control" required>
+                            <option value="" disabled>Select Brand</option>
+                            <option value="Toyota">Toyota</option>
+                            <option value="Honda">Honda</option>
+                            <option value="Ford">Ford</option>
+                            <option value="BMW">BMW</option>
+                            <option value="Mercedes-Benz">Mercedes-Benz</option>
+                            <option value="Hyundai">Hyundai</option>
+                            <option value="Tesla">Tesla</option>
+                            <option value="Yamaha">Yamaha</option>
+                            <option value="Suzuki">Suzuki</option>
+                        </select>
+                    </div>
 
-                <div class="form-group">
-                    <label for="edit_model">Model:</label>
-                    <select id="edit_model" name="model" class="form-control" required>
-                        <option value="" disabled>Select Model</option>
-                    </select>
-                </div>
+                    <div class="form-group">
+                        <label for="edit_model">Model:</label>
+                        <select id="edit_model" name="model" class="form-control" required>
+                            <option value="" disabled>Select Model</option>
+                        </select>
+                    </div>
 
-                <div class="form-group">
-                    <label for="edit_color">Color:</label>
-                    <select id="edit_color" name="color" class="form-control" required>
-                        <option value="" disabled>Select Color</option>
-                        <option value="Black">Black</option>
-                        <option value="White">White</option>
-                        <option value="Silver">Silver</option>
-                        <option value="Red">Red</option>
-                        <option value="Blue">Blue</option>
-                        <option value="Gray">Gray</option>
-                        <option value="Green">Green</option>
-                        <option value="Yellow">Yellow</option>
-                    </select>
-                </div>
+                    <div class="form-group">
+                        <label for="edit_color">Color:</label>
+                        <select id="edit_color" name="color" class="form-control" required>
+                            <option value="" disabled>Select Color</option>
+                            <option value="Black">Black</option>
+                            <option value="White">White</option>
+                            <option value="Silver">Silver</option>
+                            <option value="Red">Red</option>
+                            <option value="Blue">Blue</option>
+                            <option value="Gray">Gray</option>
+                            <option value="Green">Green</option>
+                            <option value="Yellow">Yellow</option>
+                        </select>
+                    </div>
 
-                <div class="form-group">
-                    <label for="edit_registration_date">Registration Date:</label>
-                    <input type="date" id="edit_registration_date" name="registration_date" class="form-control" required>
-                </div>
+                    <div class="form-group">
+                        <label for="edit_registration_date">Registration Date:</label>
+                        <input type="date" id="edit_registration_date" name="registration_date" class="form-control" required>
+                    </div>
 
-                <button type="submit" class="btn btn-primary">Update Details</button>
+                    <button type="submit" class="btn btn-primary">Update Details</button>
+                </div>
             </form>
         </div>
     </div>
 
+    <!-- Delete Vehicle Modal -->
     <div id="deleteVehicleModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeDeleteVehicleModal()">×</span>
+            <span class="close" onclick="closeDeleteVehicleModal()" style="position:absolute; right:15px; top:10px; font-size:28px; font-weight:bold; color:#aaa; cursor:pointer;">×</span>
             <h2>Confirm Deletion</h2>
             <p>Are you sure you want to delete this vehicle?</p>
             <form id="deleteVehicleForm" method="POST" action="{{ route('delete.vehicle.submit') }}">
@@ -658,7 +698,7 @@
                 @method('DELETE')
                 <input type="hidden" id="delete_vehicle_id" name="reg_vehicle_id">
                 <div style="display: flex; gap: 10px;">
-                    <button type="submit" class="btn btn-danger">Delete</button>
+                    <button type="submit" class="btn-delete-custom"><i class="fas fa-trash"></i> Delete</button>
                     <button type="button" onclick="closeDeleteVehicleModal()" class="btn btn-secondary">Cancel</button>
                 </div>
             </form>
@@ -741,7 +781,7 @@
                 document.getElementById('edit_license_number').value = owner.license_number;
 
                 // Show the modal
-            document.getElementById('editVehicleModal').style.display = 'block';
+                document.getElementById('editVehicleModal').style.display = 'block';
             } catch (error) {
                 console.error('Error:', error);
                 alert('Failed to load vehicle details. Please try again.');

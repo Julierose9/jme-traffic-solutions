@@ -169,6 +169,97 @@
         .search-button:hover {
             background-color: #45a049; 
         }
+
+        .btn-delete-custom {
+            border: 2px solid #ef4444;
+            background: #fff;
+            color: #ef4444;
+            border-radius: 12px;
+            padding: 6px 18px;
+            font-weight: 500;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-delete-custom:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .btn-edit-custom {
+            background: #0090d0;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 6px 18px;
+            font-weight: 500;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-edit-custom:hover {
+            background: #0077b6;
+            color: #fff;
+        }
+        .btn-logout-custom {
+            border: 2px solid #ef4444;
+            background: #fff;
+            color: #ef4444;
+            border-radius: 12px;
+            padding: 6px 18px;
+            font-weight: 500;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-logout-custom:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+        .table {
+            min-width: 900px;
+        }
+        .table th, .table td {
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-delete-custom, .btn-edit-custom {
+            height: 40px;
+            min-width: 110px;
+            font-size: 1rem;
+            border-radius: 16px;
+            padding: 0 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        .btn-delete-custom {
+            border: 2px solid #ef4444;
+            background: #fff;
+            color: #ef4444;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-delete-custom:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+        .btn-edit-custom {
+            background: #0090d0;
+            color: #fff;
+            border: none;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-edit-custom:hover {
+            background: #0077b6;
+            color: #fff;
+        }
+        .btn-delete-custom i, .btn-edit-custom i {
+            margin-right: 8px;
+            font-size: 1.2em;
+        }
     </style>
 </head>
 <body>
@@ -185,7 +276,7 @@
             <div class="logout-btn">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                    <button type="submit" class="btn-logout-custom"><i class="fas fa-sign-out-alt"></i> Logout</button>
                 </form>
             </div>
         </div>
@@ -219,27 +310,29 @@
                         </tr>
                     @else
                         @foreach($allRecords as $record)
-                        <tr>
-                            <td>{{ $record->RecordID }}</td>
-                            <td>{{ $record->violationCode }}</td>
-                            <td>{{ $record->Description }}</td>
-                            <td>{{ $record->PenaltyAmount }}</td>
-                            <td>{{ $record->PlateNumber }}</td>
-                            <td>{{ $record->OfficerLastName }}</td>
-                            <td>{{ $record->OfficerFirstName }}</td>
-                            <td>{{ $record->ViolationDate }}</td>
-                            <td>{{ $record->Status }}</td>
-                            <td>
-                                @if(isset($record->isReport))
-                                    <button class="btn btn-info" onclick="viewReportDetails('{{ $record->Description }}')">
-                                        View Details
-                                    </button>
-                                @else
-                                    <button class="btn" onclick="updateStatus({{ $record->RecordID }})">Update Status</button>
-                                    <button class="btn" onclick="attachDocument({{ $record->RecordID }})">Attach Document</button>
-                                @endif
-                            </td>
-                        </tr>
+                            @if($record->RecordID || $record->violationCode || $record->Description || $record->PenaltyAmount || $record->PlateNumber || $record->OfficerLastName || $record->OfficerFirstName || $record->ViolationDate || $record->Status)
+                                <tr>
+                                    <td>{{ $record->RecordID }}</td>
+                                    <td>{{ $record->violationCode }}</td>
+                                    <td>{{ $record->Description }}</td>
+                                    <td>₱{{ number_format($record->PenaltyAmount, 2) }}</td>
+                                    <td>{{ $record->PlateNumber }}</td>
+                                    <td>{{ $record->OfficerLastName }}</td>
+                                    <td>{{ $record->OfficerFirstName }}</td>
+                                    <td>{{ $record->ViolationDate }}</td>
+                                    <td>{{ $record->Status }}</td>
+                                    <td>
+                                        @if(isset($record->isReport))
+                                            <button class="btn btn-info" onclick="viewReportDetails('{{ $record->Description }}')">
+                                                View Details
+                                            </button>
+                                        @else
+                                            <button class="btn btn-edit-custom"><i class="fas fa-edit"></i> Edit</button>
+                                            <button class="btn" onclick="attachDocument({{ $record->RecordID }})">Attach Document</button>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endif
                         @endforeach
                     @endif
                 </tbody>
