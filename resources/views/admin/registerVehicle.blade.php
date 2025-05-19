@@ -578,7 +578,14 @@
                     <h2>Registered Vehicles</h2>
                 </div>
                 <div class="card-body">
-                    <table class="table">
+                    <!-- Search Bar -->
+                    <div class="search-container" style="margin-bottom: 20px; display: flex; align-items: center; justify-content: flex-end;">
+                        <input type="text" id="vehicleSearchInput" placeholder="Search..." style="width: 300px; padding: 10px; border: 1px solid #ccc; border-radius: 25px; outline: none; transition: border-color 0.3s;">
+                        <button class="search-button" onclick="filterVehicleRecords()" style="background-color: #4CAF50; color: white; border: none; border-radius: 25px; padding: 10px 15px; margin-left: 10px; cursor: pointer; display: flex; align-items: center;">
+                            <i class="fas fa-search" style="margin-right: 5px;"></i> Search
+                        </button>
+                    </div>
+                    <table class="table" id="registeredVehiclesTable">
                         <thead>
                             <tr>
                                 <th>Plate Number</th>
@@ -858,10 +865,6 @@
                 <div class="form-group">
                     <label>License Number:</label>
                     <input type="text" id="ownerLicense" class="form-control" disabled>
-                </div>
-
-                <div style="grid-column: 1 / -1; text-align: right;">
-                    <button type="button" class="btn btn-secondary" onclick="closeOwnerDetailsModal()">Close</button>
                 </div>
             </div>
         </div>
@@ -1172,6 +1175,31 @@
         function closeOwnerDetailsModal() {
             document.getElementById('ownerDetailsModal').style.display = 'none';
         }
+
+        function filterVehicleRecords() {
+            const input = document.getElementById('vehicleSearchInput');
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById('registeredVehiclesTable');
+            const tr = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < tr.length; i++) { // skip header row
+                const row = tr[i];
+                const cells = row.getElementsByTagName('td');
+                let found = false;
+                for (let j = 0; j < cells.length; j++) {
+                    const cell = cells[j];
+                    if (cell) {
+                        const text = cell.textContent || cell.innerText;
+                        if (text.toLowerCase().indexOf(filter) > -1) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                row.style.display = found ? '' : 'none';
+            }
+        }
+        document.getElementById('vehicleSearchInput').addEventListener('keyup', filterVehicleRecords);
     </script>
 </body>
 </html>

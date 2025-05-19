@@ -352,7 +352,7 @@
                 </div>
             @else
                 <div class="table-responsive">
-                    <table class="table table-striped">
+                    <table class="table table-striped" id="finesTable">
                         <thead>
                             <tr>
                                 <th>Payment Date</th>
@@ -431,11 +431,10 @@
             const table = document.getElementById('finesTable');
             const tr = table.getElementsByTagName('tr');
 
-            for (let i = 1; i < tr.length; i++) {
+            for (let i = 1; i < tr.length; i++) { // skip header row
                 const row = tr[i];
                 const cells = row.getElementsByTagName('td');
                 let found = false;
-                
                 for (let j = 0; j < cells.length; j++) {
                     const cell = cells[j];
                     if (cell) {
@@ -446,10 +445,10 @@
                         }
                     }
                 }
-                
                 row.style.display = found ? '' : 'none';
             }
         }
+        document.getElementById('searchInput').addEventListener('keyup', filterRecords);
 
         function openOwnerDetailsModal(ownerId, transactionReference, paidBy) {
             document.getElementById('modalTransactionReference').value = transactionReference;
