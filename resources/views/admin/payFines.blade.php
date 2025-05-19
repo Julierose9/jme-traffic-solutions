@@ -7,6 +7,8 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
@@ -355,7 +357,7 @@
                             <tr>
                                 <th>Payment Date</th>
                                 <th>Type</th>
-                                <th>Vehicle</th>
+                                <th>Plate# - Vehicle</th>
                                 <th>Violation</th>
                                 <th>Amount Paid</th>
                                 <th>Payment Method</th>
@@ -397,19 +399,18 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="paymentDetailsModalLabel">Payment Details</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
           </div>
           <div class="modal-body">
-            <div class="form-group">
-              <label><strong>Transaction Reference:</strong></label>
-              <div id="modalTransactionReference" class="form-control-plaintext"></div>
-            </div>
-            <div class="form-group">
-              <label><strong>Paid By:</strong></label>
-              <div id="modalPaidBy" class="form-control-plaintext"></div>
-            </div>
+            <form>
+              <div class="form-group">
+                <label for="modalTransactionReference"><strong>Transaction Reference:</strong></label>
+                <input type="text" id="modalTransactionReference" class="form-control" disabled>
+              </div>
+              <div class="form-group">
+                <label for="modalPaidBy"><strong>Paid By:</strong></label>
+                <input type="text" id="modalPaidBy" class="form-control" disabled>
+              </div>
+            </form>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -451,8 +452,8 @@
         }
 
         function openOwnerDetailsModal(ownerId, transactionReference, paidBy) {
-            document.getElementById('modalTransactionReference').textContent = transactionReference;
-            document.getElementById('modalPaidBy').textContent = paidBy;
+            document.getElementById('modalTransactionReference').value = transactionReference;
+            document.getElementById('modalPaidBy').value = paidBy;
             $('#paymentDetailsModal').modal('show');
         }
     </script>
