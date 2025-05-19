@@ -67,7 +67,6 @@
 
         .table {
             width: 100%;
-            min-width: 600px; /* Minimum width to ensure scrollability */
             border-collapse: collapse;
             margin-top: 20px;
             background-color: white;
@@ -80,11 +79,12 @@
             border: 1px solid #dddddd;
             text-align: left;
             padding: 12px;
-            white-space: nowrap; /* Prevents text wrapping, creating a single-line effect */
+            vertical-align: middle;
         }
 
         .table th {
-            background-color: #f8f9fa;
+            background-color: #0a1f44;
+            color: white;
             font-weight: 600;
         }
 
@@ -115,32 +115,35 @@
         }
 
         .status-badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.875rem;
-            font-weight: 500;
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 700;
+            line-height: 1;
+            color: #fff;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.25rem;
+        }
+
+        .status-unpaid, .status-pending {
+            background-color: #ef4444;
         }
 
         .status-paid {
             background-color: #10b981;
-            color: white;
-        }
-
-        .status-unpaid {
-            background-color: #ef4444;
-            color: white;
         }
 
         .btn-success {
             background-color: #10b981;
             border-color: #059669;
             color: white;
+            transition: all 0.2s;
         }
 
         .btn-success:hover {
             background-color: #059669;
             border-color: #047857;
-            color: white;
         }
 
         .btn-info {
@@ -191,6 +194,10 @@
             background: #ef4444;
             color: #fff;
         }
+
+        .nowrap {
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body>
@@ -214,7 +221,7 @@
         <div class="main-content">
             <h1>My Violation History</h1>
             <div class="table-responsive">
-                <table class="table">
+                <table class="table table-striped">
                     <thead>
                         <tr>
                             <th>Date</th>
@@ -236,11 +243,11 @@
                             @foreach($allRecords as $record)
                                 <tr>
                                     <td>{{ \Carbon\Carbon::parse($record->date)->format('M d, Y') }}</td>
-                                    <td>{{ $record->vehicle }}</td>
+                                    <td class="nowrap">{{ $record->vehicle }}</td>
                                     <td>{{ $record->violation }}</td>
                                     <td>{{ $record->location }}</td>
-                                    <td>{{ $record->officer }}</td>
-                                    <td>₱{{ number_format($record->penalty_amount, 2) }}</td>
+                                    <td class="nowrap">{{ $record->officer }}</td>
+                                    <td class="nowrap">₱{{ number_format($record->penalty_amount, 2) }}</td>
                                     <td>
                                         <span class="status-badge status-{{ strtolower($record->status) }}">
                                             {{ ucfirst($record->status) }}
@@ -248,7 +255,7 @@
                                     </td>
                                     <td>
                                         @if($record->status == 'pending' || $record->status == 'unpaid')
-                                            <a href="{{ route('pay.fines') }}" class="btn btn-sm btn-success">
+                                            <a href="{{ route('pay.fines') }}" class="btn btn-success btn-sm">
                                                 <i class="fas fa-money-bill-wave"></i> Pay Now
                                             </a>
                                         @endif

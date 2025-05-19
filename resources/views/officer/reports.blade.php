@@ -82,16 +82,27 @@
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .table th, .table td {
     border: 1px solid #dddddd;
     text-align: left;
-    padding: 8px;
+    padding: 12px;
+    vertical-align: middle;
 }
 
 .table th {
-    background-color: #f2f2f2;
+    background-color: #0a1f44;
+    color: white;
+    font-weight: 600;
+}
+
+.table tr:nth-child(even) {
+    background-color: #f8f9fa;
 }
 
 .no-records {
@@ -249,33 +260,37 @@ form button:hover {
 }
 
 .btn-edit-custom, .btn-delete-custom {
-    padding: 6px 18px;
-    border-radius: 12px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.875rem;
     font-weight: 500;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
+    transition: all 0.2s;
 }
 
 .btn-edit-custom {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
+    background-color: #3b82f6;
+    border: 1px solid #2563eb;
+    color: white;
 }
 
 .btn-edit-custom:hover {
-    background-color: #0056b3;
+    background-color: #2563eb;
+    border-color: #1d4ed8;
 }
 
 .btn-delete-custom {
-    background-color: #dc3545;
-    color: #fff;
-    border: none;
+    background-color: #ef4444;
+    border: 1px solid #dc2626;
+    color: white;
 }
 
 .btn-delete-custom:hover {
-    background-color: #c82333;
+    background-color: #dc2626;
+    border-color: #b91c1c;
+}
+
+.btn-edit-custom i, .btn-delete-custom i {
+    margin-right: 5px;
 }
 
 .btn-secondary {
@@ -307,6 +322,7 @@ form button:hover {
 
 .table-responsive {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .table {
@@ -323,8 +339,28 @@ form button:hover {
     gap: 10px;
 }
 
-.btn-edit-custom i, .btn-delete-custom i {
-    font-size: 1.2em;
+.nowrap {
+    white-space: nowrap;
+}
+
+.status-badge {
+    padding: 0.35em 0.65em;
+    font-size: 0.75em;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+}
+
+.status-pending {
+    background-color: #ef4444;
+}
+
+.status-paid {
+    background-color: #10b981;
 }
     </style>
 </head>
@@ -354,43 +390,53 @@ form button:hover {
             @endif
             <button class="btn" onclick="openCreateReportModal()">Create Report</button>
 
-            <table class="table table-bordered" id="reportTable">
-                <thead>
-                    <tr>
-                        <th>Report ID</th>
-                        <th>Violation</th>
-                        <th>Vehicle</th>
-                        <th>Owner</th>
-                        <th>Report Date</th>
-                        <th>Location</th>
-                        <th>Details</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($reports as $report)
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
                         <tr>
-                            <td>{{ $report->report_id }}</td>
-                            <td>{{ $report->violation->violation_code }}</td>
-                            <td>{{ $report->vehicle->plate_number }}</td>
-                            <td>{{ $report->owner->fname }} {{ $report->owner->lname }}</td>
-                            <td>{{ $report->report_date->format('Y-m-d') }}</td>
-                            <td>{{ $report->location }}</td>
-                            <td>{{ $report->report_details }}</td>
-                            <td>{{ ucfirst($report->status) }}</td>
-                            <td class="action-buttons">
-                                <button class="btn-edit-custom" onclick="openEditReportModal({{ $report->report_id }})"><i class="fas fa-edit"></i> Edit</button>
-                                <form action="{{ route('reports.destroy', $report->report_id) }}" method="POST" style="display:inline-block;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn-delete-custom"><i class="fas fa-trash"></i> Delete</button>
-                                </form>
-                            </td>
+                            <th>Report ID</th>
+                            <th>Violation</th>
+                            <th>Vehicle</th>
+                            <th>Owner</th>
+                            <th>Report Date</th>
+                            <th>Location</th>
+                            <th>Details</th>
+                            <th>Status</th>
+                            <th>Actions</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach($reports as $report)
+                            <tr>
+                                <td>{{ $report->report_id }}</td>
+                                <td>{{ $report->violation->violation_code }}</td>
+                                <td class="nowrap">{{ $report->vehicle->plate_number }}</td>
+                                <td class="nowrap">{{ $report->owner->fname }} {{ $report->owner->lname }}</td>
+                                <td class="nowrap">{{ $report->report_date->format('M d, Y') }}</td>
+                                <td>{{ $report->location }}</td>
+                                <td>{{ $report->report_details }}</td>
+                                <td>
+                                    <span class="status-badge status-{{ strtolower($report->status) }}">
+                                        {{ ucfirst($report->status) }}
+                                    </span>
+                                </td>
+                                <td class="action-buttons">
+                                    <button class="btn-edit-custom" onclick="openEditReportModal({{ $report->report_id }})">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    <form action="{{ route('reports.destroy', $report->report_id) }}" method="POST" style="display:inline-block;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn-delete-custom">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 

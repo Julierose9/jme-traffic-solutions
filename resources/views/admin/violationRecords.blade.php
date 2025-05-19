@@ -9,6 +9,9 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"></script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -97,16 +100,61 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .table th, .table td {
             border: 1px solid #dddddd;
             text-align: left;
-            padding: 8px;
+            padding: 12px;
+            vertical-align: middle;
         }
 
         .table th {
-            background-color: #f2f2f2;
+            background-color: #0a1f44;
+            color: white;
+            font-weight: 600;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .badge {
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 700;
+            line-height: 1;
+            color: #fff;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.25rem;
+        }
+
+        .bg-primary {
+            background-color: #0d6efd;
+        }
+
+        .bg-info {
+            background-color: #0dcaf0;
+        }
+
+        .bg-success {
+            background-color: #198754;
+        }
+
+        .text-monospace {
+            font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.875em;
         }
 
         .no-records {
@@ -135,10 +183,11 @@
             margin-bottom: 20px;
             display: flex;
             align-items: center;
+            justify-content: flex-end;
         }
 
         .search-container input {
-            width: 45%;
+            width: 300px;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 25px; 
@@ -211,16 +260,6 @@
             color: #fff;
         }
 
-        .table-responsive {
-            overflow-x: auto;
-        }
-        .table {
-            min-width: 900px;
-        }
-        .table th, .table td {
-            white-space: nowrap;
-            vertical-align: middle;
-        }
         .action-buttons {
             display: flex;
             gap: 10px;
@@ -260,6 +299,111 @@
             margin-right: 8px;
             font-size: 1.2em;
         }
+
+        .btn-view-custom {
+            border: 2px solid #22c55e;
+            background: #fff;
+            color: #22c55e;
+            height: 35px;
+            min-width: 90px;
+            font-size: 0.9rem;
+            border-radius: 12px;
+            padding: 0 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-view-custom:hover {
+            background: #22c55e;
+            color: #fff;
+        }
+        .btn-view-custom i {
+            margin-right: 8px;
+            font-size: 1.2em;
+        }
+        .section-title {
+            color: #0a1f44;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #edf2f7;
+        }
+        .details-table {
+            margin-bottom: 0;
+        }
+        .details-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        .modal-content {
+            border-radius: 8px;
+        }
+        .modal-header {
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            padding: 1rem;
+            border-bottom: 2px solid #edf2f7;
+        }
+        .modal-header .close {
+            padding: 1rem;
+            margin: -1rem -1rem -1rem auto;
+        }
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1a202c;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .form-grid .section-title {
+            grid-column: 1 / -1;
+            color: #0a1f44;
+            font-weight: 600;
+            margin: 1rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #edf2f7;
+        }
+
+        .form-grid .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-grid label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .form-grid input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+        }
+
+        .form-grid input:disabled {
+            background-color: #f8f9fa;
+            color: #4a5568;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -283,7 +427,7 @@
         <div class="main-content">
             <h1>Violation Records</h1>
             <div class="search-container">
-                <input type="text" id="searchInput" placeholder="Search by Officer Name or Plate Number" onkeyup="filterRecords()">
+                <input type="text" id="searchInput" placeholder="Search..." onkeyup="filterRecords()">
                 <button class="search-button" onclick="filterRecords()">
                     <i class="fas fa-search"></i> Search
                 </button>
@@ -291,13 +435,10 @@
             <table class="table" id="recordsTable">
                 <thead>
                     <tr>
-                        <th>Record ID</th>
                         <th>Violation Code</th>
                         <th>Description</th>
                         <th>Penalty Amount</th>
                         <th>Plate Number</th>
-                        <th>Officer Last Name</th>
-                        <th>Officer First Name</th>
                         <th>Violation Date</th>
                         <th>Status</th>
                         <th>Actions</th>
@@ -306,63 +447,142 @@
                 <tbody>
                     @if($allRecords->isEmpty())
                         <tr>
-                            <td colspan="10" class="no-records">No records found.</td>
+                            <td colspan="7" class="no-records">No records found.</td>
                         </tr>
                     @else
                         @foreach($allRecords as $record)
-                            @if($record->RecordID || $record->violationCode || $record->Description || $record->PenaltyAmount || $record->PlateNumber || $record->OfficerLastName || $record->OfficerFirstName || $record->ViolationDate || $record->Status)
                                 <tr>
-                                    <td>{{ $record->RecordID }}</td>
-                                    <td>{{ $record->violationCode }}</td>
-                                    <td>{{ $record->Description }}</td>
-                                    <td>₱{{ number_format($record->PenaltyAmount, 2) }}</td>
-                                    <td>{{ $record->PlateNumber }}</td>
-                                    <td>{{ $record->OfficerLastName }}</td>
-                                    <td>{{ $record->OfficerFirstName }}</td>
-                                    <td>{{ $record->ViolationDate }}</td>
-                                    <td>{{ $record->Status }}</td>
+                                <td>{{ $record->violation_code }}</td>
+                                <td>{{ $record->description }}</td>
+                                <td>₱{{ number_format($record->penalty_amount, 2) }}</td>
+                                <td>{{ $record->plate_number }}</td>
+                                <td>{{ $record->violation_date ? date('Y-m-d', strtotime($record->violation_date)) : '' }}</td>
+                                <td>{{ $record->status }}</td>
                                     <td>
-                                        @if(isset($record->isReport))
-                                            <button class="btn btn-info" onclick="viewReportDetails('{{ $record->Description }}')">
-                                                View Details
+                                    <button class="btn-view-custom" onclick="openRecordDetailsModal('{{ $record->id }}')">
+                                        <i class="fas fa-eye"></i> View
                                             </button>
-                                        @else
-                                            <button class="btn btn-edit-custom"><i class="fas fa-edit"></i> Edit</button>
-                                            <button class="btn" onclick="attachDocument({{ $record->RecordID }})">Attach Document</button>
-                                        @endif
                                     </td>
                                 </tr>
-                            @endif
                         @endforeach
                     @endif
                 </tbody>
             </table>
 
-            <!-- Modal for Report Details -->
-            <div class="modal fade" id="reportDetailsModal" tabindex="-1" role="dialog" aria-labelledby="reportDetailsModalLabel" aria-hidden="true">
+            <!-- Modal for Record Details -->
+            <div class="modal fade" id="recordDetailsModal" tabindex="-1" role="dialog" aria-labelledby="recordDetailsModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="reportDetailsModalLabel">Report Details</h5>
+                            <h2>Record Details</h2>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body">
-                            <p id="reportDetailsContent"></p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <!-- Vehicle Information Section -->
+                            <div class="form-grid">
+                                <h3 class="section-title">Vehicle Information</h3>
+                                <div class="form-group">
+                                    <label>Plate Number:</label>
+                                    <input type="text" id="vehiclePlateNumber" class="form-control" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label>Vehicle Type:</label>
+                                    <input type="text" id="vehicleType" class="form-control" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label>Brand:</label>
+                                    <input type="text" id="vehicleBrand" class="form-control" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label>Model:</label>
+                                    <input type="text" id="vehicleModel" class="form-control" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label>Color:</label>
+                                    <input type="text" id="vehicleColor" class="form-control" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label>Registration Date:</label>
+                                    <input type="text" id="registrationDate" class="form-control" disabled>
+                                </div>
+                            </div>
+
+                            <!-- Officer Information Section -->
+                            <div class="form-grid">
+                                <h3 class="section-title">Officer Information</h3>
+                                <div class="form-group">
+                                    <label>Last Name:</label>
+                                    <input type="text" id="officerLastName" class="form-control" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label>First Name:</label>
+                                    <input type="text" id="officerFirstName" class="form-control" disabled>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <script>
-                function viewReportDetails(details) {
-                    document.getElementById('reportDetailsContent').textContent = details;
-                    $('#reportDetailsModal').modal('show');
+                async function openRecordDetailsModal(recordId) {
+                    try {
+                        // Find the record in the table
+                        const rows = document.querySelectorAll('#recordsTable tbody tr');
+                        let record = null;
+                        
+                        for (let row of rows) {
+                            const cells = row.getElementsByTagName('td');
+                            if (cells[3]) { // plate number cell
+                                const plateNumber = cells[3].textContent;
+                                const allRecords = @json($allRecords);
+                                record = allRecords.find(r => r.plate_number === plateNumber && (r.id == recordId || r.id === 'R-' + recordId));
+                                if (record) break;
+                            }
+                        }
+
+                        if (!record) {
+                            throw new Error('Record not found');
+                        }
+
+                        // Update vehicle information
+                        if (record.vehicle) {
+                            document.getElementById('vehiclePlateNumber').value = record.plate_number || 'N/A';
+                            document.getElementById('vehicleType').value = record.vehicle.vehicle_type || 'N/A';
+                            document.getElementById('vehicleBrand').value = record.vehicle.brand || 'N/A';
+                            document.getElementById('vehicleModel').value = record.vehicle.model || 'N/A';
+                            document.getElementById('vehicleColor').value = record.vehicle.color || 'N/A';
+                            document.getElementById('registrationDate').value = record.vehicle.registration_date || 'N/A';
+                        }
+
+                        // Update officer information
+                        if (record.officer) {
+                            document.getElementById('officerLastName').value = record.officer.last_name || 'N/A';
+                            document.getElementById('officerFirstName').value = record.officer.first_name || 'N/A';
+                        }
+
+                        // Show the modal
+                        $('#recordDetailsModal').modal('show');
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Failed to load record details: ' + error.message);
+                    }
                 }
+
+                // Close modal when clicking the close button or outside
+                $(document).ready(function() {
+                    $('.close').on('click', function() {
+                        $('#recordDetailsModal').modal('hide');
+                    });
+
+                    $('#recordDetailsModal').on('hidden.bs.modal', function () {
+                        // Clear form fields when modal is closed
+                        const inputs = document.querySelectorAll('#recordDetailsModal input');
+                        inputs.forEach(input => input.value = '');
+                    });
+                });
 
                 function filterRecords() {
                     const input = document.getElementById('searchInput');

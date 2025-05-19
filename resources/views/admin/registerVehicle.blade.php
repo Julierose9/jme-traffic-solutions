@@ -88,16 +88,61 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .table th, .table td {
             border: 1px solid #dddddd;
             text-align: left;
-            padding: 8px;
+            padding: 12px;
+            vertical-align: middle;
         }
 
         .table th {
-            background-color: #f2f2f2;
+            background-color: #0a1f44;
+            color: white;
+            font-weight: 600;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .badge {
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 700;
+            line-height: 1;
+            color: #fff;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.25rem;
+        }
+
+        .bg-primary {
+            background-color: #0d6efd;
+        }
+
+        .bg-info {
+            background-color: #0dcaf0;
+        }
+
+        .bg-success {
+            background-color: #198754;
+        }
+
+        .text-monospace {
+            font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.875em;
         }
 
         .modal {
@@ -217,16 +262,26 @@
             display: flex;
             gap: 10px;
         }
-        .btn-edit-custom, .btn-delete-custom {
-            height: 40px;
-            min-width: 110px;
-            font-size: 1rem;
-            border-radius: 16px;
-            padding: 0 22px;
+        .btn-edit-custom, .btn-delete-custom, .btn-view-custom {
+            height: 35px;
+            min-width: 90px;
+            font-size: 0.9rem;
+            border-radius: 12px;
+            padding: 0 15px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
+        }
+        .btn-view-custom {
+            border: 2px solid #22c55e;
+            background: #fff;
+            color: #22c55e;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-view-custom:hover {
+            background: #22c55e;
+            color: #fff;
         }
         .btn-edit-custom {
             background: #0090d0;
@@ -248,7 +303,17 @@
             background: #ef4444;
             color: #fff;
         }
-        .btn-edit-custom i, .btn-delete-custom i {
+        .btn-info {
+            background: #3498db;
+            color: #fff;
+            border: none;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-info:hover {
+            background: #2980b9;
+            color: #fff;
+        }
+        .btn-edit-custom i, .btn-delete-custom i, .btn-view-custom i {
             margin-right: 8px;
             font-size: 1.2em;
         }
@@ -324,6 +389,73 @@
         .collapsed {
             display: none;
         }
+
+        .table-bordered {
+            border: 1px solid #dee2e6;
+        }
+        .table-bordered th,
+        .table-bordered td {
+            border: 1px solid #dee2e6;
+            padding: 12px;
+        }
+        .table-bordered th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        #ownerDetails {
+            margin-top: 20px;
+        }
+        #ownerDetails .table {
+            margin-bottom: 0;
+        }
+
+        .modal-header {
+            background-color: #0a1f44;
+            color: white;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            padding: 1rem;
+        }
+
+        .modal-header .close {
+            color: white;
+            opacity: 0.8;
+            text-shadow: none;
+        }
+
+        .modal-header .close:hover {
+            opacity: 1;
+        }
+
+        .section-title {
+            color: #0a1f44;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #edf2f7;
+        }
+
+        .details-table {
+            margin-bottom: 0;
+        }
+
+        .details-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .modal-content {
+            border-radius: 8px;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #dee2e6;
+            padding: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -354,7 +486,7 @@
 
             <div class="mb-4">
                 <h1>Vehicle Registration Management</h1>
-                <div class="d-flex justify-content-start mb-3">
+                <div class="d-flex justify-content-end mb-3">
                     <button class="btn btn-primary" onclick="openVehicleModal()">Register a New Vehicle</button>
                 </div>
             </div>
@@ -449,8 +581,6 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Vehicle ID</th>
-                                <th>Owner ID</th>
                                 <th>Plate Number</th>
                                 <th>Vehicle Type</th>
                                 <th>Brand</th>
@@ -463,8 +593,6 @@
                         <tbody>
                             @foreach($registeredVehicles as $vehicle)
                             <tr>
-                                <td>{{ $vehicle->reg_vehicle_id }}</td>
-                                <td>{{ $vehicle->own_id }}</td>
                                 <td>{{ $vehicle->plate_number }}</td>
                                 <td>{{ $vehicle->vehicle_type }}</td>
                                 <td>{{ $vehicle->brand }}</td>
@@ -472,6 +600,7 @@
                                 <td>{{ $vehicle->color }}</td>
                                 <td>{{ $vehicle->registration_date }}</td>
                                 <td class="action-buttons">
+                                    <button class="btn-view-custom" onclick="openOwnerDetailsModal('{{ $vehicle->own_id }}')"><i class="fas fa-eye"></i> View</button>
                                     <button class="btn-edit-custom" onclick="openEditVehicleModal('{{ $vehicle->reg_vehicle_id }}')"><i class="fas fa-edit"></i> Edit</button>
                                     <button class="btn-delete-custom" onclick="openDeleteVehicleModal('{{ $vehicle->reg_vehicle_id }}')"><i class="fas fa-trash"></i> Delete</button>
                                 </td>
@@ -705,6 +834,39 @@
         </div>
     </div>
 
+    <!-- Owner Details Modal -->
+    <div id="ownerDetailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeOwnerDetailsModal()" style="position:absolute; right:15px; top:10px; font-size:28px; font-weight:bold; color:#aaa; cursor:pointer;">×</span>
+            <h2>Vehicle Owner Details</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Full Name:</label>
+                    <input type="text" id="ownerFullName" class="form-control" disabled>
+                </div>
+
+                <div class="form-group">
+                    <label>Address:</label>
+                    <input type="text" id="ownerAddress" class="form-control" disabled>
+                </div>
+
+                <div class="form-group">
+                    <label>Contact Number:</label>
+                    <input type="text" id="ownerContact" class="form-control" disabled>
+                </div>
+
+                <div class="form-group">
+                    <label>License Number:</label>
+                    <input type="text" id="ownerLicense" class="form-control" disabled>
+                </div>
+
+                <div style="grid-column: 1 / -1; text-align: right;">
+                    <button type="button" class="btn btn-secondary" onclick="closeOwnerDetailsModal()">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.getElementById('registerVehicleForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -837,6 +999,7 @@
             const registerVehicleModal = document.getElementById('registerVehicleModal');
             const editVehicleModal = document.getElementById('editVehicleModal');
             const deleteVehicleModal = document.getElementById('deleteVehicleModal');
+            const ownerDetailsModal = document.getElementById('ownerDetailsModal');
             
             if (event.target === registerVehicleModal) {
                 closeVehicleModal();
@@ -844,6 +1007,8 @@
                 closeEditVehicleModal();
             } else if (event.target === deleteVehicleModal) {
                 closeDeleteVehicleModal();
+            } else if (event.target === ownerDetailsModal) {
+                closeOwnerDetailsModal();
             }
         }
 
@@ -974,6 +1139,39 @@
                 icon.className = 'fas fa-plus';
             }
         });
+
+        async function openOwnerDetailsModal(ownerId) {
+            try {
+                const response = await fetch(`/dashboard/admin/owners/${ownerId}`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch owner details');
+                }
+
+                const data = await response.json();
+                
+                // Update form inputs with owner details
+                document.getElementById('ownerFullName').value = `${data.owner.user.lname}, ${data.owner.user.fname} ${data.owner.user.mname || ''}`.trim();
+                document.getElementById('ownerAddress').value = data.owner.address || 'N/A';
+                document.getElementById('ownerContact').value = data.owner.contact_num || 'N/A';
+                document.getElementById('ownerLicense').value = data.owner.license_number || 'N/A';
+
+                // Show the modal
+                document.getElementById('ownerDetailsModal').style.display = 'block';
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to load owner details. Please try again.');
+            }
+        }
+
+        function closeOwnerDetailsModal() {
+            document.getElementById('ownerDetailsModal').style.display = 'none';
+        }
     </script>
 </body>
 </html>

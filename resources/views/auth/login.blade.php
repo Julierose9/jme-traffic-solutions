@@ -34,14 +34,18 @@
         .modal-header {
             padding: 1rem;
             border-bottom: 1px solid #dee2e6;
+            background-color: #007bff;
+            color: white;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
         }
         .modal-title {
             font-size: 1.5rem;
             font-weight: 600;
-            color: #343a40;
+            color: white;
         }
         .btn-close {
-            filter: invert(0.5);
+            filter: invert(1);
         }
         .modal-body {
             padding: 20px;
@@ -81,6 +85,8 @@
             border-radius: 20px;
             text-transform: uppercase;
             font-weight: 600;
+            width: 100%;
+            margin-top: 10px;
         }
         .validation-errors {
             color: #dc3545;

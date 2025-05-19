@@ -23,8 +23,8 @@ class PayFinesController extends Controller
             $userId = Auth::id();
 
             // Get unpaid violation records
-            $violationRecords = ViolationRecord::with(['violation', 'vehicle'])
-                ->whereHas('vehicle.owner', function($query) use ($userId) {
+            $violationRecords = ViolationRecord::with(['violation', 'registeredVehicle'])
+                ->whereHas('registeredVehicle.owner', function($query) use ($userId) {
                     $query->where('user_id', $userId);
                 })
                 ->where('status', 'unpaid')
@@ -36,7 +36,7 @@ class PayFinesController extends Controller
                         'date' => $record->violation_date,
                         'violation_code' => $record->violation->violation_code,
                         'penalty_amount' => $record->violation->penalty_amount,
-                        'vehicle' => $record->vehicle->plate_number . ' - ' . $record->vehicle->brand . ' ' . $record->vehicle->model,
+                        'vehicle' => $record->registeredVehicle->plate_number . ' - ' . $record->registeredVehicle->brand . ' ' . $record->registeredVehicle->model,
                         'status' => $record->status
                     ];
                 });
@@ -119,7 +119,7 @@ class PayFinesController extends Controller
                 
                 // Get vehicle and violation details based on payable type
                 if ($type === 'ViolationRecord') {
-                    $vehicle = $payable->vehicle;
+                    $vehicle = $payable->registeredVehicle;
                     $violation = $payable->violation;
                 } else { // Report
                     $vehicle = $payable->vehicle;
@@ -200,7 +200,7 @@ class PayFinesController extends Controller
         ]);
 
         // Try to find a violation record first
-        $violationRecord = ViolationRecord::with('vehicle')->whereHas('vehicle.owner', function($query) use ($userId) {
+        $violationRecord = ViolationRecord::with('registeredVehicle')->whereHas('registeredVehicle.owner', function($query) use ($userId) {
             $query->where('user_id', $userId);
         })->find($id);
 
@@ -222,7 +222,7 @@ class PayFinesController extends Controller
             $violationRecord->update(['status' => 'paid']);
 
             // Check and resolve blacklist if all fines are paid
-            $this->resolveBlacklist($violationRecord->reg_vehicle_id, $violationRecord->vehicle->own_id);
+            $this->resolveBlacklist($violationRecord->reg_vehicle_id, $violationRecord->registeredVehicle->own_id);
 
             return redirect()->route('pay.fines')->with('success', 'Fine paid successfully and blacklist status updated if applicable.');
         }

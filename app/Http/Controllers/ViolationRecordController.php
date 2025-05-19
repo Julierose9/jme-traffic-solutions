@@ -15,22 +15,52 @@ class ViolationRecordController extends Controller
 {
     public function index()
     {
-        $violationRecords = ViolationRecord::with(['violation', 'vehicle', 'officer'])->get();
+        $violationRecords = ViolationRecord::with(['registeredVehicle', 'officer', 'violation'])->get()
+            ->map(function($record) {
+                return (object)[
+                    'id' => $record->record_id,
+                    'violation_code' => $record->violation->violation_code ?? 'N/A',
+                    'description' => $record->violation->description ?? 'N/A',
+                    'penalty_amount' => $record->violation->penalty_amount ?? 0,
+                    'plate_number' => $record->registeredVehicle->plate_number ?? 'N/A',
+                    'violation_date' => $record->violation_date,
+                    'status' => $record->status,
+                    'vehicle' => $record->registeredVehicle ? [
+                        'vehicle_type' => $record->registeredVehicle->vehicle_type,
+                        'brand' => $record->registeredVehicle->brand,
+                        'model' => $record->registeredVehicle->model,
+                        'color' => $record->registeredVehicle->color,
+                        'registration_date' => $record->registeredVehicle->registration_date
+                    ] : null,
+                    'officer' => $record->officer ? [
+                        'first_name' => $record->officer->fname,
+                        'last_name' => $record->officer->lname
+                    ] : null
+                ];
+            });
         
         // Get reports and transform them to match violation records format
         $reports = Report::with(['violation', 'vehicle', 'owner', 'officer'])->get()
             ->map(function($report) {
                 return (object)[
-                    'RecordID' => 'R-' . $report->report_id, // Prefix with R to distinguish from violation records
-                    'violationCode' => $report->violation->violation_code ?? 'N/A',
-                    'Description' => $report->report_details,
-                    'PenaltyAmount' => $report->violation->penalty_amount ?? 0,
-                    'PlateNumber' => $report->vehicle->plate_number,
-                    'OfficerLastName' => $report->officer->lname,
-                    'OfficerFirstName' => $report->officer->fname,
-                    'ViolationDate' => $report->report_date,
-                    'Status' => $report->status,
-                    'isReport' => true // Flag to identify reports
+                    'id' => 'R-' . $report->report_id,
+                    'violation_code' => $report->violation->violation_code ?? 'N/A',
+                    'description' => $report->report_details,
+                    'penalty_amount' => $report->violation->penalty_amount ?? 0,
+                    'plate_number' => $report->vehicle->plate_number,
+                    'violation_date' => $report->report_date,
+                    'status' => $report->status,
+                    'vehicle' => [
+                        'vehicle_type' => $report->vehicle->vehicle_type,
+                        'brand' => $report->vehicle->brand,
+                        'model' => $report->vehicle->model,
+                        'color' => $report->vehicle->color,
+                        'registration_date' => $report->vehicle->registration_date
+                    ],
+                    'officer' => [
+                        'first_name' => $report->officer->fname,
+                        'last_name' => $report->officer->lname
+                    ]
                 ];
             });
 
@@ -46,17 +76,17 @@ class ViolationRecordController extends Controller
         $userId = Auth::id();
 
         // Get violation records
-        $violationRecords = ViolationRecord::with(['violation', 'vehicle', 'officer'])
-            ->whereHas('vehicle.owner', function($query) use ($userId) {
+        $violationRecords = ViolationRecord::with(['violation', 'registeredVehicle', 'officer'])
+            ->whereHas('registeredVehicle.owner', function($query) use ($userId) {
                 $query->where('user_id', $userId);
             })
             ->get()
             ->map(function($record) {
                 return (object)[
                     'date' => $record->violation_date,
-                    'vehicle' => $record->vehicle->plate_number . ' - ' . 
-                               $record->vehicle->brand . ' ' . 
-                               $record->vehicle->model,
+                    'vehicle' => $record->registeredVehicle->plate_number . ' - ' . 
+                               $record->registeredVehicle->brand . ' ' . 
+                               $record->registeredVehicle->model,
                     'violation' => $record->violation->violation_code,
                     'location' => $record->location,
                     'officer' => $record->officer->fname . ' ' . $record->officer->lname,
@@ -161,5 +191,52 @@ class ViolationRecordController extends Controller
         }
 
         return redirect()->route('violation.record')->with('success', 'Violation record deleted successfully');
+    }
+
+    public function show($id)
+    {
+        try {
+            // Find the violation record and eager load the relationships
+            $record = ViolationRecord::with(['registeredVehicle', 'officer', 'violation'])
+                ->where('record_id', $id)
+                ->firstOrFail();
+
+            // Get the vehicle details through the relationship
+            $vehicle = $record->registeredVehicle;
+            $officer = $record->officer;
+
+            if (!$vehicle) {
+                throw new \Exception('Vehicle not found for record ID: ' . $id);
+            }
+
+            return response()->json([
+                'success' => true,
+                'record' => [
+                    'vehicle' => [
+                        'plate_number' => $vehicle->plate_number,
+                        'vehicle_type' => $vehicle->vehicle_type,
+                        'brand' => $vehicle->brand,
+                        'model' => $vehicle->model,
+                        'color' => $vehicle->color,
+                        'registration_date' => $vehicle->registration_date ? date('Y-m-d', strtotime($vehicle->registration_date)) : null
+                    ],
+                    'officer' => [
+                        'name' => $officer->lname . ', ' . $officer->fname,
+                        'badge_number' => $officer->badge_number ?? 'N/A'
+                    ],
+                    'violation' => [
+                        'code' => $record->violation->violation_code,
+                        'description' => $record->violation->description,
+                        'penalty_amount' => $record->violation->penalty_amount
+                    ]
+                ]
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error in ViolationRecordController@show: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch record details: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

@@ -221,6 +221,86 @@
             background: #ef4444;
             color: #fff;
         }
+
+        /* Add search container styles */
+        .search-container {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .search-container input {
+            width: 300px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 25px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-container input:focus {
+            border-color: #4CAF50;
+        }
+
+        .search-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 10px 15px;
+            margin-left: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-button i {
+            margin-right: 5px;
+        }
+
+        .search-button:hover {
+            background-color: #45a049;
+        }
+
+        .nowrap {
+            white-space: nowrap;
+        }
+
+        .table td {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .btn-view-custom {
+            background: #fff;
+            border: 2px solid #28a745;
+            color: #28a745;
+            border-radius: 16px;
+            padding: 3px 14px 3px 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            box-shadow: none;
+        }
+        .btn-view-custom i {
+            color: #28a745;
+            font-size: 1.1em;
+            margin-right: 4px;
+        }
+        .btn-view-custom:hover, .btn-view-custom:focus {
+            background: #28a745;
+            color: #fff;
+            border-color: #28a745;
+        }
+        .btn-view-custom:hover i, .btn-view-custom:focus i {
+            color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -243,6 +323,13 @@
         </div>
         <div class="main-content">
             <h1 class="text-2xl font-bold mb-4">Payment Records</h1>
+
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search..." onkeyup="filterRecords()">
+                <button class="search-button" onclick="filterRecords()">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
 
             @if(session('success'))
                 <div class="alert alert-success">
@@ -272,29 +359,29 @@
                                 <th>Violation</th>
                                 <th>Amount Paid</th>
                                 <th>Payment Method</th>
-                                <th>Transaction Reference</th>
-                                <th>Paid By</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($payments as $payment)
                                 <tr>
-                                    <td>{{ $payment->date }}</td>
+                                    <td>{{ date('Y-m-d', strtotime($payment->date)) }}</td>
                                     <td>
                                         <span class="badge {{ $payment->type === 'ViolationRecord' ? 'bg-primary' : 'bg-info' }}">
                                             {{ $payment->type === 'ViolationRecord' ? 'Violation' : 'Report' }}
                                         </span>
                                     </td>
-                                    <td>{{ $payment->vehicle }}</td>
-                                    <td>{{ $payment->violation }}</td>
-                                    <td>₱{{ number_format($payment->amount, 2) }}</td>
+                                    <td class="nowrap">{{ $payment->vehicle }}</td>
+                                    <td class="nowrap">{{ $payment->violation }}</td>
+                                    <td class="nowrap">₱{{ number_format($payment->amount, 2) }}</td>
                                     <td>
-                                        <span class="badge bg-success">{{ $payment->payment_method }}</span>
+                                        <span class="badge bg-success nowrap">{{ $payment->payment_method }}</span>
                                     </td>
                                     <td>
-                                        <span class="text-monospace">{{ $payment->transaction_reference }}</span>
+                                        <button class="btn-view-custom" onclick="openOwnerDetailsModal('{{ $payment->owner_id ?? ($payment->payable->own_id ?? '') }}', '{{ $payment->transaction_reference }}', '{{ $payment->payer }}')">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
                                     </td>
-                                    <td>{{ $payment->payer }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -303,10 +390,70 @@
             @endif
         </div>
     </div>
+
+    <!-- Payment Details Modal -->
+    <div class="modal fade" id="paymentDetailsModal" tabindex="-1" role="dialog" aria-labelledby="paymentDetailsModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="paymentDetailsModalLabel">Payment Details</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label><strong>Transaction Reference:</strong></label>
+              <div id="modalTransactionReference" class="form-control-plaintext"></div>
+            </div>
+            <div class="form-group">
+              <label><strong>Paid By:</strong></label>
+              <div id="modalPaidBy" class="form-control-plaintext"></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script>
-        function toggleDropdown(id) {
-            const dropdown = document.getElementById(id);
+        function toggleDropdown(btn) {
+            const dropdown = btn.nextElementSibling;
             dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function filterRecords() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById('finesTable');
+            const tr = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < tr.length; i++) {
+                const row = tr[i];
+                const cells = row.getElementsByTagName('td');
+                let found = false;
+                
+                for (let j = 0; j < cells.length; j++) {
+                    const cell = cells[j];
+                    if (cell) {
+                        const text = cell.textContent || cell.innerText;
+                        if (text.toLowerCase().indexOf(filter) > -1) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                
+                row.style.display = found ? '' : 'none';
+            }
+        }
+
+        function openOwnerDetailsModal(ownerId, transactionReference, paidBy) {
+            document.getElementById('modalTransactionReference').textContent = transactionReference;
+            document.getElementById('modalPaidBy').textContent = paidBy;
+            $('#paymentDetailsModal').modal('show');
         }
     </script>
 </body>

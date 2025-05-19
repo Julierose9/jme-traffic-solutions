@@ -57,10 +57,19 @@ class OwnerController extends Controller
 
     public function getOwnerDetails($ownerId)
     {
-        $owner = Owner::with('user')->findOrFail($ownerId);
-        return response()->json([
-            'success' => true,
-            'owner' => $owner
-        ]);
+        try {
+            $owner = Owner::with(['user', 'registeredVehicles'])
+                ->findOrFail($ownerId);
+
+            return response()->json([
+                'success' => true,
+                'owner' => $owner
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch owner details: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

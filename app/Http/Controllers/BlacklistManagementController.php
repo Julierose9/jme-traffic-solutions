@@ -161,4 +161,48 @@ class BlacklistManagementController extends Controller
 
         return view('guest.blackliststatus', compact('blacklistStatus'));
     }
+
+    public function getDetails($id)
+    {
+        try {
+            $blacklist = Blacklist::with([
+                'registeredVehicle',
+                'owner',
+                'report.violation'
+            ])->findOrFail($id);
+
+            $data = [
+                'violation' => null,
+                'vehicle' => [
+                    'plate_number' => $blacklist->registeredVehicle->plate_number,
+                    'vehicle_type' => $blacklist->registeredVehicle->vehicle_type,
+                    'brand' => $blacklist->registeredVehicle->brand,
+                    'model' => $blacklist->registeredVehicle->model,
+                    'color' => $blacklist->registeredVehicle->color,
+                    'registration_date' => $blacklist->registeredVehicle->registration_date
+                ],
+                'owner' => [
+                    'lname' => $blacklist->owner->lname,
+                    'fname' => $blacklist->owner->fname,
+                    'mname' => $blacklist->owner->mname,
+                    'address' => $blacklist->owner->address,
+                    'contact_number' => $blacklist->owner->contact_number
+                ]
+            ];
+
+            // Only add violation data if report and violation exist
+            if ($blacklist->report && $blacklist->report->violation) {
+                $data['violation'] = [
+                    'violation_code' => $blacklist->report->violation->violation_code,
+                    'description' => $blacklist->report->violation->description,
+                    'penalty_amount' => (float)$blacklist->report->violation->penalty_amount,
+                    'status' => $blacklist->report->status
+                ];
+            }
+
+            return response()->json($data);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to fetch details: ' . $e->getMessage()], 500);
+        }
+    }
 }

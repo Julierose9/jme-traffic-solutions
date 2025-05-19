@@ -83,16 +83,39 @@
         }
 
         .table {
-            margin-top: 2rem;
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .table th, .table td {
-            text-align: center;
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 12px;
+            vertical-align: middle;
         }
 
         .table th {
             background-color: #0a1f44;
             color: white;
+            font-weight: 600;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .nowrap {
+            white-space: nowrap;
         }
 
         .no-records {
@@ -118,20 +141,23 @@
         }
 
         .status-badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.875rem;
-            font-weight: 500;
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 700;
+            line-height: 1;
+            color: #fff;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.25rem;
         }
 
         .status-unpaid, .status-pending {
             background-color: #ef4444;
-            color: white;
         }
 
         .status-paid {
             background-color: #10b981;
-            color: white;
         }
 
         .form-control-sm {
@@ -159,10 +185,6 @@
         .btn-success:hover {
             background-color: #059669;
             border-color: #047857;
-        }
-
-        .table td {
-            vertical-align: middle;
         }
 
         .btn-delete-custom {
@@ -233,56 +255,58 @@
                 <p>You currently have no unpaid fines.</p>
             </div>
         @else
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Vehicle</th>
-                        <th>Type</th>
-                        <th>Violation Code</th>
-                        <th>Penalty Amount</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($fines as $fine)
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
                         <tr>
-                            <td>{{ \Carbon\Carbon::parse($fine->date)->format('M d, Y') }}</td>
-                            <td>{{ $fine->vehicle }}</td>
-                            <td>{{ ucfirst($fine->type) }}</td>
-                            <td>{{ $fine->violation_code }}</td>
-                            <td>₱{{ number_format($fine->penalty_amount, 2) }}</td>
-                            <td>
-                                <span class="status-badge status-{{ strtolower($fine->status) }}">
-                                    {{ ucfirst($fine->status) }}
-                                </span>
-                            </td>
-                            <td>
-                                <form action="{{ route('pay.fines.pay', ['id' => $fine->id]) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    <div class="form-group mb-2">
-                                        <input type="date" name="payment_date" class="form-control form-control-sm" 
-                                               value="{{ now()->format('Y-m-d') }}" required>
-                                    </div>
-                                    <div class="form-group mb-2">
-                                        <select name="payment_method" class="form-control form-control-sm" required>
-                                            <option value="">Select Payment Method</option>
-                                            <option value="Credit Card">Credit Card</option>
-                                            <option value="Debit Card">Debit Card</option>
-                                            <option value="GCash">GCash</option>
-                                            <option value="Maya">Maya</option>
-                                        </select>
-                                    </div>
-                                    <button type="submit" class="btn btn-success btn-sm">
-                                        <i class="fas fa-money-bill-wave"></i> Pay Now
-                                    </button>
-                                </form>
-                            </td>
+                            <th>Date</th>
+                            <th>Vehicle</th>
+                            <th>Type</th>
+                            <th>Violation Code</th>
+                            <th>Penalty Amount</th>
+                            <th>Status</th>
+                            <th>Action</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach($fines as $fine)
+                            <tr>
+                                <td>{{ \Carbon\Carbon::parse($fine->date)->format('M d, Y') }}</td>
+                                <td class="nowrap">{{ $fine->vehicle }}</td>
+                                <td>{{ ucfirst($fine->type) }}</td>
+                                <td>{{ $fine->violation_code }}</td>
+                                <td class="nowrap">₱{{ number_format($fine->penalty_amount, 2) }}</td>
+                                <td>
+                                    <span class="status-badge status-{{ strtolower($fine->status) }}">
+                                        {{ ucfirst($fine->status) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <form action="{{ route('pay.fines.pay', $fine->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <div class="form-group mb-2">
+                                            <input type="date" name="payment_date" class="form-control form-control-sm" 
+                                                   value="{{ now()->format('Y-m-d') }}" required>
+                                        </div>
+                                        <div class="form-group mb-2">
+                                            <select name="payment_method" class="form-control form-control-sm" required>
+                                                <option value="">Select Payment Method</option>
+                                                <option value="Credit Card">Credit Card</option>
+                                                <option value="Debit Card">Debit Card</option>
+                                                <option value="GCash">GCash</option>
+                                                <option value="Maya">Maya</option>
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-success btn-sm">
+                                            <i class="fas fa-money-bill-wave"></i> Pay Now
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         @endif
     </div>
 </div>

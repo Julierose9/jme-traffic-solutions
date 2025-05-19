@@ -99,16 +99,62 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .table th, .table td {
             border: 1px solid #dddddd;
             text-align: left;
-            padding: 8px;
+            padding: 12px;
+            vertical-align: middle;
+            white-space: normal;
+            word-wrap: break-word;
         }
 
         .table th {
-            background-color: #f2f2f2;
+            background-color: #0a1f44;
+            color: white;
+            font-weight: 600;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .table-responsive {
+            overflow-x: visible;
+        }
+
+        .badge {
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 700;
+            line-height: 1;
+            color: #fff;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.25rem;
+        }
+
+        .bg-primary {
+            background-color: #0d6efd;
+        }
+
+        .bg-info {
+            background-color: #0dcaf0;
+        }
+
+        .bg-success {
+            background-color: #198754;
+        }
+
+        .text-monospace {
+            font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.875em;
         }
 
         .no-records {
@@ -146,68 +192,113 @@
         }
 
         .modal-content {
-            background-color: #fff;
-            margin: 10% auto;
+            background-color: #fefefe;
+            margin: 5% auto;
             padding: 20px;
             border: 1px solid #888;
-            width: 40%;
+            width: 70%;
+            max-width: 800px;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        .modal-content h2 {
-            margin-top: 0;
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .modal-header h2 {
+            margin: 0;
             font-size: 1.5rem;
+            color: #1a202c;
             font-weight: 600;
         }
 
-        .modal-content form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .modal-content label {
-            font-weight: 500;
-            margin-bottom: 5px;
-        }
-
-        .modal-content input,
-        .modal-content select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-
-        .modal-content button[type="submit"] {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-        }
-
-        .modal-content button[type="submit"]:hover {
-            background-color: #45a049;
-        }
-
         .close {
-            color: #aaa;
-            float: right;
-            font-size: 24px;
-            font-weight: bold;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #4a5568;
             cursor: pointer;
+            line-height: 1;
+            padding: 0.5rem;
         }
 
-        .close:hover,
-        .close:focus {
-            color: #000;
-            text-decoration: none;
+        .close:hover {
+            color: #1a202c;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            color: #2d3748;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .form-grid-2col {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            background-color: #fff;
+            color: #1a202c;
+            font-size: 0.875rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        .form-actions {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .btn-update {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #48bb78;
+            color: white;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-update:hover {
+            background-color: #38a169;
         }
 
         .btn-primary {
@@ -324,34 +415,65 @@
             color: #fff;
         }
         .table-responsive {
-            overflow-x: auto;
+            overflow-x: visible;
         }
         .table {
-            min-width: 900px;
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
         .table th, .table td {
-            white-space: nowrap;
-        }
-        .table th, .table td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 12px;
             vertical-align: middle;
+            white-space: normal;
+            word-wrap: break-word;
         }
-        .table th:nth-child(2), .table td:nth-child(2) {
-            min-width: 120px;
+        .table th {
+            background-color: #0a1f44;
+            color: white;
+            font-weight: 600;
+        }
+        .table tr:nth-child(even) {
+            background-color: #f8f9fa;
         }
         .action-buttons {
             display: flex;
-            gap: 10px;
+            gap: 5px;
+            align-items: center;
+            flex-wrap: wrap;
         }
-        .btn-edit-custom, .btn-delete-custom {
-            height: 40px;
-            min-width: 110px;
-            font-size: 1rem;
-            border-radius: 16px;
-            padding: 0 22px;
+        .btn-view-custom, .btn-edit-custom, .btn-delete-custom {
+            white-space: nowrap;
+        }
+        .btn-view-custom {
+            border: 2px solid #22c55e;
+            background: #fff;
+            color: #22c55e;
+            height: 35px;
+            min-width: 90px;
+            font-size: 0.9rem;
+            border-radius: 12px;
+            padding: 0 15px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
+            transition: background 0.2s, color 0.2s;
+            margin-right: 5px;
+        }
+        .btn-view-custom:hover {
+            background: #22c55e;
+            color: #fff;
+        }
+        .btn-view-custom i {
+            margin-right: 8px;
+            font-size: 1.2em;
         }
         .btn-edit-custom {
             background: #0090d0;
@@ -377,6 +499,47 @@
             margin-right: 8px;
             font-size: 1.2em;
         }
+
+        /* Add search container styles */
+        .search-container {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .search-container input {
+            width: 300px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 25px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-container input:focus {
+            border-color: #4CAF50;
+        }
+
+        .search-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 10px 15px;
+            margin-left: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-button i {
+            margin-right: 5px;
+        }
+
+        .search-button:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
@@ -399,16 +562,22 @@
         </div>
         <div class="main-content">
             <h1>Blacklist Management</h1>
+            
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search..." onkeyup="filterRecords()">
+                <button class="search-button" onclick="filterRecords()">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+
+            
+
             <div class="table-responsive">
-                <table class="table">
+                <table class="table" id="blacklistTable">
                     <thead>
                         <tr>
-                            <th>Blacklist ID</th>
-                            <th>Report ID</th>
                             <th>Plate Number</th>
-                            <th>Owner Last Name</th>
-                            <th>Owner First Name</th>
-                            <th>Violation Description</th>
+                            <th>Reason</th>
                             <th>Blacklist Type</th>
                             <th>Date Added</th>
                             <th>Status</th>
@@ -418,26 +587,30 @@
                     <tbody>
                         @if($blacklistedVehicles->isEmpty())
                             <tr>
-                                <td colspan="9" class="no-records">No blacklisted vehicles found.</td>
+                                <td colspan="6" class="no-records">No blacklisted vehicles found.</td>
                             </tr>
                         @else
                             @foreach($blacklistedVehicles as $vehicle)
                                 <tr>
-                                    <td>{{ $vehicle->blacklist_id }}</td>
-                                    <td>{{ $vehicle->report_id }}</td>
                                     <td>{{ $vehicle->registeredVehicle->plate_number }}</td>
-                                    <td>{{ $vehicle->owner->lname }}</td>
-                                    <td>{{ $vehicle->owner->fname }}</td>
-                                    <td>{{ $vehicle->violation_description }}</td>
+                                    <td>{{ $vehicle->reason }}</td>
                                     <td>{{ $vehicle->blacklist_type }}</td>
-                                    <td>{{ $vehicle->date_added }}</td>
+                                    <td>{{ date('Y-m-d', strtotime($vehicle->date_added)) }}</td>
                                     <td>
                                         <span class="badge {{ $vehicle->status === 'Active' ? 'badge-danger' : 'badge-success' }}">
                                             {{ $vehicle->status }}
                                         </span>
                                     </td>
-                                    <td>
-                                        <button class="btn-edit-custom" onclick="openEditModal('{{ $vehicle->blacklist_id }}', '{{ $vehicle->reg_vehicle_id }}', '{{ $vehicle->own_id }}', '{{ $vehicle->reason }}', '{{ $vehicle->blacklist_type }}', '{{ $vehicle->status }}', '{{ $vehicle->appeal_status }}')"><i class="fas fa-edit"></i> Edit</button> <button class="btn-delete-custom" onclick="openDeleteModal('{{ $vehicle->blacklist_id }}')"><i class="fas fa-trash"></i> Delete</button>
+                                    <td class="action-buttons">
+                                        <button class="btn-view-custom" onclick="openViewModal('{{ $vehicle->blacklist_id }}')">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+                                        <button class="btn-edit-custom" onclick="openEditModal('{{ $vehicle->blacklist_id }}', '{{ $vehicle->reg_vehicle_id }}', '{{ $vehicle->own_id }}', '{{ $vehicle->reason }}', '{{ $vehicle->blacklist_type }}', '{{ $vehicle->status }}', '{{ $vehicle->appeal_status }}', '{{ $vehicle->owner->lname }}, {{ $vehicle->owner->fname }} {{ $vehicle->owner->mname }}')">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                        <button class="btn-delete-custom" onclick="openDeleteModal('{{ $vehicle->blacklist_id }}')">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
                                     </td>
                                 </tr>
                             @endforeach
@@ -497,59 +670,163 @@
     <!-- Edit Blacklist Modal -->
     <div id="editModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeEditModal()">&times;</span>
-            <h2>Edit Blacklist Entry</h2>
+            <div class="modal-header">
+                <h2>Edit Vehicle and Owner Details</h2>
+                <span class="close" onclick="closeEditModal()">&times;</span>
+            </div>
             <form id="editForm" method="POST">
                 @csrf
                 @method('PUT')
-                <div>
-                    <label for="edit_reg_vehicle_id">Vehicle:</label>
-                    <select name="reg_vehicle_id" id="edit_reg_vehicle_id" required>
-                        @foreach($vehicles as $vehicle)
-                            <option value="{{ $vehicle->reg_vehicle_id }}">
-                                {{ $vehicle->plate_number }} - {{ $vehicle->brand }} {{ $vehicle->model }}
-                            </option>
-                        @endforeach
-                    </select>
+                
+                <!-- Owner Information Section -->
+                <div class="section">
+                    <h3 class="section-title">Owner Information</h3>
+                    <div class="form-grid-2col">
+                        <div class="form-group">
+                            <label for="edit_owner">Owner:</label>
+                            <input type="text" id="edit_owner" class="form-control" disabled>
+                            <input type="hidden" name="own_id" id="edit_own_id">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit_reason">Reason:</label>
+                            <input type="text" name="reason" id="edit_reason" required maxlength="255">
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <label for="edit_own_id">Owner:</label>
-                    <select name="own_id" id="edit_own_id" required>
-                        @foreach($owners as $owner)
-                            <option value="{{ $owner->own_id }}">
-                                {{ $owner->lname }}, {{ $owner->fname }} {{ $owner->mname }}
-                            </option>
-                        @endforeach
-                    </select>
+
+                <!-- Vehicle Information Section -->
+                <div class="section">
+                    <h3 class="section-title">Vehicle Information</h3>
+                    <div class="form-grid-2col">
+                        <div class="form-group">
+                            <label for="edit_reg_vehicle_id">Vehicle:</label>
+                            <select name="reg_vehicle_id" id="edit_reg_vehicle_id" required>
+                                @foreach($vehicles as $vehicle)
+                                    <option value="{{ $vehicle->reg_vehicle_id }}">
+                                        {{ $vehicle->plate_number }} - {{ $vehicle->brand }} {{ $vehicle->model }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit_blacklist_type">Blacklist Type:</label>
+                            <select name="blacklist_type" id="edit_blacklist_type" required>
+                                <option value="Violation-Based">Violation Based</option>
+                                <option value="License Suspension">License Suspension</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit_status">Status:</label>
+                            <select name="status" id="edit_status" required>
+                                <option value="Active">Active</option>
+                                <option value="Lifted">Lifted</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit_appeal_status">Appeal Status:</label>
+                            <select name="appeal_status" id="edit_appeal_status" required>
+                                <option value="Pending">Pending</option>
+                                <option value="Approved">Approved</option>
+                                <option value="Rejected">Rejected</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <label for="edit_reason">Reason:</label>
-                    <input type="text" name="reason" id="edit_reason" required maxlength="255">
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-update">Update Details</button>
                 </div>
-                <div>
-                    <label for="edit_blacklist_type">Blacklist Type:</label>
-                    <select name="blacklist_type" id="edit_blacklist_type" required>
-                        <option value="Violation-Based">Violation Based</option>
-                        <option value="License Suspension">License Suspension</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="edit_status">Status:</label>
-                    <select name="status" id="edit_status" required>
-                        <option value="Active">Active</option>
-                        <option value="Lifted">Lifted</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="edit_appeal_status">Appeal Status:</label>
-                    <select name="appeal_status" id="edit_appeal_status" required>
-                        <option value="Pending">Pending</option>
-                        <option value="Approved">Approved</option>
-                        <option value="Rejected">Rejected</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary">Update Blacklist Entry</button>
             </form>
+        </div>
+    </div>
+
+    <!-- View Modal -->
+    <div id="viewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Record Details</h2>
+                <button type="button" class="close" onclick="closeViewModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Vehicle Information Section -->
+                <div class="section">
+                    <h3 class="section-title">Vehicle Information</h3>
+                    <div class="form-grid-2col">
+                        <div class="form-group">
+                            <label>Plate Number:</label>
+                            <input type="text" id="viewPlateNumber" class="form-control" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Vehicle Type:</label>
+                            <input type="text" id="viewVehicleType" class="form-control" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Brand:</label>
+                            <input type="text" id="viewBrand" class="form-control" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Model:</label>
+                            <input type="text" id="viewModel" class="form-control" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Color:</label>
+                            <input type="text" id="viewColor" class="form-control" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Registration Date:</label>
+                            <input type="text" id="viewRegistrationDate" class="form-control" disabled>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Owner Information Section -->
+                <div class="section">
+                    <h3 class="section-title">Owner Information</h3>
+                    <div class="form-grid-2col">
+                        <div class="form-group">
+                            <label>Last Name:</label>
+                            <input type="text" id="viewOwnerLastName" class="form-control" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>First Name:</label>
+                            <input type="text" id="viewOwnerFirstName" class="form-control" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Middle Name:</label>
+                            <input type="text" id="viewOwnerMiddleName" class="form-control" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Address:</label>
+                            <input type="text" id="viewOwnerAddress" class="form-control" disabled>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Violation Information Section -->
+                <div class="section">
+                    <h3 class="section-title">Violation Information</h3>
+                    <div class="form-grid-2col">
+                        <div class="form-group">
+                            <label>Violation Code:</label>
+                            <input type="text" id="viewViolationCode" class="form-control" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Description:</label>
+                            <input type="text" id="viewViolationDescription" class="form-control" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Penalty Amount:</label>
+                            <input type="text" id="viewPenaltyAmount" class="form-control" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Status:</label>
+                            <input type="text" id="viewViolationStatus" class="form-control" disabled>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -562,7 +839,7 @@
             document.getElementById('addModal').style.display = 'none';
         }
 
-        function openEditModal(id, regVehicleId, ownId, reason, blacklistType, status, appealStatus) {
+        function openEditModal(id, regVehicleId, ownId, reason, blacklistType, status, appealStatus, ownerName) {
             const modal = document.getElementById('editModal');
             const form = document.getElementById('editForm');
 
@@ -572,6 +849,7 @@
             // Set form values
             document.getElementById('edit_reg_vehicle_id').value = regVehicleId;
             document.getElementById('edit_own_id').value = ownId;
+            document.getElementById('edit_owner').value = ownerName;
             document.getElementById('edit_reason').value = reason;
             document.getElementById('edit_blacklist_type').value = blacklistType;
             document.getElementById('edit_status').value = status;
@@ -622,6 +900,95 @@
         // Update button name
         document.getElementById('openModalBtn').onclick = function() {
             openAddModal();
+        }
+
+        // Add search functionality
+        function filterRecords() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById('blacklistTable');
+            const tr = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < tr.length; i++) {
+                const row = tr[i];
+                const cells = row.getElementsByTagName('td');
+                let found = false;
+                
+                for (let j = 0; j < cells.length; j++) {
+                    const cell = cells[j];
+                    if (cell) {
+                        const text = cell.textContent || cell.innerText;
+                        if (text.toLowerCase().indexOf(filter) > -1) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                
+                row.style.display = found ? '' : 'none';
+            }
+        }
+
+        async function openViewModal(blacklistId) {
+            try {
+                const response = await fetch(`/dashboard/admin/blacklist/${blacklistId}/details`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch details');
+                }
+
+                const data = await response.json();
+                
+                // Update Violation Information
+                const violationSection = document.querySelector('.form-grid:nth-child(1)');
+                if (data.violation) {
+                    document.getElementById('viewViolationCode').value = data.violation.violation_code;
+                    document.getElementById('viewViolationDescription').value = data.violation.description;
+                    document.getElementById('viewPenaltyAmount').value = typeof data.violation.penalty_amount === 'number' ? 
+                        `₱${parseFloat(data.violation.penalty_amount).toFixed(2)}` : 'N/A';
+                    document.getElementById('viewViolationStatus').value = data.violation.status;
+                } else {
+                    document.getElementById('viewViolationCode').value = 'N/A';
+                    document.getElementById('viewViolationDescription').value = 'N/A';
+                    document.getElementById('viewPenaltyAmount').value = 'N/A';
+                    document.getElementById('viewViolationStatus').value = 'N/A';
+                }
+
+                // Update Vehicle Information
+                if (data.vehicle) {
+                    document.getElementById('viewPlateNumber').value = data.vehicle.plate_number || 'N/A';
+                    document.getElementById('viewVehicleType').value = data.vehicle.vehicle_type || 'N/A';
+                    document.getElementById('viewBrand').value = data.vehicle.brand || 'N/A';
+                    document.getElementById('viewModel').value = data.vehicle.model || 'N/A';
+                    document.getElementById('viewColor').value = data.vehicle.color || 'N/A';
+                    document.getElementById('viewRegistrationDate').value = data.vehicle.registration_date ? 
+                        new Date(data.vehicle.registration_date).toLocaleDateString() : 'N/A';
+                }
+
+                // Update Owner Information
+                if (data.owner) {
+                    document.getElementById('viewOwnerLastName').value = data.owner.lname || 'N/A';
+                    document.getElementById('viewOwnerFirstName').value = data.owner.fname || 'N/A';
+                    document.getElementById('viewOwnerMiddleName').value = data.owner.mname || 'N/A';
+                    document.getElementById('viewOwnerAddress').value = data.owner.address || 'N/A';
+                }
+
+                // Show the modal
+                document.getElementById('viewModal').style.display = 'block';
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to load details: ' + error.message);
+            }
+        }
+
+        function closeViewModal() {
+            document.getElementById('viewModal').style.display = 'none';
         }
     </script>
 </body>

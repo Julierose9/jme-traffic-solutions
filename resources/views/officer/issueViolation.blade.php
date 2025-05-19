@@ -68,14 +68,24 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
         .table th, .table td {
             border: 1px solid #dddddd;
             text-align: left;
-            padding: 8px;
+            padding: 12px;
+            vertical-align: middle;
         }
         .table th {
-            background-color: #f2f2f2;
+            background-color: #0a1f44;
+            color: white;
+            font-weight: 600;
+        }
+        .table tr:nth-child(even) {
+            background-color: #f8f9fa;
         }
         .no-records {
             text-align: center;
@@ -166,30 +176,32 @@
             cursor: pointer;
         }
         .btn-delete-custom {
-            border: 2px solid #ef4444;
-            background: #fff;
-            color: #ef4444;
-            border-radius: 12px;
-            padding: 6px 18px;
+            background-color: #ef4444;
+            border: 1px solid #dc2626;
+            color: white;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 0.875rem;
             font-weight: 500;
-            transition: background 0.2s, color 0.2s;
+            transition: all 0.2s;
         }
         .btn-delete-custom:hover {
-            background: #ef4444;
-            color: #fff;
+            background-color: #dc2626;
+            border-color: #b91c1c;
         }
         .btn-edit-custom {
-            background: #0090d0;
-            color: #fff;
-            border: none;
-            border-radius: 12px;
-            padding: 6px 18px;
+            background-color: #3b82f6;
+            border: 1px solid #2563eb;
+            color: white;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 0.875rem;
             font-weight: 500;
-            transition: background 0.2s, color 0.2s;
+            transition: all 0.2s;
         }
         .btn-edit-custom:hover {
-            background: #0077b6;
-            color: #fff;
+            background-color: #2563eb;
+            border-color: #1d4ed8;
         }
         .btn-logout-custom {
             border: 2px solid #ef4444;
@@ -206,6 +218,7 @@
         }
         .table-responsive {
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
         .table {
             min-width: 900px;
@@ -216,7 +229,6 @@
         }
         .action-buttons {
             display: flex;
-            align-items: center;
             gap: 10px;
         }
         .status-text {
@@ -230,6 +242,9 @@
         }
         .status-text.hidden {
             opacity: 0;
+        }
+        .nowrap {
+            white-space: nowrap;
         }
     </style>
 </head>
@@ -252,32 +267,34 @@
         <div class="main-content">
             <h1>Violations</h1>
             <button class="btn" onclick="openGenerateViolationModal()">Generate Violation</button>
-            <table class="table" id="violationTable">
-                <thead>
-                    <tr>
-                        <th>Violation ID</th>
-                        <th>Violation Code</th>
-                        <th>Description</th>
-                        <th>Penalty Amount</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($violations as $violation)
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
                         <tr>
-                            <td>{{ $violation->violation_id }}</td>
-                            <td>{{ $violation->violation_code }}</td>
-                            <td>{{ $violation->description }}</td>
-                            <td>{{ $violation->penalty_amount }}</td>
-                            <td class="action-buttons">
-                                <button class="btn-edit-custom" data-id="{{ $violation->violation_id }}"><i class="fas fa-edit"></i> Edit</button>
-                                <button class="btn-delete-custom" data-id="{{ $violation->violation_id }}"><i class="fas fa-trash"></i> Delete</button>
-                                <span class="status-text hidden" data-id="{{ $violation->violation_id }}"></span>
-                            </td>
+                            <th>Violation ID</th>
+                            <th>Violation Code</th>
+                            <th>Description</th>
+                            <th>Penalty Amount</th>
+                            <th>Actions</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach($violations as $violation)
+                            <tr>
+                                <td>{{ $violation->violation_id }}</td>
+                                <td>{{ $violation->violation_code }}</td>
+                                <td>{{ $violation->description }}</td>
+                                <td class="nowrap">₱{{ number_format($violation->penalty_amount, 2) }}</td>
+                                <td class="action-buttons">
+                                    <button class="btn-edit-custom" data-id="{{ $violation->violation_id }}"><i class="fas fa-edit"></i> Edit</button>
+                                    <button class="btn-delete-custom" data-id="{{ $violation->violation_id }}"><i class="fas fa-trash"></i> Delete</button>
+                                    <span class="status-text hidden" data-id="{{ $violation->violation_id }}"></span>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 

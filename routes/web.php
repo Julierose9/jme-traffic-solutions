@@ -87,6 +87,7 @@ Route::prefix('dashboard/admin')->middleware(['web', 'auth'])->group(function ()
         Route::get('/violation-records', 'index')->name('violation.record');
         Route::get('/violation-records/create', 'create')->name('violation.records.create');
         Route::post('/violation-records', 'store')->name('violation.records.store');
+        Route::get('/violation-records/{id}', 'show')->name('violation.records.show');
     });
 
     // Blacklist Management
@@ -97,6 +98,7 @@ Route::prefix('dashboard/admin')->middleware(['web', 'auth'])->group(function ()
         Route::get('/blacklist/{id}/edit', 'edit')->name('blacklist.edit');
         Route::put('/blacklist/{id}', 'update')->name('blacklist.update');
         Route::delete('/blacklist/{id}', 'destroy')->name('blacklist.destroy');
+        Route::get('/blacklist/{id}/details', 'getDetails')->name('blacklist.details');
     });
 
         // License Suspension
@@ -109,9 +111,12 @@ Route::prefix('dashboard/admin')->middleware(['web', 'auth'])->group(function ()
 
     // Pay Fines
     Route::get('/pay-fines', [PayFinesController::class, 'adminIndex'])->name('admin.pay.fines');
-    });
 
-    // Officer Routes
+    // Owner Details Route
+    Route::get('/owners/{ownerId}', [App\Http\Controllers\OwnerController::class, 'getOwnerDetails'])->name('owner.details');
+});
+
+// Officer Routes
 Route::middleware(['auth'])->prefix('dashboard')->group(function () {
     Route::get('/officer', [App\Http\Controllers\OfficerDashboardController::class, 'index'])->name('dashboard.officer');
     Route::get('/officer/issue-violation', [ViolationController::class, 'create'])->name('officer.violation.issue');
