@@ -143,6 +143,44 @@
             margin-bottom: 1rem;
             color: #9ca3af;
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 8px;
+            position: relative;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal .close {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+        .modal .close:hover {
+            color: #000;
+        }
     </style>
 </head>
 <body>
@@ -174,33 +212,67 @@
                     <p>You currently have no active blacklist records in the system.</p>
                 </div>
             @else
-                @foreach($blacklistStatus as $status)
+                @foreach($blacklistStatus as $index => $status)
                     <div class="card">
                         <div class="card-header">
                             <h3 class="text-lg font-semibold mb-0">{{ $status->vehicle }}</h3>
                         </div>
-                        <div class="card-body">
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <p><strong>Type:</strong> {{ $status->type }}</p>
-                                    <p><strong>Date Added:</strong> {{ $status->date_added }}</p>
-                                    <p><strong>Reason:</strong> {{ $status->reason }}</p>
-                                </div>
-                                <div>
-                                    <p><strong>Description:</strong> {{ $status->description }}</p>
-                                    @if($status->report)
-                                        <div class="report-details">
-                                            <h5>Related Report Details</h5>
-                                            <p><strong>Date:</strong> {{ $status->report['date'] }}</p>
-                                            <p><strong>Location:</strong> {{ $status->report['location'] }}</p>
-                                            <p><strong>Details:</strong> {{ $status->report['details'] }}</p>
-                                        </div>
-                                    @endif
-                                </div>
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <p><strong>Blacklist Type:</strong> {{ $status->type }}</p>
                             </div>
+                            <button class="btn btn-info" onclick="openBlacklistDetailsModal({{ $index }})"><i class="fas fa-eye"></i> View</button>
                         </div>
                     </div>
                 @endforeach
+
+                <!-- Blacklist Details Modal -->
+                <div class="modal" id="blacklistDetailsModal" tabindex="-1" role="dialog">
+                    <div class="modal-content">
+                        <span class="close" onclick="closeBlacklistDetailsModal()">&times;</span>
+                        <h2>Blacklist Details</h2>
+                        <div id="blacklistDetailsContent"></div>
+                    </div>
+                </div>
+
+                <script>
+                    // Prepare all blacklist data in JS
+                    const blacklistData = @json($blacklistStatus);
+
+                    function openBlacklistDetailsModal(index) {
+                        const data = blacklistData[index];
+                        let html = '';
+                        html += `<p><strong>Type:</strong> ${data.type}</p>`;
+                        html += `<p><strong>Date Added:</strong> ${data.date_added || ''}</p>`;
+                        html += `<p><strong>Reason:</strong> ${data.reason || ''}</p>`;
+                        if (data.vehicle) html += `<p><strong>Vehicle:</strong> ${data.vehicle}</p>`;
+                        // Violations section
+                        if (data.violations && data.violations.length > 0) {
+                            html += '<div class="report-details">';
+                            html += '<h5>Unpaid Violations for this Vehicle</h5>';
+                            html += '<ul style="padding-left: 18px;">';
+                            data.violations.forEach(function(v) {
+                                html += `<li><strong>Code:</strong> ${v.violation_code || ''} <br><strong>Description:</strong> ${v.description || ''} <br><strong>Date:</strong> ${v.violation_date || ''} <br><strong>Status:</strong> ${v.status || ''}</li><hr>`;
+                            });
+                            html += '</ul>';
+                            html += '</div>';
+                        } else {
+                            html += '<div class="report-details"><em>No unpaid violation records found for this vehicle.</em></div>';
+                        }
+                        document.getElementById('blacklistDetailsContent').innerHTML = html;
+                        document.getElementById('blacklistDetailsModal').style.display = 'flex';
+                    }
+                    function closeBlacklistDetailsModal() {
+                        document.getElementById('blacklistDetailsModal').style.display = 'none';
+                    }
+                    // Close modal when clicking outside
+                    window.onclick = function(event) {
+                        const modal = document.getElementById('blacklistDetailsModal');
+                        if (event.target === modal) {
+                            closeBlacklistDetailsModal();
+                        }
+                    }
+                </script>
             @endif
         </div>
     </div>

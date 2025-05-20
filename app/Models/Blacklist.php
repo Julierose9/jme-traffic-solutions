@@ -48,4 +48,9 @@ class Blacklist extends Model
     {
         return $this->vehicle();
     }
+
+    public function violationRecords()
+    {
+        return $this->hasMany(\App\Models\ViolationRecord::class, 'reg_vehicle_id', 'reg_vehicle_id');
+    }
 }

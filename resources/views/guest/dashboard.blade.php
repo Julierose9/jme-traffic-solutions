@@ -376,9 +376,13 @@
         </div>
 
         <div class="main-content">
-            <h1 class="text-2xl font-bold">Guest Dashboard</h1>
-            <p class="text-gray-600 welcome-message">Welcome! Today is <strong>{{ date('l, F j, Y') }}</strong>.</p>
-            <button class="btn btn-info mb-4" onclick="openProfileModal()"><i class="fas fa-user"></i> View Profile</button>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1 class="text-2xl font-bold">Guest Dashboard</h1>
+                    <p class="text-gray-600 welcome-message">Welcome! Today is <strong>{{ date('l, F j, Y') }}</strong>.</p>
+                </div>
+                <button class="btn btn-info mb-4" style="margin-bottom:0;" onclick="openProfileModal()"><i class="fas fa-user"></i> View Profile</button>
+            </div>
             
             <div class="stats-card">
                 <h2>Your Registered Vehicles</h2>

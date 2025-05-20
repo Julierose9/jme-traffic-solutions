@@ -136,17 +136,31 @@ class BlacklistManagementController extends Controller
         $userId = auth()->id();
 
         // Get blacklist entries for the authenticated user's vehicles
-        $blacklistStatus = Blacklist::with(['vehicle', 'report'])
+        $blacklistStatus = Blacklist::with(['vehicle.violationRecords'])
             ->whereHas('vehicle.owner', function($query) use ($userId) {
                 $query->where('user_id', $userId);
             })
             ->where('status', 'Active')
             ->get()
             ->map(function($blacklist) {
+                $vehicle = $blacklist->vehicle;
+                // Only unpaid violations
+                $unpaidViolations = [];
+                if ($vehicle) {
+                    $unpaidViolations = $vehicle->violationRecords()
+                        ->where('status', 'unpaid')
+                        ->get()
+                        ->map(function($violation) {
+                            return [
+                                'violation_code' => $violation->violation_code,
+                                'description' => $violation->description,
+                                'violation_date' => $violation->violation_date,
+                                'status' => $violation->status,
+                            ];
+                        })->values();
+                }
                 return (object)[
-                    'vehicle' => $blacklist->vehicle->plate_number . ' - ' . 
-                                $blacklist->vehicle->brand . ' ' . 
-                                $blacklist->vehicle->model,
+                    'vehicle' => $vehicle ? ($vehicle->plate_number . ' - ' . $vehicle->brand . ' ' . $vehicle->model) : '',
                     'reason' => $blacklist->reason,
                     'type' => $blacklist->blacklist_type,
                     'date_added' => \Carbon\Carbon::parse($blacklist->date_added)->format('M d, Y'),
@@ -155,7 +169,8 @@ class BlacklistManagementController extends Controller
                         'details' => $blacklist->report->report_details,
                         'date' => \Carbon\Carbon::parse($blacklist->report->report_date)->format('M d, Y'),
                         'location' => $blacklist->report->location
-                    ] : null
+                    ] : null,
+                    'violations' => $unpaidViolations,
                 ];
             });
 
