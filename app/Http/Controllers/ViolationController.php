@@ -103,32 +103,45 @@ class ViolationController extends Controller
 
     public function update(Request $request, $id)
     {
-        $violationRecord = ViolationRecord::where('officer_id', Auth::user()->officer_id)
-            ->where('record_id', $id)
-            ->firstOrFail();
+        try {
+            $violation = Violation::findOrFail($id);
+            
+            $validatedData = $request->validate([
+                'violation_code' => 'required|string|max:10|regex:/^[a-zA-Z0-9-]{1,10}$/|unique:violations,violation_code,' . $id . ',violation_id',
+                'description' => 'required|string|max:255',
+                'penalty_amount' => 'required|numeric|min:0'
+            ]);
 
-        $validatedData = $request->validate([
-            'violation_id' => 'required|exists:violations,violation_id',
-            'reg_vehicle_id' => 'required|exists:registered_vehicles,reg_vehicle_id',
-            'violation_date' => 'required|date',
-            'location' => 'required|string',
-            'remarks' => 'required|string',
-            'status' => 'required|string',
-        ]);
+            $violation->update($validatedData);
 
-        $violationRecord->update($validatedData);
-
-        return redirect()->route('dashboard.officer')->with('success', 'Violation record updated successfully.');
+            return response()->json([
+                'success' => true,
+                'violation' => $violation,
+                'message' => 'Violation updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while updating the violation: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function destroy($id)
     {
-        $violationRecord = ViolationRecord::where('officer_id', Auth::user()->officer_id)
-            ->where('record_id', $id)
-            ->firstOrFail();
-        
-        $violationRecord->delete();
+        try {
+            $violation = Violation::findOrFail($id);
+            $violation->delete();
 
-        return redirect()->route('dashboard.officer')->with('success', 'Violation record deleted successfully.');
+            return response()->json([
+                'success' => true,
+                'message' => 'Violation deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while deleting the violation: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

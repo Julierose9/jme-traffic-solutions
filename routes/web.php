@@ -121,6 +121,8 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
     Route::get('/officer', [App\Http\Controllers\OfficerDashboardController::class, 'index'])->name('dashboard.officer');
     Route::get('/officer/issue-violation', [ViolationController::class, 'create'])->name('officer.violation.issue');
     Route::post('/officer/violation', [ViolationController::class, 'store'])->name('officer.violation.store');
+    Route::put('/officer/violation/{id}', [ViolationController::class, 'update'])->name('officer.violation.update');
+    Route::delete('/officer/violation/{id}', [ViolationController::class, 'destroy'])->name('officer.violation.destroy');
 
     // Reports
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');

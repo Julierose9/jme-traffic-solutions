@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Generate Violations</title>
+    <title>Generate Violations - Officer</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -222,14 +222,23 @@
         }
         .table {
             min-width: 900px;
+            width: 100%;
+            table-layout: fixed;
         }
         .table th, .table td {
-            white-space: nowrap;
+            white-space: normal;
             vertical-align: middle;
+            word-wrap: break-word;
+        }
+        .table th:nth-child(1),
+        .table td:nth-child(1) {
+            display: none;
         }
         .action-buttons {
             display: flex;
             gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 8px;
         }
         .status-text {
             margin-left: 10px;
@@ -244,7 +253,63 @@
             opacity: 0;
         }
         .nowrap {
-            white-space: nowrap;
+            white-space: normal;
+            word-wrap: break-word;
+        }
+        #editViolationModal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        #editViolationModal .modal-content {
+            background: #fff;
+            margin: 0 auto;
+            padding: 32px 28px 24px 28px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+        #editViolationModal .close {
+            position: absolute;
+            right: 18px;
+            top: 12px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+        #editViolationModal .close:hover,
+        #editViolationModal .close:focus {
+            color: #333;
+        }
+        #editViolationModal .form-group {
+            margin-bottom: 18px;
+        }
+        #editViolationModal .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        #editViolationModal .btn {
+            width: 100%;
+            padding: 12px 0;
+            font-size: 1rem;
+            border-radius: 6px;
+            margin-top: 8px;
         }
     </style>
 </head>
@@ -266,7 +331,16 @@
         </div>
         <div class="main-content">
             <h1>Violations</h1>
-            <button class="btn" onclick="openGenerateViolationModal()">Generate Violation</button>
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+                <button class="btn" onclick="openGenerateViolationModal()">Generate Violation</button>
+            </div>
+            <!-- Search Bar -->
+            <div class="search-container" style="margin-bottom: 20px; display: flex; align-items: center; justify-content: flex-end;">
+                <input type="text" id="violationSearchInput" placeholder="Search..." style="width: 300px; padding: 10px; border: 1px solid #ccc; border-radius: 25px; outline: none; transition: border-color 0.3s;">
+                <button class="search-button" onclick="filterViolationRecords()" style="background-color: #4CAF50; color: white; border: none; border-radius: 25px; padding: 10px 15px; margin-left: 10px; cursor: pointer; display: flex; align-items: center;">
+                    <i class="fas fa-search" style="margin-right: 5px;"></i> Search
+                </button>
+            </div>
             <div class="table-responsive">
                 <table class="table table-striped">
                     <thead>
@@ -280,16 +354,16 @@
                     </thead>
                     <tbody>
                         @foreach($violations as $violation)
-                            <tr>
+                            <tr data-violation-id="{{ $violation->violation_id }}">
                                 <td>{{ $violation->violation_id }}</td>
                                 <td>{{ $violation->violation_code }}</td>
                                 <td>{{ $violation->description }}</td>
                                 <td class="nowrap">₱{{ number_format($violation->penalty_amount, 2) }}</td>
-                                <td class="action-buttons">
+                                <td class="action-buttons-cell"><div class="action-buttons">
                                     <button class="btn-edit-custom" data-id="{{ $violation->violation_id }}"><i class="fas fa-edit"></i> Edit</button>
                                     <button class="btn-delete-custom" data-id="{{ $violation->violation_id }}"><i class="fas fa-trash"></i> Delete</button>
                                     <span class="status-text hidden" data-id="{{ $violation->violation_id }}"></span>
-                                </td>
+                                </div></td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -321,6 +395,32 @@
         </div>
     </div>
 
+    <!-- Edit Violation Modal -->
+    <div id="editViolationModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditViolationModal()">×</span>
+            <h2 style="text-align:left; margin-bottom: 20px;">Edit Violation</h2>
+            <form id="editViolationForm">
+                @csrf
+                @method('PUT')
+                <input type="hidden" id="edit_violation_id" name="violation_id">
+                <div class="form-group">
+                    <label for="edit_violation_code">Violation Code:</label>
+                    <input type="text" class="form-control" id="edit_violation_code" name="violation_code" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit_description">Description:</label>
+                    <input type="text" class="form-control" id="edit_description" name="description" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit_penalty_amount">Penalty Amount:</label>
+                    <input type="number" class="form-control" id="edit_penalty_amount" name="penalty_amount" required>
+                </div>
+                <button type="submit" class="btn">Update Violation</button>
+            </form>
+        </div>
+    </div>
+
     <script>
         function openGenerateViolationModal() {
             document.getElementById('generateViolationModal').style.display = 'block';
@@ -332,9 +432,14 @@
         }
 
         window.onclick = function(event) {
-            const violationModal = document.getElementById('generateViolationModal');
-            if (event.target === violationModal) {
+            const generateModal = document.getElementById('generateViolationModal');
+            const editModal = document.getElementById('editViolationModal');
+            
+            if (event.target === generateModal) {
                 closeGenerateViolationModal();
+            }
+            if (event.target === editModal) {
+                closeEditViolationModal();
             }
         }
 
@@ -407,11 +512,11 @@
                         <td>${violation.violation_code}</td>
                         <td>${violation.description}</td>
                         <td>${violation.penalty_amount}</td>
-                        <td class="action-buttons">
+                        <td class="action-buttons-cell"><div class="action-buttons">
                             <button class="btn-edit-custom" data-id="${violation.violation_id}"><i class="fas fa-edit"></i> Edit</button>
                             <button class="btn-delete-custom" data-id="${violation.violation_id}"><i class="fas fa-trash"></i> Delete</button>
                             <span class="status-text hidden" data-id="${violation.violation_id}"></span>
-                        </td>
+                        </div></td>
                     `;
 
                     alert(data.message || 'Violation generated successfully!');
@@ -468,6 +573,150 @@
         });
 
         document.getElementById('sidebarOpenModalBtn').addEventListener('click', openGenerateViolationModal);
+
+        // Edit Violation Modal Functions
+        function openEditViolationModal(violationId) {
+            const modal = document.getElementById('editViolationModal');
+            const form = document.getElementById('editViolationForm');
+            const row = document.querySelector(`tr[data-violation-id="${violationId}"]`);
+            
+            // Set the form action URL
+            form.action = `/dashboard/officer/violation/${violationId}`;
+            
+            // Fill the form with current values
+            document.getElementById('edit_violation_id').value = violationId;
+            document.getElementById('edit_violation_code').value = row.querySelector('td:nth-child(2)').textContent;
+            document.getElementById('edit_description').value = row.querySelector('td:nth-child(3)').textContent;
+            document.getElementById('edit_penalty_amount').value = row.querySelector('td:nth-child(4)').textContent.replace('₱', '').replace(',', '');
+            
+            modal.style.display = 'flex';
+        }
+
+        function closeEditViolationModal() {
+            document.getElementById('editViolationModal').style.display = 'none';
+            document.getElementById('editViolationForm').reset();
+        }
+
+        // Handle Edit Form Submit
+        document.getElementById('editViolationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const form = this;
+            const formData = new FormData(form);
+            const submitButton = form.querySelector('button[type="submit"]');
+            
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+
+            fetch(form.action, {
+                method: 'PUT',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const row = document.querySelector(`tr[data-violation-id="${formData.get('violation_id')}"]`);
+                    row.querySelector('td:nth-child(2)').textContent = data.violation.violation_code;
+                    row.querySelector('td:nth-child(3)').textContent = data.violation.description;
+                    row.querySelector('td:nth-child(4)').textContent = `₱${parseFloat(data.violation.penalty_amount).toLocaleString()}`;
+                    
+                    alert(data.message || 'Violation updated successfully!');
+                    closeEditViolationModal();
+                } else {
+                    alert(data.message || 'Failed to update violation');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the violation. Please try again.');
+            })
+            .finally(() => {
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Update Violation';
+            });
+        });
+
+        // Handle Delete Button Click
+        document.querySelectorAll('.btn-delete-custom').forEach(button => {
+            button.addEventListener('click', function() {
+                if (confirm('Are you sure you want to delete this violation?')) {
+                    const violationId = this.getAttribute('data-id');
+                    const row = this.closest('tr');
+                    const statusElement = row.querySelector('.status-text');
+                    
+                    statusElement.textContent = 'Deleting...';
+                    statusElement.classList.remove('hidden');
+
+                    fetch(`/dashboard/officer/violation/${violationId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        credentials: 'same-origin'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            statusElement.textContent = 'Deleted';
+                            setTimeout(() => {
+                                row.remove();
+                            }, 500);
+                        } else {
+                            statusElement.textContent = 'Error';
+                            statusElement.classList.add('error');
+                            setTimeout(() => {
+                                statusElement.classList.add('hidden');
+                                statusElement.classList.remove('error');
+                            }, 2000);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        statusElement.textContent = 'Error';
+                        statusElement.classList.add('error');
+                        setTimeout(() => {
+                            statusElement.classList.add('hidden');
+                            statusElement.classList.remove('error');
+                        }, 2000);
+                    });
+                }
+            });
+        });
+
+        // Handle Edit Button Click
+        document.querySelectorAll('.btn-edit-custom').forEach(button => {
+            button.addEventListener('click', function() {
+                const violationId = this.getAttribute('data-id');
+                openEditViolationModal(violationId);
+            });
+        });
+
+        // Violation Table Search Function
+        function filterViolationRecords() {
+            const input = document.getElementById('violationSearchInput');
+            const filter = input.value.toLowerCase();
+            const table = document.querySelector('.table');
+            const trs = table.querySelectorAll('tbody tr');
+            trs.forEach(tr => {
+                const code = tr.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                const desc = tr.querySelector('td:nth-child(3)').textContent.toLowerCase();
+                if (code.includes(filter) || desc.includes(filter)) {
+                    tr.style.display = '';
+                } else {
+                    tr.style.display = 'none';
+                }
+            });
+        }
+        // Enable live search as user types
+        document.getElementById('violationSearchInput').addEventListener('keyup', filterViolationRecords);
     </script>
 
     <script src="{{ asset('js/jquery.min.js') }}"></script>

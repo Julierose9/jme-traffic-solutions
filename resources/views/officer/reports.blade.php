@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Reports - Officer Dashboard</title>
+    <title>Reports - Officer</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -12,7 +12,7 @@
     <style>
         body {
     font-family: 'Poppins', sans-serif;
-    background-color: #e0e7ff;
+    background-color: #edf2f7;
     margin: 0; /* Ensure no default margin prevents scrolling */
     height: 100%; /* Allow body to expand with content */
 }
@@ -59,9 +59,7 @@
 .main-content {
     margin-left: 18rem;
     padding: 2rem;
-    overflow-y: auto; /* Ensure main content is scrollable */
-    height: 100vh; /* Full viewport height */
-    box-sizing: border-box; /* Include padding in height calculation */
+    box-sizing: border-box;
 }
 
 .btn {
@@ -125,6 +123,11 @@
     border: none;
     border-radius: 0.375rem;
     cursor: pointer;
+}
+
+.btn-logout-custom:hover {
+    background-color: #ef4444 !important;
+    color: #fff !important;
 }
 
 .modal {
@@ -259,12 +262,16 @@ form button:hover {
     background-color: #218838;
 }
 
-.btn-edit-custom, .btn-delete-custom {
-    padding: 6px 12px;
-    border-radius: 4px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    transition: all 0.2s;
+.btn-edit-custom, .btn-delete-custom, .btn-view-custom {
+    height: 35px;
+    min-width: 90px;
+    font-size: 0.9rem;
+    border-radius: 12px;
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
 }
 
 .btn-edit-custom {
@@ -321,8 +328,7 @@ form button:hover {
 }
 
 .table-responsive {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    /* No forced scrollbars */
 }
 
 .table {
@@ -362,6 +368,18 @@ form button:hover {
 .status-paid {
     background-color: #10b981;
 }
+
+.btn-view-custom {
+    border: 2px solid #22c55e;
+    background: #fff;
+    color: #22c55e;
+    transition: background 0.2s, color 0.2s;
+}
+
+.btn-view-custom:hover {
+    background: #22c55e;
+    color: #fff;
+}
     </style>
 </head>
 <body>
@@ -388,39 +406,48 @@ form button:hover {
                     {{ session('success') }}
                 </div>
             @endif
-            <button class="btn" onclick="openCreateReportModal()">Create Report</button>
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+                <button class="btn" onclick="openCreateReportModal()">Create Report</button>
+            </div>
+            <!-- Search Bar -->
+            <div class="search-container" style="margin-bottom: 20px; display: flex; align-items: center; justify-content: flex-end;">
+                <input type="text" id="reportSearchInput" placeholder="Search..." style="width: 300px; padding: 10px; border: 1px solid #ccc; border-radius: 25px; outline: none; transition: border-color 0.3s;">
+                <button class="search-button" onclick="filterReportRecords()" style="background-color: #4CAF50; color: white; border: none; border-radius: 25px; padding: 10px 15px; margin-left: 10px; cursor: pointer; display: flex; align-items: center;">
+                    <i class="fas fa-search" style="margin-right: 5px;"></i> Search
+                </button>
+            </div>
 
             <div class="table-responsive">
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>Report ID</th>
                             <th>Violation</th>
                             <th>Vehicle</th>
                             <th>Owner</th>
                             <th>Report Date</th>
-                            <th>Location</th>
-                            <th>Details</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($reports as $report)
+                        @foreach($reports->reverse() as $report)
                             <tr>
-                                <td>{{ $report->report_id }}</td>
                                 <td>{{ $report->violation->violation_code }}</td>
                                 <td class="nowrap">{{ $report->vehicle->plate_number }}</td>
                                 <td class="nowrap">{{ $report->owner->fname }} {{ $report->owner->lname }}</td>
                                 <td class="nowrap">{{ $report->report_date->format('M d, Y') }}</td>
-                                <td>{{ $report->location }}</td>
-                                <td>{{ $report->report_details }}</td>
                                 <td>
                                     <span class="status-badge status-{{ strtolower($report->status) }}">
                                         {{ ucfirst($report->status) }}
                                     </span>
                                 </td>
                                 <td class="action-buttons">
+                                    <button class="btn-view-custom" 
+                                        data-location="{{ $report->location }}" 
+                                        data-details="{{ $report->report_details }}"
+                                        onclick="openViewReportModal(this)">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
                                     <button class="btn-edit-custom" onclick="openEditReportModal({{ $report->report_id }})">
                                         <i class="fas fa-edit"></i> Edit
                                     </button>
@@ -544,13 +571,26 @@ form button:hover {
                                 <option value="completed">Completed</option>
                             </select>
                         </div>
-                        <div class="btn-container">
-                            <button type="submit" class="btn-submit">Update Report</button>
-                            <button type="button" class="btn-secondary" onclick="closeEditReportModal()">Cancel</button>
-                        </div>
+                        <button type="submit" class="btn-submit" style="width: 100%; grid-column: 1 / -1;">Update Report</button>
                     </div>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- View Report Modal -->
+    <div id="viewReportModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <span class="close" onclick="closeViewReportModal()">×</span>
+            <h2 style="margin-bottom: 20px;">Report Details</h2>
+            <div class="form-group">
+                <label><strong>Location:</strong></label>
+                <div id="viewReportLocation" style="margin-bottom: 12px;"></div>
+            </div>
+            <div class="form-group">
+                <label><strong>Details:</strong></label>
+                <div id="viewReportDetails"></div>
+            </div>
         </div>
     </div>
 
@@ -720,12 +760,52 @@ form button:hover {
         window.onclick = function(event) {
             const createModal = document.getElementById('createReportModal');
             const editModal = document.getElementById('editReportModal');
+            const viewModal = document.getElementById('viewReportModal');
             if (event.target === createModal) {
                 closeCreateReportModal();
             } else if (event.target === editModal) {
                 closeEditReportModal();
+            } else if (event.target === viewModal) {
+                closeViewReportModal();
             }
         }
+
+        // View Report Modal Functions
+        function openViewReportModal(btn) {
+            document.getElementById('viewReportLocation').textContent = btn.getAttribute('data-location');
+            document.getElementById('viewReportDetails').textContent = btn.getAttribute('data-details');
+            document.getElementById('viewReportModal').style.display = 'block';
+        }
+        function closeViewReportModal() {
+            document.getElementById('viewReportModal').style.display = 'none';
+        }
+
+        // Report Table Search Function
+        function filterReportRecords() {
+            const input = document.getElementById('reportSearchInput');
+            const filter = input.value.toLowerCase();
+            const table = document.querySelector('.table');
+            const trs = table.querySelectorAll('tbody tr');
+            trs.forEach(tr => {
+                // Search in violation code, vehicle, owner, status
+                const violation = tr.querySelector('td:nth-child(1)').textContent.toLowerCase();
+                const vehicle = tr.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                const owner = tr.querySelector('td:nth-child(3)').textContent.toLowerCase();
+                const status = tr.querySelector('td:nth-child(5)').textContent.toLowerCase();
+                if (
+                    violation.includes(filter) ||
+                    vehicle.includes(filter) ||
+                    owner.includes(filter) ||
+                    status.includes(filter)
+                ) {
+                    tr.style.display = '';
+                } else {
+                    tr.style.display = 'none';
+                }
+            });
+        }
+        // Enable live search as user types
+        document.getElementById('reportSearchInput').addEventListener('keyup', filterReportRecords);
     </script>
     <script src="{{ asset('js/jquery.min.js') }}"></script>
     <script src="{{ asset('js/popper.min.js') }}"></script>
