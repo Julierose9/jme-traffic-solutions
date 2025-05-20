@@ -136,7 +136,7 @@ class BlacklistManagementController extends Controller
         $userId = auth()->id();
 
         // Get blacklist entries for the authenticated user's vehicles
-        $blacklistStatus = Blacklist::with(['vehicle.violationRecords'])
+        $blacklistStatus = Blacklist::with(['vehicle.violationRecords', 'vehicle.reports'])
             ->whereHas('vehicle.owner', function($query) use ($userId) {
                 $query->where('user_id', $userId);
             })
@@ -146,16 +146,28 @@ class BlacklistManagementController extends Controller
                 $vehicle = $blacklist->vehicle;
                 // Only unpaid violations
                 $unpaidViolations = [];
-                if ($vehicle) {
-                    $unpaidViolations = $vehicle->violationRecords()
+                if ($vehicle && $vehicle->violationRecords) {
+                    $unpaidViolations = $vehicle->violationRecords
                         ->where('status', 'unpaid')
-                        ->get()
                         ->map(function($violation) {
                             return [
                                 'violation_code' => $violation->violation_code,
                                 'description' => $violation->description,
                                 'violation_date' => $violation->violation_date,
                                 'status' => $violation->status,
+                            ];
+                        })->values();
+                }
+                // Fetch all pending reports for this vehicle
+                $pendingReports = [];
+                if ($vehicle && $vehicle->reports) {
+                    $pendingReports = $vehicle->reports
+                        ->where('status', 'pending')
+                        ->map(function($report) {
+                            return [
+                                'details' => $report->report_details,
+                                'date' => $report->report_date ? \Carbon\Carbon::parse($report->report_date)->format('M d, Y') : '',
+                                'location' => $report->location
                             ];
                         })->values();
                 }
@@ -171,6 +183,7 @@ class BlacklistManagementController extends Controller
                         'location' => $blacklist->report->location
                     ] : null,
                     'violations' => $unpaidViolations,
+                    'pending_reports' => $pendingReports,
                 ];
             });
 

@@ -118,20 +118,25 @@ class PayFinesController extends Controller
                 $type = class_basename($payment->payable_type);
                 
                 // Get vehicle and violation details based on payable type
-                if ($type === 'ViolationRecord') {
-                    $vehicle = $payable->registeredVehicle;
-                    $violation = $payable->violation;
-                } else { // Report
-                    $vehicle = $payable->vehicle;
-                    $violation = $payable->violation;
+                if ($payable) {
+                    if ($type === 'ViolationRecord') {
+                        $vehicle = $payable->registeredVehicle;
+                        $violation = $payable->violation;
+                    } else { // Report
+                        $vehicle = $payable->vehicle;
+                        $violation = $payable->violation;
+                    }
+                } else {
+                    $vehicle = null;
+                    $violation = null;
                 }
 
                 return (object)[
                     'payment_id' => $payment->payment_id,
                     'date' => $payment->payment_date->format('M d, Y H:i'),
                     'type' => $type,
-                    'vehicle' => $vehicle->plate_number . ' - ' . $vehicle->brand . ' ' . $vehicle->model,
-                    'violation' => $violation->violation_code,
+                    'vehicle' => $vehicle ? ($vehicle->plate_number . ' - ' . $vehicle->brand . ' ' . $vehicle->model) : 'N/A',
+                    'violation' => $violation ? $violation->violation_code : 'N/A',
                     'amount' => $payment->amount_paid,
                     'payment_method' => $payment->payment_method,
                     'transaction_reference' => $payment->transaction_reference,

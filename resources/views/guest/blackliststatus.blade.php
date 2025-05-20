@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Blacklist Status - JME Traffic Violation System</title>
+    <title>Blacklist Status - Guest</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -219,7 +219,7 @@
                         </div>
                         <div class="card-body d-flex justify-content-between align-items-center">
                             <div>
-                                <p><strong>Blacklist Type:</strong> {{ $status->type }}</p>
+                                <p><strong>Type:</strong> {{ $status->type }}</p>
                             </div>
                             <button class="btn btn-info" onclick="openBlacklistDetailsModal({{ $index }})"><i class="fas fa-eye"></i> View</button>
                         </div>
@@ -242,22 +242,30 @@
                     function openBlacklistDetailsModal(index) {
                         const data = blacklistData[index];
                         let html = '';
-                        html += `<p><strong>Type:</strong> ${data.type}</p>`;
                         html += `<p><strong>Date Added:</strong> ${data.date_added || ''}</p>`;
-                        html += `<p><strong>Reason:</strong> ${data.reason || ''}</p>`;
                         if (data.vehicle) html += `<p><strong>Vehicle:</strong> ${data.vehicle}</p>`;
+                        html += `<p><strong>Description:</strong> ${data.description || ''}</p>`;
                         // Violations section
                         if (data.violations && data.violations.length > 0) {
                             html += '<div class="report-details">';
-                            html += '<h5>Unpaid Violations for this Vehicle</h5>';
+                            html += '<h5>All Violations for this Vehicle</h5>';
                             html += '<ul style="padding-left: 18px;">';
                             data.violations.forEach(function(v) {
                                 html += `<li><strong>Code:</strong> ${v.violation_code || ''} <br><strong>Description:</strong> ${v.description || ''} <br><strong>Date:</strong> ${v.violation_date || ''} <br><strong>Status:</strong> ${v.status || ''}</li><hr>`;
                             });
                             html += '</ul>';
                             html += '</div>';
-                        } else {
-                            html += '<div class="report-details"><em>No unpaid violation records found for this vehicle.</em></div>';
+                        }
+                        // All pending reports (if any)
+                        if (data.pending_reports && data.pending_reports.length > 0) {
+                            html += '<div class="report-details">';
+                            html += '<h5>All Pending Reports for this Vehicle</h5>';
+                            html += '<ul style="padding-left: 18px;">';
+                            data.pending_reports.forEach(function(r) {
+                                html += `<li><strong>Date:</strong> ${r.date || ''} <br><strong>Location:</strong> ${r.location || ''} <br><strong>Details:</strong> ${r.details || ''}</li><hr>`;
+                            });
+                            html += '</ul>';
+                            html += '</div>';
                         }
                         document.getElementById('blacklistDetailsContent').innerHTML = html;
                         document.getElementById('blacklistDetailsModal').style.display = 'flex';

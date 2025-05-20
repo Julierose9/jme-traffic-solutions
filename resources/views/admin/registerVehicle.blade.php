@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Register Vehicle - Admin Dashboard</title>
+    <title>Register Vehicle - Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -456,6 +456,20 @@
             border-top: 1px solid #dee2e6;
             padding: 1rem;
         }
+
+        .btn-logout-custom {
+            border: 2px solid #ef4444;
+            background: #fff;
+            color: #ef4444;
+            border-radius: 12px;
+            padding: 6px 18px;
+            font-weight: 500;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-logout-custom:hover {
+            background: #ef4444;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -472,7 +486,7 @@
             <div class="logout-btn">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                    <button type="submit" class="btn-logout-custom"><i class="fas fa-sign-out-alt"></i> Logout</button>
                 </form>
             </div>
         </div>
